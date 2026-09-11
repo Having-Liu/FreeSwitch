@@ -1,0 +1,192 @@
+import SwiftUI
+import Carbon.HIToolbox
+
+struct SettingsView: View {
+    @ObservedObject private var prefs = Preferences.shared
+    @State private var launchAtLogin = Preferences.shared.launchAtLogin
+    @State private var pairedDevices: [BluetoothController.Device] = []
+    @State private var dndConfigured = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            header
+            Divider()
+            List {
+                Section("开关（拖动排序，勾选显示）") {
+                    ForEach(prefs.order, id: \.self) { id in
+                        if let item = SwitchCatalog.item(id) {
+                            row(for: item)
+                        }
+                    }
+                    .onMove { offsets, destination in
+                        prefs.move(fromOffsets: offsets, toOffset: destination)
+                    }
+                }
+
+                Section("耳机连接（选择“耳机连接”开关要一键连/断的设备）") {
+                    Picker("目标设备", selection: Binding(
+                        get: { prefs.headphoneAddress ?? "" },
+                        set: { prefs.headphoneAddress = $0.isEmpty ? nil : $0 }
+                    )) {
+                        Text("未选择（点开关将打开蓝牙设置）").tag("")
+                        ForEach(pairedDevices) { device in
+                            Text(device.name).tag(device.id)
+                        }
+                        // 保证已保存但未在列表里的设备也能显示为已选。
+                        if let saved = prefs.headphoneAddress,
+                           !pairedDevices.contains(where: { $0.id == saved }) {
+                            Text(saved).tag(saved)
+                        }
+                    }
+                    Button("加载已配对的蓝牙设备（需授权）") {
+                        pairedDevices = BluetoothController.pairedDevices()
+                    }
+                }
+
+                Section("勿扰 / 专注（需一次性设置）") {
+                    Text("macOS 不允许第三方 App 直接切换「专注」。请在「快捷指令」新建一个名为 “FreeSwitch DND” 的快捷指令，加入动作「设定专注 → 勿扰 → 切换」。之后点面板里的「勿扰 / 专注」即可一键切换。")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    HStack {
+                        Button("打开快捷指令 App") { FocusController.openShortcutsApp() }
+                        Button("重新检测") { dndConfigured = FocusController.isConfigured() }
+                        Spacer()
+                        if dndConfigured {
+                            Label("已就绪", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                        } else {
+                            Label("未检测到快捷指令", systemImage: "exclamationmark.circle").foregroundStyle(.orange)
+                        }
+                    }
+                }
+            }
+            .listStyle(.inset)
+            Divider()
+            footer
+        }
+        .frame(width: 480, height: 600)
+        .onAppear {
+            NSApp.setActivationPolicy(.regular)
+            NSApp.activate(ignoringOtherApps: true)
+            dndConfigured = FocusController.isConfigured()
+        }
+        .onDisappear {
+            NSApp.setActivationPolicy(.accessory)
+        }
+    }
+
+    private func row(for item: SwitchItem) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "line.3.horizontal")
+                .foregroundStyle(.tertiary)
+            Image(systemName: item.symbol)
+                .frame(width: 22)
+                .foregroundStyle(Color.accentColor)
+            Text(item.title)
+                .frame(width: 120, alignment: .leading)
+
+            Spacer()
+
+            if item.kind != .picker {
+                HotkeyRecorderView(id: item.id, prefs: prefs)
+            }
+
+            Toggle("", isOn: Binding(
+                get: { prefs.isVisible(item.id) },
+                set: { prefs.setVisible(item.id, $0) }
+            ))
+            .labelsHidden()
+            .toggleStyle(.switch)
+            .controlSize(.mini)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var header: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "switch.2")
+                .font(.title2)
+                .foregroundStyle(Color.accentColor)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("FreeSwitch 设置").font(.headline)
+                Text("自定义菜单栏面板与全局快捷键").font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding(16)
+    }
+
+    private var footer: some View {
+        HStack {
+            Toggle("开机自动启动", isOn: Binding(
+                get: { launchAtLogin },
+                set: { newValue in
+                    prefs.launchAtLogin = newValue
+                    launchAtLogin = prefs.launchAtLogin
+                }
+            ))
+            .toggleStyle(.checkbox)
+
+            Spacer()
+
+            Button("全部显示") {
+                for id in SwitchCatalog.defaultIDs { prefs.setVisible(id, true) }
+            }
+            Button("恢复默认顺序") {
+                prefs.order = SwitchCatalog.defaultIDs
+            }
+        }
+        .padding(16)
+    }
+}
+
+/// 快捷键录制控件：点击后按下组合键即记录。
+struct HotkeyRecorderView: View {
+    let id: String
+    @ObservedObject var prefs: Preferences
+    @State private var recording = false
+    @State private var monitor: Any?
+
+    var body: some View {
+        Button(action: toggle) {
+            Text(label)
+                .font(.system(.caption, design: .rounded))
+                .frame(minWidth: 84)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(recording ? Color.accentColor.opacity(0.25) : Color.primary.opacity(0.08))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .strokeBorder(recording ? Color.accentColor : Color.clear, lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+        .help("点击后按下快捷键；Esc 取消，Delete 清除")
+        .onDisappear(perform: stop)
+    }
+
+    private var label: String {
+        if recording { return "按下…" }
+        return prefs.hotkeys[id]?.display ?? "未设置"
+    }
+
+    private func toggle() { recording ? stop() : start() }
+
+    private func start() {
+        recording = true
+        monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
+            if event.keyCode == UInt16(kVK_Escape) { stop(); return nil }
+            if event.keyCode == UInt16(kVK_Delete) { prefs.setHotkey(nil, for: id); stop(); return nil }
+            if let hotkey = Hotkey(event: event) { prefs.setHotkey(hotkey, for: id); stop(); return nil }
+            return nil
+        }
+    }
+
+    private func stop() {
+        recording = false
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
+    }
+}
