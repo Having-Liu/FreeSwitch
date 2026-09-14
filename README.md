@@ -64,6 +64,23 @@ xcodebuild -project FreeSwitch.xcodeproj -scheme FreeSwitch -configuration Relea
 
 App 未开启沙盒，因此不能上架 Mac App Store；自行签名分发即可。
 
+## 公证与分发（可选）
+
+自己编译的 App 没经过 Apple 公证，弹管理员/权限框时会带「Apple 无法验证是否含恶意软件」的吓人措辞。用你自己的付费 Apple 开发者账号公证一次即可去掉：
+
+```bash
+# 一次性存好凭据（app 专用密码在 appleid.apple.com 生成）
+xcrun notarytool store-credentials freeswitch-notary \
+  --apple-id "you@example.com" --team-id MXHBUQH27V --password "app-专用密码"
+
+# 公证（构建 Release + 签名 + 提交 + 装订票据）
+NOTARY_PROFILE=freeswitch-notary ./scripts/notarize.sh
+```
+
+脚本见 [scripts/notarize.sh](scripts/notarize.sh)。需要钥匙串里有「Developer ID Application」证书（Xcode ▸ 设置 ▸ Accounts ▸ Manage Certificates 里添加）。公证需要加固运行时，`FreeSwitch.entitlements` 已声明发送 Apple 事件的权限。
+
+> 注意：公证只去掉「无法验证恶意软件」这句，**不会**减少管理员密码框的出现次数——那取决于是否装了下面的特权助手。
+
 ## 已知限制
 
 - **夜览 / 原彩**依赖私有框架 `CoreBrightness`，仅在支持的机型上可用；不同 macOS 版本行为可能变化。
