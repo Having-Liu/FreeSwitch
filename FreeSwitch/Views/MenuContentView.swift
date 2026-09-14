@@ -25,7 +25,9 @@ struct MenuContentView: View {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 10) {
                         ForEach(visibleItems) { item in
-                            if item.kind == .picker {
+                            if item.id == "keepAwake" {
+                                KeepAwakeTileView(item: item)
+                            } else if item.kind == .picker {
                                 ResolutionTileView(item: item)
                             } else {
                                 SwitchTileView(item: item, isFlashing: store.flashingID == item.id) {

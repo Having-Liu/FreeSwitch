@@ -106,6 +106,15 @@ final class SwitchStore: ObservableObject {
         setOn("trueTone", trueToneOK && AppearanceController.isTrueToneOn())
 
         setOn("keepAwake", PowerController.shared.keepAwake)
+        if PowerController.shared.keepAwake {
+            if let m = PowerController.shared.remainingMinutes {
+                setDetail("keepAwake", "剩 \(m) 分")
+            } else {
+                setDetail("keepAwake", "一直")
+            }
+        } else {
+            setDetail("keepAwake", nil)
+        }
         setOn("lowPowerMode", SystemController.lowPowerModeEnabled())
         setOn("muteMic", AudioController.micMuted())
         setOn("hideDesktop", SystemController.desktopIconsHidden())

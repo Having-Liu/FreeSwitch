@@ -8,20 +8,41 @@ final class PowerController {
 
     private var assertionID: IOPMAssertionID = 0
     private(set) var keepAwake = false
+    private(set) var keepAwakeDeadline: Date?   // nil = 一直亮屏（无限）
+    private var autoOffTask: Task<Void, Never>?
 
-    /// 保持亮屏：创建一个阻止显示器与系统闲置休眠的断言。
-    func setKeepAwake(_ on: Bool) {
+    /// 剩余分钟（向上取整）；一直亮屏或未开启时返回 nil。
+    var remainingMinutes: Int? {
+        guard let deadline = keepAwakeDeadline else { return nil }
+        return max(0, Int(ceil(deadline.timeIntervalSinceNow / 60)))
+    }
+
+    /// 保持亮屏。minutes 为 nil 表示一直亮屏；否则到点自动关闭。
+    func setKeepAwake(_ on: Bool, minutes: Int? = nil) {
+        autoOffTask?.cancel()
+        autoOffTask = nil
+        keepAwakeDeadline = nil
+
         if on {
-            var id: IOPMAssertionID = 0
-            let result = IOPMAssertionCreateWithName(
-                kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString,
-                IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                "FreeSwitch 保持亮屏" as CFString,
-                &id
-            )
-            if result == kIOReturnSuccess {
-                assertionID = id
-                keepAwake = true
+            if assertionID == 0 {
+                var id: IOPMAssertionID = 0
+                let result = IOPMAssertionCreateWithName(
+                    kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString,
+                    IOPMAssertionLevel(kIOPMAssertionLevelOn),
+                    "FreeSwitch 保持亮屏" as CFString,
+                    &id
+                )
+                if result == kIOReturnSuccess { assertionID = id }
+            }
+            keepAwake = assertionID != 0
+            if keepAwake, let minutes, minutes > 0 {
+                keepAwakeDeadline = Date().addingTimeInterval(TimeInterval(minutes) * 60)
+                autoOffTask = Task { [weak self] in
+                    try? await Task.sleep(nanoseconds: UInt64(minutes) * 60 * 1_000_000_000)
+                    if Task.isCancelled { return }
+                    self?.setKeepAwake(false)
+                    SwitchStore.shared.refresh()
+                }
             }
         } else {
             if assertionID != 0 {

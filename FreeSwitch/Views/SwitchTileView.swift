@@ -52,6 +52,72 @@ struct SwitchTileView: View {
     }
 }
 
+/// 保持亮屏磁贴：点击弹出时长菜单（一直 / 30 分 / 1 小时 / 2 小时 / 关闭）。
+/// 全局热键仍可直接切换“一直亮屏”。
+struct KeepAwakeTileView: View {
+    let item: SwitchItem
+    @EnvironmentObject private var store: SwitchStore
+
+    var body: some View {
+        Menu {
+            Button { apply(nil) } label: {
+                menuRow("一直亮屏", checked: item.isOn && PowerController.shared.keepAwakeDeadline == nil)
+            }
+            Button { apply(30) } label: { Text("30 分钟") }
+            Button { apply(60) } label: { Text("1 小时") }
+            Button { apply(120) } label: { Text("2 小时") }
+            if item.isOn {
+                Divider()
+                Button("关闭") { apply(off: true) }
+            }
+        } label: {
+            VStack(spacing: 5) {
+                Image(systemName: item.symbol)
+                    .font(.system(size: 20, weight: .medium))
+                    .frame(height: 24)
+                Text(item.title)
+                    .font(.system(size: 11))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                if let detail = item.detail {
+                    Text(detail)
+                        .font(.system(size: 9))
+                        .lineLimit(1)
+                        .opacity(0.85)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 64)
+            .foregroundStyle(item.isOn ? Color.white : Color.primary)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(item.isOn ? Color.accentColor : Color.primary.opacity(0.06))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+            )
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+    }
+
+    private func apply(_ minutes: Int?) {
+        PowerController.shared.setKeepAwake(true, minutes: minutes)
+        store.refresh()
+    }
+
+    private func apply(off: Bool) {
+        PowerController.shared.setKeepAwake(false)
+        store.refresh()
+    }
+
+    @ViewBuilder
+    private func menuRow(_ title: String, checked: Bool) -> some View {
+        if checked { Label(title, systemImage: "checkmark") } else { Text(title) }
+    }
+}
+
 /// 分辨率磁贴：点击弹出分辨率菜单。多显示器时每块屏一个子菜单。
 struct ResolutionTileView: View {
     let item: SwitchItem

@@ -12,7 +12,7 @@
 | 黑暗模式 | 切换浅色 / 深色外观 | System Events（需“自动化”授权） |
 | 夜览 | Night Shift 开关 | CoreBrightness（私有框架，运行时动态调用） |
 | 原彩显示 | True Tone 开关 | CoreBrightness |
-| 保持亮屏 | 阻止屏幕/系统休眠 | IOKit 电源断言 |
+| 保持亮屏 | 阻止屏幕/系统休眠，可选一直 / 30 分 / 1 小时 / 2 小时定时 | IOKit 电源断言 |
 | 低电量模式 | 开/关低电量模式 | `pmset -a lowpowermode`（切换时弹管理员密码） |
 | 麦克风静音 | 静音默认输入设备（不支持 mute 的设备回退为输入音量置 0） | CoreAudio |
 | 隐藏桌面 | 隐藏/显示桌面图标 | `defaults` + 重启 Finder |
