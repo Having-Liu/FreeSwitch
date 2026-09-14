@@ -3,7 +3,7 @@ import Foundation
 /// 运行命令行工具与 AppleScript 的小工具（非沙盒环境）。
 enum Shell {
     @discardableResult
-    static func run(_ launchPath: String, _ args: [String]) -> (status: Int32, output: String) {
+    nonisolated static func run(_ launchPath: String, _ args: [String]) -> (status: Int32, output: String) {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: launchPath)
         process.arguments = args

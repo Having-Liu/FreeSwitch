@@ -3,7 +3,7 @@ import ApplicationServices
 import CoreGraphics
 
 // 事件拦截模式的位标记（供 C 回调与主线程共用的全局状态）。
-// 1 = 拦截键盘, 2 = 拦截鼠标, 4 = 屏幕清洁时放行 Esc
+// 1 = 拦截键盘, 2 = 拦截鼠标
 nonisolated(unsafe) private var fsBlockerMask: UInt64 = 0
 
 /// CGEventTap 的 C 回调：根据全局位标记吞掉相应事件。
@@ -12,13 +12,7 @@ private let fsInputTapCallback: CGEventTapCallBack = { _, type, event, _ in
     let mask = fsBlockerMask
     switch type {
     case .keyDown, .keyUp, .flagsChanged:
-        if mask & 1 != 0 {
-            let isEscape = event.getIntegerValueField(.keyboardEventKeycode) == 53
-            if mask & 4 != 0 && isEscape {
-                return Unmanaged.passUnretained(event) // 放行 Esc 以退出屏幕清洁
-            }
-            return nil
-        }
+        if mask & 1 != 0 { return nil } // 拦截全部键盘输入（含 Esc），避免擦键盘时误触
     case .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp,
          .mouseMoved, .leftMouseDragged, .rightMouseDragged, .scrollWheel,
          .otherMouseDown, .otherMouseUp, .otherMouseDragged:
@@ -56,7 +50,7 @@ final class InputBlocker {
     // MARK: 屏幕清洁
     func startScreenClean() {
         guard ensureAccessibility(), ensureTap() else { return }
-        fsBlockerMask |= (1 | 4) // 拦截键盘、放行 Esc；鼠标由全屏遮罩层拦住
+        fsBlockerMask |= 1 // 拦截全部键盘；鼠标由全屏遮罩层拦住，仅「完成清洁」按钮可退出
         isScreenCleanActive = true
         ScreenCleanOverlay.shared.show { [weak self] in
             self?.stopScreenClean()
@@ -64,7 +58,6 @@ final class InputBlocker {
     }
 
     func stopScreenClean() {
-        fsBlockerMask &= ~4
         if !isKeyboardLocked { fsBlockerMask &= ~1 }
         isScreenCleanActive = false
         ScreenCleanOverlay.shared.hide()

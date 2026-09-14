@@ -1,7 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// 全屏遮罩：屏幕清洁时覆盖所有显示器，拦住鼠标点击，并提供退出方式。
+/// 全屏遮罩：屏幕清洁时用纯黑不透明覆盖每一块显示器，拦住鼠标点击。
+/// 键盘全程被锁定（含 Esc），只能点「完成清洁」退出，避免擦拭键盘时误触退出。
 @MainActor
 final class ScreenCleanOverlay {
     static let shared = ScreenCleanOverlay()
@@ -13,7 +14,7 @@ final class ScreenCleanOverlay {
         guard windows.isEmpty else { return }
         self.onStop = onStop
 
-        for (index, screen) in NSScreen.screens.enumerated() {
+        for screen in NSScreen.screens {
             let window = NSWindow(
                 contentRect: screen.frame,
                 styleMask: [.borderless],
@@ -22,15 +23,14 @@ final class ScreenCleanOverlay {
             )
             window.setFrame(screen.frame, display: true)
             window.level = .screenSaver
-            window.isOpaque = false
-            window.backgroundColor = NSColor.black.withAlphaComponent(0.78)
+            window.isOpaque = true
+            window.backgroundColor = .black
             window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
             window.ignoresMouseEvents = false
             window.isReleasedWhenClosed = false
 
-            // 只在主屏显示提示卡片，其余屏幕纯遮黑。
-            let showsHint = (index == 0)
-            let root = ScreenCleanContentView(showsHint: showsHint) { [weak self] in
+            // 每一块屏幕都显示提示与退出按钮。
+            let root = ScreenCleanContentView { [weak self] in
                 self?.onStop?()
             }
             window.contentView = NSHostingView(rootView: root)
@@ -48,35 +48,32 @@ final class ScreenCleanOverlay {
 }
 
 private struct ScreenCleanContentView: View {
-    let showsHint: Bool
     let stop: () -> Void
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.001) // 捕获鼠标点击，避免落到底层 App
-            if showsHint {
-                VStack(spacing: 18) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 46, weight: .light))
-                    Text("屏幕清洁模式")
-                        .font(.title.bold())
-                    Text("键盘已锁定，可以放心擦拭屏幕。")
-                        .font(.title3)
-                        .foregroundStyle(.white.opacity(0.7))
-                    Button(action: stop) {
-                        Text("完成清洁 (Esc)")
-                            .font(.headline)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 4)
-                    }
-                    .keyboardShortcut(.cancelAction)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .padding(.top, 8)
+            Color.black // 纯黑不透明，同时捕获鼠标点击
+            VStack(spacing: 18) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 46, weight: .light))
+                Text("屏幕清洁中")
+                    .font(.title.bold())
+                Text("键盘已锁定，可放心擦拭屏幕和键盘。\n完成后点下方按钮退出。")
+                    .font(.title3)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.white.opacity(0.7))
+                Button(action: stop) {
+                    Text("完成清洁")
+                        .font(.headline)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 4)
                 }
-                .foregroundStyle(.white)
-                .padding(48)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .padding(.top, 8)
             }
+            .foregroundStyle(.white)
+            .padding(48)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())

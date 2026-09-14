@@ -23,7 +23,7 @@
 | 锁定屏幕 | 立即锁屏 | login.framework `SACLockScreenImmediate` |
 | 屏幕保护 | 启动屏保 | ScreenSaverEngine |
 | 播放 / 暂停 | 媒体播放控制 | 系统多媒体键事件 |
-| 耳机连接 | 一键连/断所选 AirPods/耳机 | IOBluetooth（设置里先选设备） |
+| 耳机连接 | 一键连/断所选 AirPods/耳机，显示电量，连上自动切声音输出 | IOBluetooth + CoreAudio + system_profiler（设置里先选设备；可绑全局热键） |
 | 清空废纸篓 | 清倒废纸篓 | Finder |
 | 清空剪贴板 | 清空剪贴板 | NSPasteboard |
 | 推出磁盘 | 推出所有外置/可推出卷 | NSWorkspace |

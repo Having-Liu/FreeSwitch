@@ -14,7 +14,7 @@ struct SwitchTileView: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: 5) {
                 Image(systemName: item.symbol)
                     .font(.system(size: 20, weight: .medium))
                     .frame(height: 24)
@@ -22,6 +22,12 @@ struct SwitchTileView: View {
                     .font(.system(size: 11))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
+                if let detail = item.detail {
+                    Text(detail)
+                        .font(.system(size: 9))
+                        .lineLimit(1)
+                        .opacity(0.85)
+                }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 64)

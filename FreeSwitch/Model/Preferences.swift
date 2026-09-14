@@ -30,9 +30,12 @@ final class Preferences: ObservableObject {
     private init() {
         // 顺序：以存储为准，并补上目录里新增、去掉已删除的开关。
         let stored = defaults.stringArray(forKey: Keys.order) ?? []
-        let valid = stored.filter { SwitchCatalog.defaultIDs.contains($0) }
-        let missing = SwitchCatalog.defaultIDs.filter { !valid.contains($0) }
-        order = valid + missing
+        var merged = stored.filter { SwitchCatalog.defaultIDs.contains($0) }
+        // 目录里新增、但存储里没有的开关，按其目录顺序插入到相应位置（而非全部堆到末尾）。
+        for (catalogIndex, id) in SwitchCatalog.defaultIDs.enumerated() where !merged.contains(id) {
+            merged.insert(id, at: min(catalogIndex, merged.count))
+        }
+        order = merged
 
         hidden = Set(defaults.stringArray(forKey: Keys.hidden) ?? [])
 

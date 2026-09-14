@@ -14,6 +14,7 @@ struct SwitchItem: Identifiable {
     let kind: SwitchKind
     var isOn: Bool = false
     var isSupported: Bool = true
+    var detail: String? = nil   // 磁贴上的小字（如耳机电量）
 }
 
 /// 全部开关的静态目录（顺序即默认顺序）。
@@ -88,6 +89,11 @@ final class SwitchStore: ObservableObject {
         items[i].isSupported = supported
     }
 
+    private func setDetail(_ id: String, _ detail: String?) {
+        guard let i = index(id) else { return }
+        items[i].detail = detail
+    }
+
     /// 从系统读取当前真实状态。
     func refresh() {
         setOn("darkMode", AppearanceController.isDarkMode())
@@ -106,10 +112,43 @@ final class SwitchStore: ObservableObject {
         setOn("showHidden", SystemController.showHiddenFiles())
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
 
+        loadHeadphoneStatus()
+    }
+
+    /// 有效目标耳机：优先设置里手动选的，否则自动识别一个已配对音频设备。
+    private func effectiveHeadphone() -> BluetoothController.Device? {
         if let address = Preferences.shared.headphoneAddress {
-            setOn("connectHeadphones", BluetoothController.isConnected(address))
-        } else {
+            return .init(id: address, name: BluetoothController.name(for: address) ?? address)
+        }
+        return BluetoothController.bestAudioDevice()
+    }
+
+    /// 刷新耳机连接状态 + 异步读取电量（system_profiler 较慢，放后台）。
+    func loadHeadphoneStatus() {
+        guard let device = effectiveHeadphone() else {
             setOn("connectHeadphones", false)
+            setDetail("connectHeadphones", nil)
+            return
+        }
+        let connected = BluetoothController.isConnected(device.id)
+        setOn("connectHeadphones", connected)
+        setDetail("connectHeadphones", connected ? "已连接" : nil)
+        guard connected else { return }
+        let address = device.id
+        Task { [weak self] in
+            let battery = await Task.detached { BluetoothController.batteryPercent(for: address) }.value
+            if let battery { self?.setDetail("connectHeadphones", "\(battery)%") }
+        }
+    }
+
+    /// 连上耳机后，重试把系统默认输出切到该设备。
+    private func switchOutput(to name: String) {
+        Task { [weak self] in
+            for _ in 0..<10 {
+                if AudioController.setDefaultOutput(named: name) { break }
+                try? await Task.sleep(nanoseconds: 400_000_000)
+            }
+            self?.loadHeadphoneStatus()
         }
     }
 
@@ -142,10 +181,25 @@ final class SwitchStore: ObservableObject {
         case "showHidden":   SystemController.setShowHiddenFiles(on)
         case "lockKeyboard": InputBlocker.shared.setKeyboardLocked(on)
         case "connectHeadphones":
-            if let address = Preferences.shared.headphoneAddress {
-                BluetoothController.setConnected(address, on)
+            if let device = effectiveHeadphone() {
+                // 记住自动挑中的设备，之后一直用它。
+                if Preferences.shared.headphoneAddress == nil {
+                    Preferences.shared.headphoneAddress = device.id
+                }
+                let address = device.id
+                let name = device.name
+                if on { setDetail("connectHeadphones", "连接中…") }
+                // openConnection 会阻塞（设备在盒里时等到超时），放后台执行，避免卡住菜单。
+                Task { [weak self] in
+                    await Task.detached { BluetoothController.setConnected(address, on) }.value
+                    if on {
+                        self?.switchOutput(to: name) // 内部重试并最终刷新状态
+                    } else {
+                        self?.loadHeadphoneStatus()
+                    }
+                }
             } else {
-                AudioController.connectHeadphones() // 未选设备时打开蓝牙设置
+                AudioController.connectHeadphones() // 没有已配对音频设备时打开蓝牙设置
             }
         default: break
         }
