@@ -66,6 +66,10 @@ struct KeepAwakeTileView: View {
             Button { apply(30) } label: { Text("30 分钟") }
             Button { apply(60) } label: { Text("1 小时") }
             Button { apply(120) } label: { Text("2 小时") }
+            Divider()
+            Button { toggleClamshell() } label: {
+                menuRow("合盖也不休眠（装包继续跑）", checked: PowerController.shared.clamshell)
+            }
             if item.isOn {
                 Divider()
                 Button("关闭") { apply(off: true) }
@@ -83,6 +87,7 @@ struct KeepAwakeTileView: View {
                     Text(detail)
                         .font(.system(size: 9))
                         .lineLimit(1)
+                        .minimumScaleFactor(0.75)
                         .opacity(0.85)
                 }
             }
@@ -103,12 +108,20 @@ struct KeepAwakeTileView: View {
     }
 
     private func apply(_ minutes: Int?) {
-        PowerController.shared.setKeepAwake(true, minutes: minutes)
+        // 改时长时保留当前的“合盖不休眠”设置，避免重复弹密码。
+        PowerController.shared.setKeepAwake(true, minutes: minutes, clamshell: PowerController.shared.clamshell)
         store.refresh()
     }
 
     private func apply(off: Bool) {
         PowerController.shared.setKeepAwake(false)
+        store.refresh()
+    }
+
+    private func toggleClamshell() {
+        let want = !PowerController.shared.clamshell
+        // 开启合盖不休眠时顺带开启保持亮屏，并沿用当前剩余时长。
+        PowerController.shared.setKeepAwake(true, minutes: PowerController.shared.remainingMinutes, clamshell: want)
         store.refresh()
     }
 

@@ -9,7 +9,9 @@ final class PowerController {
     private var assertionID: IOPMAssertionID = 0
     private(set) var keepAwake = false
     private(set) var keepAwakeDeadline: Date?   // nil = 一直亮屏（无限）
+    private(set) var clamshell = false          // 合盖也不休眠
     private var autoOffTask: Task<Void, Never>?
+    private let clamshellFlagKey = "keepAwake.clamshellActive"
 
     /// 剩余分钟（向上取整）；一直亮屏或未开启时返回 nil。
     var remainingMinutes: Int? {
@@ -17,8 +19,8 @@ final class PowerController {
         return max(0, Int(ceil(deadline.timeIntervalSinceNow / 60)))
     }
 
-    /// 保持亮屏。minutes 为 nil 表示一直亮屏；否则到点自动关闭。
-    func setKeepAwake(_ on: Bool, minutes: Int? = nil) {
+    /// 保持亮屏。minutes 为 nil 表示一直亮屏；clamshell 为“合盖也不休眠”。
+    func setKeepAwake(_ on: Bool, minutes: Int? = nil, clamshell wantClamshell: Bool = false) {
         autoOffTask?.cancel()
         autoOffTask = nil
         keepAwakeDeadline = nil
@@ -35,6 +37,7 @@ final class PowerController {
                 if result == kIOReturnSuccess { assertionID = id }
             }
             keepAwake = assertionID != 0
+            applyClamshell(keepAwake && wantClamshell)
             if keepAwake, let minutes, minutes > 0 {
                 keepAwakeDeadline = Date().addingTimeInterval(TimeInterval(minutes) * 60)
                 autoOffTask = Task { [weak self] in
@@ -50,7 +53,25 @@ final class PowerController {
                 assertionID = 0
             }
             keepAwake = false
+            applyClamshell(false)
         }
+    }
+
+    /// 只在状态变化时调用 pmset（避免无变化时反复弹密码框）。
+    private func applyClamshell(_ want: Bool) {
+        guard want != clamshell else { return }
+        SystemController.setLidCloseSleepDisabled(want)
+        clamshell = want
+        UserDefaults.standard.set(want, forKey: clamshellFlagKey)
+    }
+
+    /// App 启动时调用：若上次异常退出（崩溃/强退）遗留了“合盖不休眠”，恢复系统设置，
+    /// 避免电脑一直装在包里不睡。只根据我们自己的标记恢复，不动别人设的值。
+    func recoverClamshellIfNeeded() {
+        guard UserDefaults.standard.bool(forKey: clamshellFlagKey) else { return }
+        SystemController.setLidCloseSleepDisabled(false)
+        UserDefaults.standard.set(false, forKey: clamshellFlagKey)
+        clamshell = false
     }
 
     /// 立即让显示器休眠（不锁屏、不睡整机）。

@@ -107,11 +107,9 @@ final class SwitchStore: ObservableObject {
 
         setOn("keepAwake", PowerController.shared.keepAwake)
         if PowerController.shared.keepAwake {
-            if let m = PowerController.shared.remainingMinutes {
-                setDetail("keepAwake", "剩 \(m) 分")
-            } else {
-                setDetail("keepAwake", "一直")
-            }
+            var text = PowerController.shared.remainingMinutes.map { "剩 \($0) 分" } ?? "一直"
+            if PowerController.shared.clamshell { text += " · 合盖" }
+            setDetail("keepAwake", text)
         } else {
             setDetail("keepAwake", nil)
         }

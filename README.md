@@ -12,7 +12,7 @@
 | 黑暗模式 | 切换浅色 / 深色外观 | System Events（需“自动化”授权） |
 | 夜览 | Night Shift 开关 | CoreBrightness（私有框架，运行时动态调用） |
 | 原彩显示 | True Tone 开关 | CoreBrightness |
-| 保持亮屏 | 阻止屏幕/系统休眠，可选一直 / 30 分 / 1 小时 / 2 小时定时 | IOKit 电源断言 |
+| 保持亮屏 | 阻止屏幕/系统休眠；可定时；可选「合盖也不休眠」(装包继续跑) | IOKit 电源断言 + `pmset disablesleep` |
 | 低电量模式 | 开/关低电量模式 | `pmset -a lowpowermode`（切换时弹管理员密码） |
 | 麦克风静音 | 静音默认输入设备（不支持 mute 的设备回退为输入音量置 0） | CoreAudio |
 | 隐藏桌面 | 隐藏/显示桌面图标 | `defaults` + 重启 Finder |
@@ -70,6 +70,7 @@ App 未开启沙盒，因此不能上架 Mac App Store；自行签名分发即�
 - **勿扰 / 专注**：现代 macOS 禁止第三方 App 直接切换「专注」（私有框架 `DoNotDisturb` 需 Apple 专属授权，实测第三方调用被 `donotdisturbd` 以 XPC 拒绝）。官方许可路径是「快捷指令」——在设置里新建名为 `FreeSwitch DND` 的快捷指令（动作：设定专注 → 勿扰 → 切换），即可一键触发。
 - **耳机连接**用 IOBluetooth `openConnection/closeConnection`；需先在设置里选择目标设备，首次访问会请求蓝牙授权。
 - **低电量模式**需要管理员权限，切换时会弹出系统密码框。
+- **合盖也不休眠**用 `pmset -a disablesleep`（需管理员密码，每次开/关时弹一次；改定时不重复弹）。⚠️ 开启后合上盖子电脑**不会休眠**，装在包里会持续发热、耗电——**强烈建议配合定时**（到点自动关）。若 App 崩溃/强退时它还开着，下次启动会自动恢复系统设置。它做的是 Amphetamine「闭屏模式」那件事，但无需额外下载 Enhancer 之类的组件。
 
 ## 许可证
 

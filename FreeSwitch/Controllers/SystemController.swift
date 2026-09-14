@@ -85,4 +85,19 @@ enum SystemController {
         let value = on ? "1" : "0"
         Shell.runAppleScript("do shell script \"/usr/bin/pmset -a lowpowermode \(value)\" with administrator privileges")
     }
+
+    // MARK: 合盖休眠（clamshell）
+    /// 是否已禁用“合盖即休眠”。读 pmset 输出里的 SleepDisabled 字段。
+    static func lidCloseSleepDisabled() -> Bool {
+        for line in Shell.run("/usr/bin/pmset", ["-g"]).output.split(separator: "\n") where line.contains("SleepDisabled") {
+            return line.contains("1")
+        }
+        return false
+    }
+
+    /// 禁用/恢复“合盖即休眠”。需要管理员权限，会弹系统密码框。
+    static func setLidCloseSleepDisabled(_ disabled: Bool) {
+        let value = disabled ? "1" : "0"
+        Shell.runAppleScript("do shell script \"/usr/bin/pmset -a disablesleep \(value)\" with administrator privileges")
+    }
 }

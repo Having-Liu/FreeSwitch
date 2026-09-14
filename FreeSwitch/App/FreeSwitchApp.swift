@@ -34,6 +34,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 菜单栏 App：默认不显示 Dock 图标。
         NSApp.setActivationPolicy(.accessory)
 
+        // 若上次异常退出遗留了“合盖不休眠”，启动时恢复系统设置。
+        PowerController.shared.recoverClamshellIfNeeded()
+
         // 全局热键 → 触发对应开关。
         HotkeyManager.shared.onTrigger = { id in
             SwitchStore.shared.activate(id)
