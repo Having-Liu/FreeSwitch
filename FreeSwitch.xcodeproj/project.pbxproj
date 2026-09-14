@@ -53,6 +53,7 @@
 				000000000000000120000000 /* Sources */,
 				000000000000000130000000 /* Frameworks */,
 				000000000000000140000000 /* Resources */,
+				000000000000000150000000 /* Embed Privileged Helper */,
 			);
 			buildRules = (
 			);
@@ -106,6 +107,24 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		000000000000000150000000 /* Embed Privileged Helper */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Privileged Helper";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nHELPER_MAIN=\"$SRCROOT/Helper/main.swift\"\nPROTO=\"$SRCROOT/FreeSwitch/Helper/HelperProtocol.swift\"\nPLIST=\"$SRCROOT/Helper/com.freeswitch.FreeSwitch.helper.plist\"\nAPP=\"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME\"\nHELPER_OUT=\"$APP/Contents/MacOS/FreeSwitchHelper\"\nDAEMON_DIR=\"$APP/Contents/Library/LaunchDaemons\"\nmkdir -p \"$APP/Contents/MacOS\" \"$DAEMON_DIR\"\nBINS=\"\"\nfor arch in $ARCHS; do\n  OUT=\"$DERIVED_FILE_DIR/helper-$arch\"\n  xcrun swiftc -O -sdk \"$SDKROOT\" -target \"$arch-apple-macos$MACOSX_DEPLOYMENT_TARGET\" \"$PROTO\" \"$HELPER_MAIN\" -o \"$OUT\"\n  BINS=\"$BINS $OUT\"\ndone\nlipo -create $BINS -output \"$HELPER_OUT\"\nTS=--timestamp\n[ \"$CONFIGURATION\" = \"Debug\" ] && TS=--timestamp=none\nIDENT=\"${EXPANDED_CODE_SIGN_IDENTITY:--}\"\ncodesign --force $TS --options runtime --identifier com.freeswitch.FreeSwitch.helper --sign \"$IDENT\" \"$HELPER_OUT\"\ncp \"$PLIST\" \"$DAEMON_DIR/com.freeswitch.FreeSwitch.helper.plist\"\necho \"Embedded FreeSwitchHelper + LaunchDaemon plist\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		000000000000000120000000 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -154,7 +173,7 @@
 				DRIVERKIT_DEPLOYMENT_TARGET = 27.0;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -224,7 +243,7 @@
 				DRIVERKIT_DEPLOYMENT_TARGET = 27.0;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -251,6 +270,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FreeSwitch/FreeSwitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MXHBUQH27V;
@@ -275,7 +295,6 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
-				CODE_SIGN_ENTITLEMENTS = "FreeSwitch/FreeSwitch.entitlements";
 				PRODUCT_BUNDLE_IDENTIFIER = com.freeswitch.FreeSwitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -296,6 +315,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FreeSwitch/FreeSwitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MXHBUQH27V;
@@ -320,7 +340,6 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
-				CODE_SIGN_ENTITLEMENTS = "FreeSwitch/FreeSwitch.entitlements";
 				PRODUCT_BUNDLE_IDENTIFIER = com.freeswitch.FreeSwitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;

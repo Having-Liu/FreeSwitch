@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var launchAtLogin = Preferences.shared.launchAtLogin
     @State private var pairedDevices: [BluetoothController.Device] = []
     @State private var dndConfigured = false
+    @State private var helperInstalled = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -58,6 +59,29 @@ struct SettingsView: View {
                         }
                     }
                 }
+
+                Section("免密授权（可选）") {
+                    Text("切换「合盖也不休眠 / 低电量模式」默认要输一次管理员密码。安装一个很小的系统助手后即可免密——一次性授权，随时可移除。")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    HStack {
+                        if helperInstalled {
+                            Label("助手已安装（免密）", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                            Spacer()
+                            Button("移除助手") {
+                                HelperClient.shared.uninstall()
+                                helperInstalled = HelperClient.shared.isInstalled
+                            }
+                        } else {
+                            Button("安装免密助手…") {
+                                _ = HelperClient.shared.installWithExplanation()
+                                helperInstalled = HelperClient.shared.isInstalled
+                            }
+                            Spacer()
+                            Label("未安装（用密码）", systemImage: "lock").foregroundStyle(.secondary)
+                        }
+                    }
+                }
             }
             .listStyle(.inset)
             Divider()
@@ -68,6 +92,7 @@ struct SettingsView: View {
             NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
             dndConfigured = FocusController.isConfigured()
+            helperInstalled = HelperClient.shared.isInstalled
         }
         .onDisappear {
             NSApp.setActivationPolicy(.accessory)

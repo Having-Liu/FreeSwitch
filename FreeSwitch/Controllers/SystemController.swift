@@ -80,10 +80,15 @@ enum SystemController {
         return false
     }
 
-    /// 切换低电量模式。需要管理员权限，AppleScript 会弹出系统密码框。
+    /// 切换低电量模式。装了特权助手就免密走 XPC，否则回退到 AppleScript 管理员授权（弹密码）。
     static func setLowPowerMode(_ on: Bool) {
-        let value = on ? "1" : "0"
-        Shell.runAppleScript("do shell script \"/usr/bin/pmset -a lowpowermode \(value)\" with administrator privileges")
+        if HelperClient.shared.isInstalled {
+            HelperClient.shared.setLowPowerMode(on) { _ in
+                Task { @MainActor in SwitchStore.shared.refresh() }
+            }
+        } else {
+            Shell.runAppleScript("do shell script \"/usr/bin/pmset -a lowpowermode \(on ? "1" : "0")\" with administrator privileges")
+        }
     }
 
     // MARK: 合盖休眠（clamshell）
@@ -95,9 +100,14 @@ enum SystemController {
         return false
     }
 
-    /// 禁用/恢复“合盖即休眠”。需要管理员权限，会弹系统密码框。
+    /// 禁用/恢复“合盖即休眠”。装了特权助手就免密走 XPC，否则回退到 AppleScript 管理员授权（弹密码）。
     static func setLidCloseSleepDisabled(_ disabled: Bool) {
-        let value = disabled ? "1" : "0"
-        Shell.runAppleScript("do shell script \"/usr/bin/pmset -a disablesleep \(value)\" with administrator privileges")
+        if HelperClient.shared.isInstalled {
+            HelperClient.shared.setDisableSleep(disabled) { _ in
+                Task { @MainActor in SwitchStore.shared.refresh() }
+            }
+        } else {
+            Shell.runAppleScript("do shell script \"/usr/bin/pmset -a disablesleep \(disabled ? "1" : "0")\" with administrator privileges")
+        }
     }
 }
