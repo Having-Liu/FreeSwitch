@@ -18,15 +18,16 @@ final class HelperClient {
     @discardableResult
     func installWithExplanation() -> Bool {
         let alert = NSAlert()
-        alert.messageText = "启用免密授权（一次性）"
+        alert.messageText = "开启“免密”需要装一个小助手（一次性）"
         alert.informativeText = """
-        为了让「合盖也不休眠 / 低电量模式」这类需要系统权限的开关不用每次都输密码，\
-        FreeSwitch 想安装一个很小的系统助手。
+        「合盖也不休眠 / 低电量模式」要改系统电源设置，默认每次都得输密码。装上这个小助手后就再也不用输了。
 
-        点“继续”后，macOS 会请你允许它——可能是在『系统设置 › 通用 › 登录项与扩展』里\
-        打开 FreeSwitch 的开关，或输入一次你的登录密码。这是**一次性**的，之后就不再打扰你。
+        点“继续”后会发生什么：
+        1) macOS 弹出授权框，输入一次你的登录密码；
+        2) 系统会打开『登录项与扩展』设置页；
+        3) 在那页的「后台 App 活动」里，把 FreeSwitch 的开关打开（变蓝）。
 
-        你随时可以在 FreeSwitch 设置里“移除助手”把它卸载。
+        全程只需一次，之后就不再打扰你。随时可在 FreeSwitch 设置里“移除助手”。
         """
         alert.addButton(withTitle: "继续")
         alert.addButton(withTitle: "取消")
@@ -43,8 +44,18 @@ final class HelperClient {
         if service.status == .requiresApproval {
             SMAppService.openSystemSettingsLoginItems()
             let note = NSAlert()
-            note.messageText = "还差一步：在系统设置里允许"
-            note.informativeText = "已为你打开『登录项与扩展』。请把 FreeSwitch 对应的开关打开，助手即生效。"
+            note.messageText = "最后一步：把 FreeSwitch 的开关打开"
+            note.informativeText = """
+            已帮你打开『系统设置 › 通用 › 登录项与扩展』。
+
+            1) 往下滚到「后台 App 活动」这一区；
+            2) 找到列表里的 FreeSwitch；
+            3) 把它右边的开关打开（变蓝）。
+
+            这样助手就生效了——之后切「合盖也不休眠 / 低电量模式」就不用再输密码。
+            （如果列表里找不到 FreeSwitch：把 FreeSwitch.app 拖进「应用程序」再试一次。）
+            """
+            note.addButton(withTitle: "我知道了")
             note.runModal()
         }
         return isInstalled
