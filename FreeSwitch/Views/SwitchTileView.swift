@@ -52,30 +52,25 @@ struct SwitchTileView: View {
     }
 }
 
-/// 分辨率磁贴：点击弹出可选分辨率菜单。
+/// 分辨率磁贴：点击弹出分辨率菜单。多显示器时每块屏一个子菜单。
 struct ResolutionTileView: View {
     let item: SwitchItem
-    let onSelect: (ResolutionController.Resolution) -> Void
 
-    @State private var resolutions: [ResolutionController.Resolution] = []
-    @State private var current: ResolutionController.Resolution?
+    @State private var displays: [ResolutionController.Display] = []
 
     var body: some View {
         Menu {
-            ForEach(resolutions) { resolution in
-                Button {
-                    onSelect(resolution)
-                    current = resolution
-                } label: {
-                    if current?.id == resolution.id {
-                        Label(resolution.label, systemImage: "checkmark")
-                    } else {
-                        Text(resolution.label)
+            if displays.count <= 1, let display = displays.first {
+                resolutionButtons(for: display)
+            } else {
+                ForEach(displays) { display in
+                    Menu(display.name) {
+                        resolutionButtons(for: display)
                     }
                 }
             }
         } label: {
-            VStack(spacing: 8) {
+            VStack(spacing: 5) {
                 Image(systemName: item.symbol)
                     .font(.system(size: 20, weight: .medium))
                     .frame(height: 24)
@@ -98,9 +93,22 @@ struct ResolutionTileView: View {
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
-        .onAppear {
-            resolutions = ResolutionController.availableResolutions()
-            current = ResolutionController.currentResolution()
+        .onAppear { displays = ResolutionController.displays() }
+    }
+
+    @ViewBuilder
+    private func resolutionButtons(for display: ResolutionController.Display) -> some View {
+        ForEach(display.resolutions) { resolution in
+            Button {
+                ResolutionController.apply(resolution, to: display.id)
+                displays = ResolutionController.displays()
+            } label: {
+                if display.currentID == resolution.id {
+                    Label(resolution.label, systemImage: "checkmark")
+                } else {
+                    Text(resolution.label)
+                }
+            }
         }
     }
 }

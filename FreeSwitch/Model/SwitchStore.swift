@@ -159,8 +159,8 @@ final class SwitchStore: ObservableObject {
         case .toggle:
             let current = items[index(id) ?? 0].isOn
             let newValue = !current
-            perform(id, on: newValue)
-            setOn(id, newValue)
+            // 用回读到的真实状态更新，避免授权失败/设备不支持时磁贴“说谎”。
+            setOn(id, perform(id, on: newValue))
         case .action:
             performAction(id)
             flash(id)
@@ -169,39 +169,42 @@ final class SwitchStore: ObservableObject {
         }
     }
 
-    private func perform(_ id: String, on: Bool) {
+    /// 执行开关并返回“真实的结果状态”（尽量回读硬件/系统，回读不可靠的返回目标值）。
+    @discardableResult
+    private func perform(_ id: String, on: Bool) -> Bool {
         switch id {
-        case "darkMode":     AppearanceController.setDarkMode(on)
-        case "nightShift":   AppearanceController.setNightShift(on)
-        case "trueTone":     AppearanceController.setTrueTone(on)
-        case "keepAwake":    PowerController.shared.setKeepAwake(on)
-        case "lowPowerMode": SystemController.setLowPowerMode(on)
-        case "muteMic":      AudioController.setMicMuted(on)
-        case "hideDesktop":  SystemController.setDesktopIconsHidden(on)
-        case "showHidden":   SystemController.setShowHiddenFiles(on)
-        case "lockKeyboard": InputBlocker.shared.setKeyboardLocked(on)
+        case "darkMode":     AppearanceController.setDarkMode(on); return on
+        case "nightShift":   AppearanceController.setNightShift(on); return on
+        case "trueTone":     AppearanceController.setTrueTone(on); return AppearanceController.isTrueToneOn()
+        case "keepAwake":    PowerController.shared.setKeepAwake(on); return PowerController.shared.keepAwake
+        case "lowPowerMode": SystemController.setLowPowerMode(on); return SystemController.lowPowerModeEnabled()
+        case "muteMic":      AudioController.setMicMuted(on); return AudioController.micMuted()
+        case "hideDesktop":  SystemController.setDesktopIconsHidden(on); return on
+        case "showHidden":   SystemController.setShowHiddenFiles(on); return on
+        case "lockKeyboard": InputBlocker.shared.setKeyboardLocked(on); return InputBlocker.shared.isKeyboardLocked
         case "connectHeadphones":
-            if let device = effectiveHeadphone() {
-                // 记住自动挑中的设备，之后一直用它。
-                if Preferences.shared.headphoneAddress == nil {
-                    Preferences.shared.headphoneAddress = device.id
-                }
-                let address = device.id
-                let name = device.name
-                if on { setDetail("connectHeadphones", "连接中…") }
-                // openConnection 会阻塞（设备在盒里时等到超时），放后台执行，避免卡住菜单。
-                Task { [weak self] in
-                    await Task.detached { BluetoothController.setConnected(address, on) }.value
-                    if on {
-                        self?.switchOutput(to: name) // 内部重试并最终刷新状态
-                    } else {
-                        self?.loadHeadphoneStatus()
-                    }
-                }
-            } else {
+            guard let device = effectiveHeadphone() else {
                 AudioController.connectHeadphones() // 没有已配对音频设备时打开蓝牙设置
+                return false
             }
-        default: break
+            // 记住自动挑中的设备，之后一直用它。
+            if Preferences.shared.headphoneAddress == nil {
+                Preferences.shared.headphoneAddress = device.id
+            }
+            let address = device.id
+            let name = device.name
+            if on { setDetail("connectHeadphones", "连接中…") }
+            // openConnection 会阻塞（设备在盒里时等到超时），放后台执行，避免卡住菜单。
+            Task { [weak self] in
+                await Task.detached { BluetoothController.setConnected(address, on) }.value
+                if on {
+                    self?.switchOutput(to: name) // 内部重试并最终刷新状态
+                } else {
+                    self?.loadHeadphoneStatus()
+                }
+            }
+            return on
+        default: return on
         }
     }
 
@@ -220,10 +223,6 @@ final class SwitchStore: ObservableObject {
         case "xcodeClean":        SystemController.cleanXcodeCaches()
         default: break
         }
-    }
-
-    func applyResolution(_ resolution: ResolutionController.Resolution) {
-        ResolutionController.apply(resolution)
     }
 
     private func flash(_ id: String) {

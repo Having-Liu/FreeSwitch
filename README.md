@@ -14,7 +14,7 @@
 | 原彩显示 | True Tone 开关 | CoreBrightness |
 | 保持亮屏 | 阻止屏幕/系统休眠 | IOKit 电源断言 |
 | 低电量模式 | 开/关低电量模式 | `pmset -a lowpowermode`（切换时弹管理员密码） |
-| 麦克风静音 | 静音默认输入设备 | CoreAudio |
+| 麦克风静音 | 静音默认输入设备（不支持 mute 的设备回退为输入音量置 0） | CoreAudio |
 | 隐藏桌面 | 隐藏/显示桌面图标 | `defaults` + 重启 Finder |
 | 显示隐藏文件 | 访达显示隐藏文件 | `defaults` + 重启 Finder |
 | 锁定键盘 | 屏蔽全部键盘输入 | CGEventTap（需“辅助功能”授权） |
@@ -29,7 +29,7 @@
 | 推出磁盘 | 推出所有外置/可推出卷 | NSWorkspace |
 | 勿扰 / 专注 | 一键切换专注（需一次性设置快捷指令） | Shortcuts `shortcuts run` |
 | Xcode 清理 | 删除 DerivedData | FileManager |
-| 屏幕分辨率 | 切换主屏分辨率（下拉选择） | CoreGraphics |
+| 屏幕分辨率 | 切换分辨率，多显示器每块屏单独子菜单 | CoreGraphics |
 
 ## 可配置性
 

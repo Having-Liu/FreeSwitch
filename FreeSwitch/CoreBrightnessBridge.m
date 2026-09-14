@@ -51,15 +51,10 @@ static void FSEnsureCoreBrightnessLoaded(void) {
 + (void)setNightShiftEnabled:(BOOL)enabled {
     id client = [self blueLightClient];
     if (!client) { return; }
+    // 只切换开关，保留用户在系统设置里配置的强度/时间表，不做覆盖。
     SEL setEnabled = NSSelectorFromString(@"setEnabled:");
     if ([client respondsToSelector:setEnabled]) {
         ((BOOL (*)(id, SEL, BOOL))objc_msgSend)(client, setEnabled, enabled);
-    }
-    if (enabled) {
-        SEL setStrength = NSSelectorFromString(@"setStrength:commit:");
-        if ([client respondsToSelector:setStrength]) {
-            ((BOOL (*)(id, SEL, float, BOOL))objc_msgSend)(client, setStrength, 0.9f, YES);
-        }
     }
 }
 

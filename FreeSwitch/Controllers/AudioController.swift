@@ -26,22 +26,74 @@ enum AudioController {
         )
     }
 
+    private static var savedInputVolume: Float32?
+
     static func setMicMuted(_ muted: Bool) {
         guard let device = defaultInputDevice() else { return }
         var address = muteAddress()
-        guard AudioObjectHasProperty(device, &address) else { return }
-        var value: UInt32 = muted ? 1 : 0
-        AudioObjectSetPropertyData(device, &address, 0, nil, UInt32(MemoryLayout<UInt32>.size), &value)
+        if AudioObjectHasProperty(device, &address) {
+            var value: UInt32 = muted ? 1 : 0
+            AudioObjectSetPropertyData(device, &address, 0, nil, UInt32(MemoryLayout<UInt32>.size), &value)
+            return
+        }
+        // 回退：设备不支持 mute（如 AirPods 麦克风）时，把输入音量设为 0。
+        if muted {
+            savedInputVolume = inputVolume(device) ?? 1.0
+            setInputVolume(device, 0)
+        } else {
+            setInputVolume(device, savedInputVolume ?? 1.0)
+        }
     }
 
     static func micMuted() -> Bool {
         guard let device = defaultInputDevice() else { return false }
         var address = muteAddress()
-        guard AudioObjectHasProperty(device, &address) else { return false }
-        var value: UInt32 = 0
-        var size = UInt32(MemoryLayout<UInt32>.size)
-        AudioObjectGetPropertyData(device, &address, 0, nil, &size, &value)
-        return value != 0
+        if AudioObjectHasProperty(device, &address) {
+            var value: UInt32 = 0
+            var size = UInt32(MemoryLayout<UInt32>.size)
+            AudioObjectGetPropertyData(device, &address, 0, nil, &size, &value)
+            return value != 0
+        }
+        if let volume = inputVolume(device) { return volume < 0.01 }
+        return false
+    }
+
+    private static func volumeElements() -> [UInt32] {
+        [UInt32(kAudioObjectPropertyElementMain), 1, 2] // 主 + 左右声道
+    }
+
+    private static func inputVolume(_ device: AudioDeviceID) -> Float32? {
+        for element in volumeElements() {
+            var address = AudioObjectPropertyAddress(
+                mSelector: kAudioDevicePropertyVolumeScalar,
+                mScope: kAudioDevicePropertyScopeInput,
+                mElement: element
+            )
+            if AudioObjectHasProperty(device, &address) {
+                var value: Float32 = 0
+                var size = UInt32(MemoryLayout<Float32>.size)
+                if AudioObjectGetPropertyData(device, &address, 0, nil, &size, &value) == noErr {
+                    return value
+                }
+            }
+        }
+        return nil
+    }
+
+    private static func setInputVolume(_ device: AudioDeviceID, _ volume: Float32) {
+        for element in volumeElements() {
+            var address = AudioObjectPropertyAddress(
+                mSelector: kAudioDevicePropertyVolumeScalar,
+                mScope: kAudioDevicePropertyScopeInput,
+                mElement: element
+            )
+            var settable: DarwinBoolean = false
+            guard AudioObjectHasProperty(device, &address),
+                  AudioObjectIsPropertySettable(device, &address, &settable) == noErr,
+                  settable.boolValue else { continue }
+            var value = volume
+            AudioObjectSetPropertyData(device, &address, 0, nil, UInt32(MemoryLayout<Float32>.size), &value)
+        }
     }
 
     /// 把系统默认输出切到名字匹配的设备（连接耳机后自动切声音）。返回是否成功。

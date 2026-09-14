@@ -26,9 +26,7 @@ struct MenuContentView: View {
                     LazyVGrid(columns: columns, spacing: 10) {
                         ForEach(visibleItems) { item in
                             if item.kind == .picker {
-                                ResolutionTileView(item: item) { resolution in
-                                    store.applyResolution(resolution)
-                                }
+                                ResolutionTileView(item: item)
                             } else {
                                 SwitchTileView(item: item, isFlashing: store.flashingID == item.id) {
                                     store.activate(item.id)
