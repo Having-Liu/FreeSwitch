@@ -16,7 +16,7 @@ struct FreeSwitchTriggerIntent: AppIntent {
     init(_ id: String) { self.id = id }
 
     func perform() async throws -> some IntentResult {
-        let name = "com.freeswitch.FreeSwitch.trigger." + id
+        let name = "group.com.freeswitch.FreeSwitch.trigger." + id
         CFNotificationCenterPostNotification(
             CFNotificationCenterGetDarwinNotifyCenter(),
             CFNotificationName(name as CFString), nil, nil, true
