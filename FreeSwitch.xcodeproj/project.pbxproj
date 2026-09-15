@@ -111,17 +111,32 @@
 		000000000000000150000000 /* Embed Privileged Helper */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
 			name = "Embed Privileged Helper";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\nHELPER_MAIN=\"$SRCROOT/Helper/main.swift\"\nPROTO=\"$SRCROOT/FreeSwitch/Helper/HelperProtocol.swift\"\nPLIST=\"$SRCROOT/Helper/com.freeswitch.FreeSwitch.helper.plist\"\nAPP=\"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME\"\nHELPER_OUT=\"$APP/Contents/MacOS/FreeSwitchHelper\"\nDAEMON_DIR=\"$APP/Contents/Library/LaunchDaemons\"\nmkdir -p \"$APP/Contents/MacOS\" \"$DAEMON_DIR\"\nBINS=\"\"\nfor arch in $ARCHS; do\n  OUT=\"$DERIVED_FILE_DIR/helper-$arch\"\n  xcrun swiftc -O -sdk \"$SDKROOT\" -target \"$arch-apple-macos$MACOSX_DEPLOYMENT_TARGET\" \"$PROTO\" \"$HELPER_MAIN\" -o \"$OUT\"\n  BINS=\"$BINS $OUT\"\ndone\nlipo -create $BINS -output \"$HELPER_OUT\"\nTS=--timestamp\n[ \"$CONFIGURATION\" = \"Debug\" ] && TS=--timestamp=none\nIDENT=\"${EXPANDED_CODE_SIGN_IDENTITY:--}\"\ncodesign --force $TS --options runtime --identifier com.freeswitch.FreeSwitch.helper --sign \"$IDENT\" \"$HELPER_OUT\"\ncp \"$PLIST\" \"$DAEMON_DIR/com.freeswitch.FreeSwitch.helper.plist\"\necho \"Embedded FreeSwitchHelper + LaunchDaemon plist\"\n";
+			shellScript = (
+				"set -e",
+				"HELPER_MAIN=\"$SRCROOT/Helper/main.swift\"",
+				"PROTO=\"$SRCROOT/FreeSwitch/Helper/HelperProtocol.swift\"",
+				"PLIST=\"$SRCROOT/Helper/com.freeswitch.FreeSwitch.helper.plist\"",
+				"APP=\"$BUILT_PRODUCTS_DIR/$FULL_PRODUCT_NAME\"",
+				"HELPER_OUT=\"$APP/Contents/MacOS/FreeSwitchHelper\"",
+				"DAEMON_DIR=\"$APP/Contents/Library/LaunchDaemons\"",
+				"mkdir -p \"$APP/Contents/MacOS\" \"$DAEMON_DIR\"",
+				"BINS=\"\"",
+				"for arch in $ARCHS; do",
+				"  OUT=\"$DERIVED_FILE_DIR/helper-$arch\"",
+				"  xcrun swiftc -O -sdk \"$SDKROOT\" -target \"$arch-apple-macos$MACOSX_DEPLOYMENT_TARGET\" \"$PROTO\" \"$HELPER_MAIN\" -o \"$OUT\"",
+				"  BINS=\"$BINS $OUT\"",
+				"done",
+				"lipo -create $BINS -output \"$HELPER_OUT\"",
+				"TS=--timestamp",
+				"[ \"$CONFIGURATION\" = \"Debug\" ] && TS=--timestamp=none",
+				"IDENT=\"${EXPANDED_CODE_SIGN_IDENTITY:--}\"",
+				"codesign --force $TS --options runtime --identifier com.freeswitch.FreeSwitch.helper --sign \"$IDENT\" \"$HELPER_OUT\"",
+				"cp \"$PLIST\" \"$DAEMON_DIR/com.freeswitch.FreeSwitch.helper.plist\"",
+				"echo \"Embedded FreeSwitchHelper + LaunchDaemon plist\"",
+				"",
+			);
 		};
 /* End PBXShellScriptBuildPhase section */
 

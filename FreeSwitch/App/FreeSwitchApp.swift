@@ -37,6 +37,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 若上次异常退出遗留了“合盖不休眠”，启动时恢复系统设置。
         PowerController.shared.recoverClamshellIfNeeded()
 
+        // 接收来自控制中心控件 / 快捷指令 / Siri 的触发。
+        FreeSwitchTrigger.startObserving()
+
         // 全局热键 → 触发对应开关。
         HotkeyManager.shared.onTrigger = { id in
             SwitchStore.shared.activate(id)
