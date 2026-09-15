@@ -45,8 +45,8 @@ struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration 
 struct FSEmptyTrash: ControlWidget { var body: some ControlWidgetConfiguration { fsControl(id: "emptyTrash", name: "清空废纸篓", symbol: "trash.fill") } }
 
 @main
-struct FreeSwitchControls: ControlWidgetBundle {
-    var body: some ControlWidget {
+struct FreeSwitchControls: WidgetBundle {
+    var body: some Widget {
         FSDarkMode()
         FSNightShift()
         FSKeepAwake()
