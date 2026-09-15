@@ -8,7 +8,8 @@ import Foundation
 
 struct FreeSwitchTriggerIntent: AppIntent {
     static var title: LocalizedStringResource = "触发 FreeSwitch 开关"
-    static var openAppWhenRun: Bool = true
+    // 在扩展进程内执行 perform（给主 App 发通知），而不是让系统去主 App 里跑一个它不认识的意图。
+    static var openAppWhenRun: Bool = false
 
     @Parameter(title: "开关") var id: String
 
@@ -16,6 +17,7 @@ struct FreeSwitchTriggerIntent: AppIntent {
     init(_ id: String) { self.id = id }
 
     func perform() async throws -> some IntentResult {
+        NSLog("[FreeSwitchControls] perform id=%@", id)
         let name = "group.com.freeswitch.FreeSwitch.trigger." + id
         CFNotificationCenterPostNotification(
             CFNotificationCenterGetDarwinNotifyCenter(),
