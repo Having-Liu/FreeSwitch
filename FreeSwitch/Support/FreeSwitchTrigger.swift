@@ -1,36 +1,55 @@
 import Foundation
+import WidgetKit
 
-// 外部入口（控制中心控件 / 快捷指令 / Siri 的 App Intent）通过 Darwin 通知触发某个开关，
-// 主 App 收到后执行真正的操作。通知名里带开关 id：group.com.freeswitch.FreeSwitch.trigger.<id>
+// 控制中心控件 ↔ 主 App 的桥。
+//  - 控件发 Darwin 通知：group.com.freeswitch.FreeSwitch.trigger.<id>（动作）
+//    或 .set.<id>.<1|0>（开关设为指定值）。主 App 监听并执行。
+//  - 主 App 把开关状态写进共享 App Group，供控件显示；变化后让控制中心刷新。
 
-private let fsTriggerCallback: CFNotificationCallback = { _, _, cfName, _, _ in
-    let prefix = "group.com.freeswitch.FreeSwitch.trigger."
-    guard let raw = cfName?.rawValue as String?, raw.hasPrefix(prefix) else { return }
-    let id = String(raw.dropFirst(prefix.count))
+private let fsPrefix = "group.com.freeswitch.FreeSwitch."
+
+private let fsCallback: CFNotificationCallback = { _, _, cfName, _, _ in
+    guard let raw = cfName?.rawValue as String?, raw.hasPrefix(fsPrefix) else { return }
+    let rest = String(raw.dropFirst(fsPrefix.count))       // "trigger.darkMode" / "set.muteMic.1"
+    let parts = rest.split(separator: ".").map(String.init)
     DispatchQueue.main.async {
-        MainActor.assumeIsolated { SwitchStore.shared.activate(id) }
+        MainActor.assumeIsolated {
+            if parts.count >= 2, parts[0] == "trigger" {
+                SwitchStore.shared.activate(parts[1])
+            } else if parts.count >= 3, parts[0] == "set" {
+                SwitchStore.shared.setSwitch(parts[1], on: parts[2] == "1")
+            }
+        }
     }
 }
 
 enum FreeSwitchTrigger {
-    static let prefix = "group.com.freeswitch.FreeSwitch.trigger."
+    static let suite = "group.com.freeswitch.FreeSwitch"
+    static let statesKey = "control.states"
 
-    /// 发出触发（供 App 内部/测试用；扩展侧有自己的一份实现）。
-    static func post(_ id: String) {
-        CFNotificationCenterPostNotification(
-            CFNotificationCenterGetDarwinNotifyCenter(),
-            CFNotificationName((prefix + id) as CFString), nil, nil, true
-        )
-    }
-
-    /// 注册监听：为每个已知开关注册一个 Darwin 观察者，收到即执行。
     static func startObserving() {
         let center = CFNotificationCenterGetDarwinNotifyCenter()
         for id in SwitchCatalog.defaultIDs {
-            CFNotificationCenterAddObserver(
-                center, nil, fsTriggerCallback,
-                (prefix + id) as CFString, nil, .deliverImmediately
-            )
+            add(center, fsPrefix + "trigger." + id)
+            if SwitchCatalog.item(id)?.kind == .toggle {
+                add(center, fsPrefix + "set." + id + ".1")
+                add(center, fsPrefix + "set." + id + ".0")
+            }
+        }
+    }
+
+    private static func add(_ center: CFNotificationCenter?, _ name: String) {
+        CFNotificationCenterAddObserver(center, nil, fsCallback, name as CFString, nil, .deliverImmediately)
+    }
+
+    /// 把开关状态写进共享 App Group 并刷新控制中心里的控件。
+    @MainActor
+    static func publishStates(_ items: [SwitchItem]) {
+        var dict: [String: Bool] = [:]
+        for item in items where item.kind == .toggle { dict[item.id] = item.isOn }
+        UserDefaults(suiteName: suite)?.set(dict, forKey: statesKey)
+        if #available(macOS 26.0, *) {
+            ControlCenter.shared.reloadAllControls()
         }
     }
 }

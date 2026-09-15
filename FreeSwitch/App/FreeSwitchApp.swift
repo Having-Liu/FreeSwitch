@@ -39,6 +39,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 接收来自控制中心控件 / 快捷指令 / Siri 的触发。
         FreeSwitchTrigger.startObserving()
+        // 启动即读一次真实状态并写入共享区，让控制中心控件一开始就显示正确开/关。
+        SwitchStore.shared.refresh()
 
         // 全局热键 → 触发对应开关。
         HotkeyManager.shared.onTrigger = { id in

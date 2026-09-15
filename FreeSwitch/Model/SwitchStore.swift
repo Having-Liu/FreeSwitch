@@ -120,6 +120,7 @@ final class SwitchStore: ObservableObject {
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
 
         loadHeadphoneStatus()
+        FreeSwitchTrigger.publishStates(items)
     }
 
     /// 有效目标耳机：优先设置里手动选的，否则自动识别一个已配对音频设备。
@@ -173,6 +174,18 @@ final class SwitchStore: ObservableObject {
             flash(id)
         case .picker:
             break
+        }
+        FreeSwitchTrigger.publishStates(items)
+    }
+
+    /// 设为指定状态（供控制中心开关控件用；非开关类则执行动作）。
+    func setSwitch(_ id: String, on: Bool) {
+        guard let item = SwitchCatalog.item(id) else { return }
+        if item.kind == .toggle {
+            setOn(id, perform(id, on: on))
+            FreeSwitchTrigger.publishStates(items)
+        } else {
+            activate(id)
         }
     }
 
