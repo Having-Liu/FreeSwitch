@@ -42,12 +42,21 @@ enum FreeSwitchTrigger {
         CFNotificationCenterAddObserver(center, nil, fsCallback, name as CFString, nil, .deliverImmediately)
     }
 
-    /// 把开关状态写进共享 App Group 并刷新控制中心里的控件。
+    /// 共享状态文件（App 与沙盒扩展都用 App Group 容器里的同一个文件，跨进程可靠）。
+    static var statesURL: URL? {
+        FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: suite)?
+            .appendingPathComponent("states.json")
+    }
+
+    /// 把开关状态写进共享 App Group 文件并刷新控制中心里的控件。
     @MainActor
     static func publishStates(_ items: [SwitchItem]) {
         var dict: [String: Bool] = [:]
         for item in items where item.kind == .toggle { dict[item.id] = item.isOn }
-        UserDefaults(suiteName: suite)?.set(dict, forKey: statesKey)
+        if let url = statesURL, let data = try? JSONEncoder().encode(dict) {
+            try? data.write(to: url, options: .atomic)
+        }
         if #available(macOS 26.0, *) {
             ControlCenter.shared.reloadAllControls()
         }

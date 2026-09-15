@@ -12,7 +12,12 @@ enum CtrlShared {
     static let suite = "group.com.freeswitch.FreeSwitch"
 
     static func state(_ id: String) -> Bool {
-        (UserDefaults(suiteName: suite)?.dictionary(forKey: "control.states")?[id] as? Bool) ?? false
+        guard let url = FileManager.default
+                .containerURL(forSecurityApplicationGroupIdentifier: suite)?
+                .appendingPathComponent("states.json"),
+              let data = try? Data(contentsOf: url),
+              let dict = try? JSONDecoder().decode([String: Bool].self, from: data) else { return false }
+        return dict[id] ?? false
     }
 
     static func post(_ suffix: String) {
