@@ -34,10 +34,14 @@ cp -R "$BUILT" "$APP"
 # pluginkit 按 bundle id 只认一份扩展。构建目录里的副本（Debug 和 Release 都算）
 # 会把 /Applications 这份顶掉，于是控制中心用的根本不是你刚装的那个 —— 重装多少次都没用。
 # 所以这里要把构建目录下的所有副本统统注销，一个不留。
-echo "▸ 注销构建目录里的所有扩展副本…"
+# 注意有三个来源会抢：项目内 build/（Debug 和 Release 都算），以及在 Xcode 里
+# 按 Run 时产生的 ~/Library/Developer/Xcode/DerivedData/FreeSwitch-*/。漏掉任何一个，
+# 控制中心用的就不是你刚装的那份。
+echo "▸ 注销所有构建目录里的扩展副本…"
 while IFS= read -r p; do
     [ -n "$p" ] && pluginkit -r "$p" 2>/dev/null || true
-done < <(find "$PWD/build" -maxdepth 8 -name 'FreeSwitchControls.appex' 2>/dev/null)
+done < <(find "$PWD/build" "$HOME/Library/Developer/Xcode/DerivedData" \
+              -maxdepth 8 -name 'FreeSwitchControls.appex' 2>/dev/null)
 rm -rf build/Build/Products/Debug
 
 echo "▸ 重新登记控制中心扩展…"

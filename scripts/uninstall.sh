@@ -33,8 +33,9 @@ echo "▸ 注销控制中心扩展（所有副本，含构建目录里的残留�
 while read -r path; do
     [ -n "$path" ] && pluginkit -r "$path" 2>/dev/null || true
 done < <(pluginkit -m -v -i "$EXT_ID" 2>/dev/null | awk '{print $NF}' | grep '\.appex$')
-# 本项目构建目录里的副本也一并清掉。
-find "$(dirname "$0")/../build" -name 'FreeSwitchControls.appex' -maxdepth 6 2>/dev/null | while read -r p; do
+# 构建目录里的副本也一并清掉：项目内的 build/，以及 Xcode 按 Run 时用的 DerivedData。
+find "$(dirname "$0")/../build" "$HOME/Library/Developer/Xcode/DerivedData" \
+     -maxdepth 8 -name 'FreeSwitchControls.appex' 2>/dev/null | while read -r p; do
     pluginkit -r "$p" 2>/dev/null || true
 done
 

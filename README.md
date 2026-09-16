@@ -76,9 +76,14 @@
 
 添加方式：控制中心 › 编辑控件 › 从控件库里找 FreeSwitch。
 
-实现上，控件是一个沙盒 App Extension，通过 App Group 和主 App 通信：控件发 Darwin 通知（`MXHBUQH27V.group.com.freeswitch.FreeSwitch.trigger.<id>` / `.set.<id>.<1|0>`）触发执行，主 App 把真实状态回写到 App Group 容器里的 `states.json` 供控件显示。
+实现上，控件是一个沙盒 App Extension，和主 App 之间走两条独立的通道：
 
-> **Fork 须知**：App Group 名字以 Team ID 开头是 macOS 的硬性要求（iOS 那套裸 `group.` 前缀无法被签名自证，沙盒会拒绝授予，表现为扩展里 `containerURL(...)` 返回 nil、控件永远读不到状态）。用你自己的证书编译时，把 `MXHBUQH27V` 换成你的 Team ID，共四处：两个 `.entitlements`、`FreeSwitchTrigger.swift`、`FreeSwitchControls.swift`。
+- **动作**：控件发 Darwin 通知 `MXHBUQH27V.group.com.freeswitch.FreeSwitch.trigger.<id>` / `.set.<id>.<1|0>`，主 App 监听并执行。
+- **状态回读**：主 App 把真实状态写进**控件扩展自己的沙盒容器**（`~/Library/Containers/com.freeswitch.FreeSwitch.Controls/Data/Library/Application Support/FreeSwitch/states.json`），扩展读自己的容器即可。
+
+状态这条**刻意不走 App Group 容器**：App Group 必须被沙盒真正授予（Team ID 前缀之外还要有相应的描述文件），本地签名下扩展往往拿不到，`containerURL(...)` 返回 nil，状态永远读成 `false`——症状是控制中心里开关能正常显示、一翻就弹回，像个只读的状态指示器。扩展读自己的容器不需要任何 entitlement，而主 App 本就非沙盒，可以直接往里写。
+
+> **Fork 须知**：Darwin 通知名以 Team ID 开头，用你自己的证书编译时把 `MXHBUQH27V` 换成你的 Team ID，共四处：两个 `.entitlements`、`FreeSwitchTrigger.swift`、`FreeSwitchControls.swift`。
 
 > ⚠️ **必须装 Release 版。** Debug 构建会把扩展代码拆进单独的 `.debug.dylib`，主二进制只剩个桩，系统拉不起这样的沙盒扩展 —— 表现为控制中心里**带状态的开关显示成 `app.dashed` 占位图标**（按钮类不用跑代码所以看着正常，极易误判成图标名写错了）。
 > 另外 `pluginkit` 按 bundle id 只认一份扩展，构建目录里残留的 Debug 包会把 `/Applications` 这份顶掉，重装多少次都没用。`scripts/install.sh` 会一并清理，别手动 `cp` 了事。

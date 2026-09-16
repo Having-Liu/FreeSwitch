@@ -11,10 +11,21 @@ import Foundation
 enum CtrlShared {
     static let suite = "MXHBUQH27V.group.com.freeswitch.FreeSwitch"
 
+    /// 状态文件放在**本扩展自己的沙盒容器**里，不用 App Group 容器。
+    /// App Group 需要沙盒真正授予（Team ID 前缀 + 相应描述文件），本地签名下常常拿不到，
+    /// 那时 containerURL(...) 返回 nil、状态永远读成 false —— 表现就是控制中心里
+    /// 开关能显示却一翻就弹回，像个只读的状态指示器。
+    /// 读自己的容器则无需任何 entitlement，而非沙盒的主 App 也能直接往里写。
+    /// 沙盒内这个路径实际落在：
+    ///   ~/Library/Containers/<本扩展 id>/Data/Library/Application Support/FreeSwitch/states.json
+    private static var statesURL: URL? {
+        FileManager.default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("FreeSwitch/states.json")
+    }
+
     static func state(_ id: String) -> Bool {
-        guard let url = FileManager.default
-                .containerURL(forSecurityApplicationGroupIdentifier: suite)?
-                .appendingPathComponent("states.json"),
+        guard let url = statesURL,
               let data = try? Data(contentsOf: url),
               let dict = try? JSONDecoder().decode([String: Bool].self, from: data) else { return false }
         return dict[id] ?? false
