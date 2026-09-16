@@ -45,18 +45,25 @@ done < <(find "$PWD/build" "$HOME/Library/Developer/Xcode/DerivedData" \
               -maxdepth 8 -name 'FreeSwitchControls.appex' 2>/dev/null)
 rm -rf build/Build/Products/Debug
 
+# 顺序要紧：lsregister -f 会重置这个包的插件登记，所以必须放在 pluginkit 登记之前。
+# 放后面的话，刚登记好的扩展会被它清掉。
+echo "▸ 刷新 LaunchServices 对这个包的记录…"
+touch "$APP"
+"$LSREGISTER" -f "$APP" 2>/dev/null || true
+sleep 1
+
 echo "▸ 重新登记控制中心扩展…"
 pluginkit -r "$APP/$APPEX_REL" 2>/dev/null || true
 sleep 1
 pluginkit -a "$APP/$APPEX_REL"
-# 只 -a 不够：新增的控件不会出现在控制中心的控件库里。还要显式标记启用，
-# 并刷新 LaunchServices 对这个包的记录，chronod 才会重新扫描出新控件。
+# 只 -a 不够：新增的控件不会出现在控制中心的控件库里，还要显式标记启用，
+# chronod 才会重新扫描出新控件。
 pluginkit -e use -i com.freeswitch.FreeSwitch.Controls 2>/dev/null || true
-touch "$APP"
-"$LSREGISTER" -f "$APP" 2>/dev/null || true
+sleep 1
 
 # 核对最终生效的到底是不是 /Applications 那份，不对就明说，别让它静悄悄地错下去。
-WINNER=$(pluginkit -m -v -i com.freeswitch.FreeSwitch.Controls 2>/dev/null | awk '{print $NF}' | grep '\.appex$' | head -1)
+# 末尾的 || true 不能省：查不到时 grep 返回 1，在 set -euo pipefail 下会让整个脚本中断。
+WINNER=$(pluginkit -m -v -i com.freeswitch.FreeSwitch.Controls 2>/dev/null | awk '{print $NF}' | grep '\.appex$' | head -1 || true)
 echo "  生效的扩展：${WINNER:-（无）}"
 case "$WINNER" in
     "$APP/$APPEX_REL") ;;
