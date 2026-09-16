@@ -127,22 +127,3 @@ struct WideTileView: View {
     }
 }
 
-/// 抽屉里的选项胶囊。
-struct TileChip: View {
-    let title: String
-    let selected: Bool
-    let hue: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 11))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .foregroundStyle(selected ? Color.white : Color.primary)
-                .glassTile(hue: hue, isOn: selected, radius: 8)
-        }
-        .buttonStyle(.plain)
-    }
-}

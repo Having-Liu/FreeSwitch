@@ -2,14 +2,17 @@ import SwiftUI
 
 /// 菜单栏弹出的主界面：按分区排列的开关磁贴。
 ///
-/// 带参数的开关（保持亮屏、耳机连接、屏幕分辨率）占两列，选项在面板内就地展开，
-/// 不再弹系统菜单——旧版用 `Menu` 承载这类开关，磁贴的布局会被整个丢掉。
+/// 带参数的开关（保持亮屏、耳机连接、屏幕分辨率）占两列，点磁贴弹出 popover 选项。
+/// 两条经验写在这里，免得以后走回头路：
+///  - 不要用 `Menu` 承载磁贴：配 `.menuStyle(.borderlessButton)` 时自定义 label 的布局
+///    会被整个丢掉，磁贴的尺寸和背景都没了。
+///  - 整块磁贴只做一件事。此前磁贴主体切开关、右侧 26pt 的小箭头开选项，
+///    那个箭头几乎没人找得到；现在开关态移进了选项面板里。
 struct MenuContentView: View {
     @EnvironmentObject private var store: SwitchStore
     @ObservedObject private var prefs = Preferences.shared
 
-    @State private var expandedID: String?
-    @State private var displays: [ResolutionController.Display] = []
+    @State private var optionsID: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -34,17 +37,13 @@ struct MenuContentView: View {
             footer
         }
         .frame(width: TileMetrics.panelWidth)
-        .onAppear {
-            store.refresh()
-            displays = ResolutionController.displays()
-        }
+        .onAppear { store.refresh() }
     }
 
     // MARK: 数据
 
     private var visibleItems: [SwitchItem] { prefs.visibleItems(from: store.items) }
 
-    /// 分区内按用户在设置里排定的顺序。
     private func items(in section: String) -> [SwitchItem] {
         visibleItems.filter { $0.section == section }
     }
@@ -72,7 +71,6 @@ struct MenuContentView: View {
             height += 18 + 13
             height += CGFloat(rows(items).count) * (TileMetrics.height + TileMetrics.gap)
         }
-        if expandedID != nil { height += 78 }
         return min(height, 520)
     }
 
@@ -91,11 +89,6 @@ struct MenuContentView: View {
                     ForEach(row) { item in tile(item) }
                     Spacer(minLength: 0)
                 }
-                // 抽屉紧跟在它所属的那一行下面。
-                if let id = expandedID, row.contains(where: { $0.id == id }) {
-                    drawer(for: id)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
-                }
             }
         }
     }
@@ -103,15 +96,21 @@ struct MenuContentView: View {
     @ViewBuilder
     private func tile(_ item: SwitchItem) -> some View {
         if item.span > 1 {
+            // 整块磁贴都是「打开选项」，开/关在选项里，不再有两个热区。
             WideTileView(
                 item: item,
-                isExpanded: expandedID == item.id,
-                primary: {
-                    // 选择器没有开/关态，主操作就是展开。
-                    if item.kind == .picker { toggleExpand(item.id) } else { store.activate(item.id) }
-                },
-                toggleExpand: { toggleExpand(item.id) }
+                isExpanded: optionsID == item.id,
+                primary: { optionsID = item.id },
+                toggleExpand: { optionsID = item.id }
             )
+            .popover(isPresented: Binding(
+                get: { optionsID == item.id },
+                set: { if !$0 { optionsID = nil } }
+            )) {
+                options(for: item.id)
+                    .padding(13)
+                    .environmentObject(store)
+            }
         } else {
             SwitchTileView(item: item, phase: store.phases[item.id] ?? "idle") {
                 store.activate(item.id)
@@ -119,102 +118,14 @@ struct MenuContentView: View {
         }
     }
 
-    private func toggleExpand(_ id: String) {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
-            expandedID = (expandedID == id) ? nil : id
-        }
-    }
-
-    // MARK: 抽屉
-
     @ViewBuilder
-    private func drawer(for id: String) -> some View {
-        Group {
-            switch id {
-            case "keepAwake":         keepAwakeDrawer
-            case "connectHeadphones": headphoneDrawer
-            case "resolution":        resolutionDrawer
-            default:                  EmptyView()
-            }
+    private func options(for id: String) -> some View {
+        switch id {
+        case "keepAwake":         KeepAwakeOptions()
+        case "connectHeadphones": HeadphoneOptions()
+        case "resolution":        ResolutionOptions()
+        default:                  EmptyView()
         }
-        .padding(8)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.primary.opacity(0.05))
-        }
-    }
-
-    private var keepAwakeDrawer: some View {
-        let power = PowerController.shared
-        return chipGrid(minimum: 74) {
-            TileChip(title: "一直", selected: power.keepAwake && power.totalMinutes == nil, hue: SwitchHue.coffee) {
-                setAwake(nil)
-            }
-            ForEach([30, 60, 120], id: \.self) { minutes in
-                TileChip(title: minutes < 60 ? "\(minutes) 分钟" : "\(minutes / 60) 小时",
-                         selected: power.totalMinutes == minutes, hue: SwitchHue.coffee) {
-                    setAwake(minutes)
-                }
-            }
-            TileChip(title: "合盖不休眠", selected: power.clamshell, hue: SwitchHue.coffee) {
-                PowerController.shared.setKeepAwake(true, minutes: power.totalMinutes, clamshell: !power.clamshell)
-                store.refresh()
-            }
-            if power.keepAwake {
-                TileChip(title: "关闭", selected: false, hue: SwitchHue.coffee) {
-                    PowerController.shared.setKeepAwake(false)
-                    store.refresh()
-                }
-            }
-        }
-    }
-
-    private var headphoneDrawer: some View {
-        let connected = store.items.first { $0.id == "connectHeadphones" }?.isOn ?? false
-        return chipGrid(minimum: 88) {
-            TileChip(title: connected ? "断开" : "连接", selected: false, hue: SwitchHue.cyan) {
-                store.setSwitch("connectHeadphones", on: !connected)
-            }
-            TileChip(title: "选择设备…", selected: false, hue: SwitchHue.cyan) {
-                AudioController.connectHeadphones()
-            }
-        }
-    }
-
-    private var resolutionDrawer: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            ForEach(displays) { display in
-                if displays.count > 1 {
-                    Text(display.name)
-                        .font(.system(size: 9.5, weight: .medium))
-                        .foregroundStyle(.secondary)
-                }
-                chipGrid(minimum: 96) {
-                    ForEach(display.resolutions) { resolution in
-                        TileChip(title: resolution.label,
-                                 selected: display.currentID == resolution.id,
-                                 hue: SwitchHue.blue) {
-                            ResolutionController.apply(resolution, to: display.id)
-                            displays = ResolutionController.displays()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private func chipGrid<Content: View>(minimum: CGFloat, @ViewBuilder _ content: () -> Content) -> some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: minimum), spacing: 6)],
-                  alignment: .leading, spacing: 6) {
-            content()
-        }
-    }
-
-    private func setAwake(_ minutes: Int?) {
-        // 改时长时保留当前的「合盖不休眠」，避免重复弹密码。
-        PowerController.shared.setKeepAwake(true, minutes: minutes, clamshell: PowerController.shared.clamshell)
-        store.refresh()
     }
 
     // MARK: 头尾
