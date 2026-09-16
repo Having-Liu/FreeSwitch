@@ -83,6 +83,8 @@ final class SwitchStore: ObservableObject {
             forName: .NSProcessInfoPowerStateDidChange, object: nil, queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
+                // 通知到了就说明写入已落地，从这一刻起系统读数才可信。
+                self?.endPendingWrite("lowPowerMode")
                 self?.setOn("lowPowerMode", SystemController.lowPowerModeEnabled())
                 self?.publish()
             }
@@ -104,11 +106,11 @@ final class SwitchStore: ObservableObject {
     /// 廉价核对：只读进程内就能拿到的状态，绝不 fork 子进程
     /// （`pmset -g`、`system_profiler` 这类太贵，不能每 5 秒跑一次）。
     private func reconcile() {
-        setOn("darkMode", AppearanceController.isDarkMode())
-        if AppearanceController.nightShiftSupported { setOn("nightShift", AppearanceController.isNightShiftOn()) }
-        if AppearanceController.trueToneSupported { setOn("trueTone", AppearanceController.isTrueToneOn()) }
-        setOn("lowPowerMode", SystemController.lowPowerModeEnabled())
-        setOn("muteMic", AudioController.micMuted())
+        setFromSystem("darkMode", AppearanceController.isDarkMode())
+        if AppearanceController.nightShiftSupported { setFromSystem("nightShift", AppearanceController.isNightShiftOn()) }
+        if AppearanceController.trueToneSupported { setFromSystem("trueTone", AppearanceController.isTrueToneOn()) }
+        setFromSystem("lowPowerMode", SystemController.lowPowerModeEnabled())
+        setFromSystem("muteMic", AudioController.micMuted())
         setOn("keepAwake", PowerController.shared.keepAwake)
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
         publish()
@@ -134,6 +136,35 @@ final class SwitchStore: ObservableObject {
     private func setOn(_ id: String, _ on: Bool) {
         guard let i = index(id) else { return }
         items[i].isOn = on
+    }
+
+    // MARK: 写入在途
+    // 有些开关（低电量、合盖不休眠）要改系统电源设置，写入是异步的：
+    // 我们已经按目标值显示了，但系统里还没落地，这时任何“读当前值”都还是旧值。
+    // 把旧值当真相发布出去，控件就会闪一下（新值 → 旧值 → 通知到达 → 又回到新值）。
+    // 所以写入在途期间，一律忽略从系统读到的值，只信最终那个变更通知。
+
+    private var pendingWrites: [String: Date] = [:]
+
+    private func beginPendingWrite(_ id: String) { pendingWrites[id] = Date() }
+
+    private func endPendingWrite(_ id: String) { pendingWrites.removeValue(forKey: id) }
+
+    private func isPending(_ id: String) -> Bool {
+        guard let started = pendingWrites[id] else { return false }
+        // 兜底：变更通知可能永远不来（比如用户在授权弹窗上点了取消）。
+        // 超时后就放开，让定时核对把状态纠正回系统的真实值。
+        guard Date().timeIntervalSince(started) < 5 else {
+            pendingWrites.removeValue(forKey: id)
+            return false
+        }
+        return true
+    }
+
+    /// 用“从系统读到的值”更新状态。该开关正有写入在途时，读数必然是旧的，忽略。
+    private func setFromSystem(_ id: String, _ value: Bool) {
+        guard !isPending(id) else { return }
+        setOn(id, value)
     }
 
     private func setSupported(_ id: String, _ supported: Bool) {
@@ -165,10 +196,10 @@ final class SwitchStore: ObservableObject {
         } else {
             setDetail("keepAwake", nil)
         }
-        setOn("lowPowerMode", SystemController.lowPowerModeEnabled())
-        setOn("muteMic", AudioController.micMuted())
-        setOn("hideDesktop", SystemController.desktopIconsHidden())
-        setOn("showHidden", SystemController.showHiddenFiles())
+        setFromSystem("lowPowerMode", SystemController.lowPowerModeEnabled())
+        setFromSystem("muteMic", AudioController.micMuted())
+        setFromSystem("hideDesktop", SystemController.desktopIconsHidden())
+        setFromSystem("showHidden", SystemController.showHiddenFiles())
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
 
         loadHeadphoneStatus()
@@ -250,8 +281,12 @@ final class SwitchStore: ObservableObject {
         case "trueTone":     AppearanceController.setTrueTone(on); return AppearanceController.isTrueToneOn()
         case "keepAwake":    PowerController.shared.setKeepAwake(on); return PowerController.shared.keepAwake
         // 改电源设置是异步的（走 XPC 助手或管理员授权弹窗），此刻回读必然是旧值。
-        // 先按目标值显示，真实结果由 NSProcessInfoPowerStateDidChange 通知纠正。
-        case "lowPowerMode": SystemController.setLowPowerMode(on); return on
+        // 标记为写入在途：这期间的系统读数一律忽略，等 NSProcessInfoPowerStateDidChange
+        // 通知到了才认。否则助手的 XPC 回调或定时核对会抢先发布旧值，控件就闪一下。
+        case "lowPowerMode":
+            beginPendingWrite(id)
+            SystemController.setLowPowerMode(on)
+            return on
         case "muteMic":      AudioController.setMicMuted(on); return AudioController.micMuted()
         case "hideDesktop":  SystemController.setDesktopIconsHidden(on); return on
         case "showHidden":   SystemController.setShowHiddenFiles(on); return on
