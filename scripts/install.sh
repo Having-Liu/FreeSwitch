@@ -11,6 +11,7 @@ cd "$(dirname "$0")/.."
 
 APP=/Applications/FreeSwitch.app
 APPEX_REL=Contents/PlugIns/FreeSwitchControls.appex
+LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 
 echo "▸ 构建 Release…"
 xcodebuild -project FreeSwitch.xcodeproj -scheme FreeSwitch \
@@ -46,7 +47,13 @@ rm -rf build/Build/Products/Debug
 
 echo "▸ 重新登记控制中心扩展…"
 pluginkit -r "$APP/$APPEX_REL" 2>/dev/null || true
+sleep 1
 pluginkit -a "$APP/$APPEX_REL"
+# 只 -a 不够：新增的控件不会出现在控制中心的控件库里。还要显式标记启用，
+# 并刷新 LaunchServices 对这个包的记录，chronod 才会重新扫描出新控件。
+pluginkit -e use -i com.freeswitch.FreeSwitch.Controls 2>/dev/null || true
+touch "$APP"
+"$LSREGISTER" -f "$APP" 2>/dev/null || true
 
 # 核对最终生效的到底是不是 /Applications 那份，不对就明说，别让它静悄悄地错下去。
 WINNER=$(pluginkit -m -v -i com.freeswitch.FreeSwitch.Controls 2>/dev/null | awk '{print $NF}' | grep '\.appex$' | head -1)
