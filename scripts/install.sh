@@ -31,17 +31,28 @@ sleep 1
 rm -rf "$APP"
 cp -R "$BUILT" "$APP"
 
-# pluginkit 按 bundle id 只认一份扩展。构建目录里残留的 Debug 包会把
-# /Applications 这份顶掉，于是控制中心用的一直是那个跑不起来的桩 —— 重装多少次都没用。
-echo "▸ 清掉构建目录里的 Debug 扩展…"
-DEBUG_APPEX="$PWD/build/Build/Products/Debug/FreeSwitch.app/$APPEX_REL"
-[ -e "$DEBUG_APPEX" ] && pluginkit -r "$DEBUG_APPEX" 2>/dev/null || true
+# pluginkit 按 bundle id 只认一份扩展。构建目录里的副本（Debug 和 Release 都算）
+# 会把 /Applications 这份顶掉，于是控制中心用的根本不是你刚装的那个 —— 重装多少次都没用。
+# 所以这里要把构建目录下的所有副本统统注销，一个不留。
+echo "▸ 注销构建目录里的所有扩展副本…"
+while IFS= read -r p; do
+    [ -n "$p" ] && pluginkit -r "$p" 2>/dev/null || true
+done < <(find "$PWD/build" -maxdepth 8 -name 'FreeSwitchControls.appex' 2>/dev/null)
 rm -rf build/Build/Products/Debug
 
 echo "▸ 重新登记控制中心扩展…"
 pluginkit -r "$APP/$APPEX_REL" 2>/dev/null || true
 pluginkit -a "$APP/$APPEX_REL"
-pluginkit -m -v -i com.freeswitch.FreeSwitch.Controls
+
+# 核对最终生效的到底是不是 /Applications 那份，不对就明说，别让它静悄悄地错下去。
+WINNER=$(pluginkit -m -v -i com.freeswitch.FreeSwitch.Controls 2>/dev/null | awk '{print $NF}' | grep '\.appex$' | head -1)
+echo "  生效的扩展：${WINNER:-（无）}"
+case "$WINNER" in
+    "$APP/$APPEX_REL") ;;
+    *) echo "  ✗ 生效的不是 /Applications 那份！控制中心用的会是上面这个副本。" >&2 ;;
+esac
+# 控件的快照缓存归 chronod 管，只重启 ControlCenter 清不掉旧图标。
+killall chronod 2>/dev/null || true
 killall ControlCenter 2>/dev/null || true
 
 echo "▸ 启动…"

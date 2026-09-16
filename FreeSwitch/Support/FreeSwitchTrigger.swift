@@ -2,11 +2,14 @@ import Foundation
 import WidgetKit
 
 // 控制中心控件 ↔ 主 App 的桥。
-//  - 控件发 Darwin 通知：group.com.freeswitch.FreeSwitch.trigger.<id>（动作）
+//  - 控件发 Darwin 通知：<AppGroup>.trigger.<id>（动作）
 //    或 .set.<id>.<1|0>（开关设为指定值）。主 App 监听并执行。
 //  - 主 App 把开关状态写进共享 App Group，供控件显示；变化后让控制中心刷新。
 
-private let fsPrefix = "group.com.freeswitch.FreeSwitch."
+// macOS 的 App Group 必须以 Team ID 开头（iOS 那套纯 "group." 前缀在 macOS 上
+// 无法被签名自证，沙盒会拒绝授予）。用错了的表现是：扩展里 containerURL(...) 返回 nil，
+// 沙盒容器里连 Data/Library/Group Containers 目录都不会生成。
+private let fsPrefix = "MXHBUQH27V.group.com.freeswitch.FreeSwitch."
 
 private let fsCallback: CFNotificationCallback = { _, _, cfName, _, _ in
     guard let raw = cfName?.rawValue as String?, raw.hasPrefix(fsPrefix) else { return }
@@ -24,7 +27,7 @@ private let fsCallback: CFNotificationCallback = { _, _, cfName, _, _ in
 }
 
 enum FreeSwitchTrigger {
-    static let suite = "group.com.freeswitch.FreeSwitch"
+    static let suite = "MXHBUQH27V.group.com.freeswitch.FreeSwitch"
     static let statesKey = "control.states"
 
     static func startObserving() {

@@ -9,7 +9,7 @@ import Foundation
 // 动作类用 ControlWidgetButton（点一下执行）。
 
 enum CtrlShared {
-    static let suite = "group.com.freeswitch.FreeSwitch"
+    static let suite = "MXHBUQH27V.group.com.freeswitch.FreeSwitch"
 
     static func state(_ id: String) -> Bool {
         guard let url = FileManager.default
@@ -23,7 +23,7 @@ enum CtrlShared {
     static func post(_ suffix: String) {
         CFNotificationCenterPostNotification(
             CFNotificationCenterGetDarwinNotifyCenter(),
-            CFNotificationName(("group.com.freeswitch.FreeSwitch." + suffix) as CFString),
+            CFNotificationName((CtrlShared.suite + "." + suffix) as CFString),
             nil, nil, true
         )
     }

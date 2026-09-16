@@ -82,6 +82,18 @@ struct SettingsView: View {
                         }
                     }
                 }
+
+                Section("彻底卸载") {
+                    Text("直接把 App 拖进废纸篓是清不干净的：控制中心的控件登记、特权助手、登录项、以及「合盖也不休眠」改过的电源设置都会留在系统里。用下面这个按钮可以一次清完并还原。")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    HStack {
+                        Button("彻底卸载 FreeSwitch…", role: .destructive) {
+                            UninstallController.confirmAndUninstall()
+                        }
+                        Spacer()
+                    }
+                }
             }
             .listStyle(.inset)
             Divider()

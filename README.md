@@ -53,7 +53,17 @@
 ./scripts/install.sh
 ```
 
-构建 Release、装进 `/Applications`、重新登记控制中心扩展、重启控制中心，一步到位。
+构建 Release、装进 `/Applications`、重新登记控制中心扩展、清控件快照缓存，一步到位。
+
+## 彻底卸载
+
+设置窗口底部有「彻底卸载 FreeSwitch…」按钮；也可以直接跑：
+
+```bash
+./scripts/uninstall.sh
+```
+
+把 App 拖进废纸篓是清不干净的——控制中心的扩展登记（`pluginkit`）、控件快照缓存（`chronod`）、特权助手与登录项（`SMAppService`／后台项）、以及「合盖也不休眠」改过的 `pmset` 设置都会留在系统里继续生效。卸载会一并删除并**还原电源设置**。想从零干净重装（尤其是调控制中心控件）时，先卸载再 `install.sh`。
 
 也可以直接在 Xcode 里打开 `FreeSwitch.xcodeproj` 按 Run —— 但**这样调不通控制中心控件**，原因见下。
 
@@ -66,7 +76,9 @@
 
 添加方式：控制中心 › 编辑控件 › 从控件库里找 FreeSwitch。
 
-实现上，控件是一个沙盒 App Extension，通过 App Group 和主 App 通信：控件发 Darwin 通知（`group.com.freeswitch.FreeSwitch.trigger.<id>` / `.set.<id>.<1|0>`）触发执行，主 App 把真实状态回写到 App Group 容器里的 `states.json` 供控件显示。
+实现上，控件是一个沙盒 App Extension，通过 App Group 和主 App 通信：控件发 Darwin 通知（`MXHBUQH27V.group.com.freeswitch.FreeSwitch.trigger.<id>` / `.set.<id>.<1|0>`）触发执行，主 App 把真实状态回写到 App Group 容器里的 `states.json` 供控件显示。
+
+> **Fork 须知**：App Group 名字以 Team ID 开头是 macOS 的硬性要求（iOS 那套裸 `group.` 前缀无法被签名自证，沙盒会拒绝授予，表现为扩展里 `containerURL(...)` 返回 nil、控件永远读不到状态）。用你自己的证书编译时，把 `MXHBUQH27V` 换成你的 Team ID，共四处：两个 `.entitlements`、`FreeSwitchTrigger.swift`、`FreeSwitchControls.swift`。
 
 > ⚠️ **必须装 Release 版。** Debug 构建会把扩展代码拆进单独的 `.debug.dylib`，主二进制只剩个桩，系统拉不起这样的沙盒扩展 —— 表现为控制中心里**带状态的开关显示成 `app.dashed` 占位图标**（按钮类不用跑代码所以看着正常，极易误判成图标名写错了）。
 > 另外 `pluginkit` 按 bundle id 只认一份扩展，构建目录里残留的 Debug 包会把 `/Applications` 这份顶掉，重装多少次都没用。`scripts/install.sh` 会一并清理，别手动 `cp` 了事。

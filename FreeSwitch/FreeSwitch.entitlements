@@ -8,7 +8,7 @@
 	<!-- 与控制中心扩展共享，用于沙盒放行的 Darwin 通知前缀 -->
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.freeswitch.FreeSwitch</string>
+		<string>MXHBUQH27V.group.com.freeswitch.FreeSwitch</string>
 	</array>
 </dict>
 </plist>
