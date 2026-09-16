@@ -122,12 +122,35 @@ final class SwitchStore: ObservableObject {
 
     /// 把状态发布给控制中心控件。默认只在真的发生变化时才写文件、刷控件，
     /// 免得定时核对每 5 秒都触发一次无谓的 IO 与控件重载。
+    // MARK: Xcode 清理的“点两次”确认
+    // 控制中心弹不出确认框（官方 requestConfirmation 实测是静默放行，控件 API 也没有弹窗），
+    // 所以用控件的两态表达：第一次点上膛，第二次点才真清理。
+    // 上膛状态带有效期，靠 5 秒一次的核对自然过期——publish 每次重算它，过期即回落。
+    private var xcodeCleanArmedUntil: Date?
+    private var xcodeCleanArmed: Bool { (xcodeCleanArmedUntil ?? .distantPast) > Date() }
+
+    private func setXcodeCleanArmed(_ arm: Bool) {
+        if arm {
+            xcodeCleanArmedUntil = Date().addingTimeInterval(10)
+        } else {
+            // 从“已上膛”翻回去就是确认执行；若已经超时，这一下什么都不做。
+            let wasArmed = xcodeCleanArmed
+            xcodeCleanArmedUntil = nil
+            if wasArmed {
+                performAction("xcodeClean")
+                flash("xcodeClean")
+            }
+        }
+        publish(force: true)
+    }
+
     private func publish(force: Bool = false) {
         var dict: [String: Bool] = [:]
         for item in items where item.kind == .toggle { dict[item.id] = item.isOn }
+        dict["xcodeCleanArmed"] = xcodeCleanArmed
         guard force || dict != lastPublished else { return }
         lastPublished = dict
-        FreeSwitchTrigger.publishStates(items)
+        FreeSwitchTrigger.publishStates(dict)
     }
 
     /// 是否有“常驻类”开关处于激活状态。
@@ -267,6 +290,7 @@ final class SwitchStore: ObservableObject {
 
     /// 设为指定状态（供控制中心开关控件用；非开关类则执行动作）。
     func setSwitch(_ id: String, on: Bool) {
+        if id == "xcodeCleanArmed" { setXcodeCleanArmed(on); return }
         guard let item = SwitchCatalog.item(id) else { return }
         if item.kind == .toggle {
             setOn(id, perform(id, on: on))

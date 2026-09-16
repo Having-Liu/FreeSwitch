@@ -125,7 +125,31 @@ struct FSDoNotDisturb: ControlWidget { var body: some ControlWidgetConfiguration
 struct FSLockScreen: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "lockScreen", name: "锁定屏幕", symbol: "lock.fill") } }
 struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "screenClean", name: "屏幕清洁", symbol: "sparkles") } }
 struct FSEmptyTrash: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "emptyTrash", name: "清空废纸篓", symbol: "trash.fill") } }
-struct FSXcodeClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "xcodeClean", name: "Xcode 清理", symbol: "hammer.fill") } }
+// Xcode 清理要点两次才执行。
+//
+// 为什么不用 AppIntents 官方的 requestConfirmation：实测过了，它在 macOS 控制中心里
+// 是**静默放行**——不渲染任何界面、不抛错、直接往下走（探针显示 perform() 入口与
+// “确认通过”两条通知每次都在同一秒成对出现）。挂上它只会制造有确认的错觉。
+//
+// 控制中心的控件也没有弹窗能力：整个 API 只有图标、文字、状态行和 tint，
+// 没有自定义视图层级。所以确认只能用控件自己的两态来表达：
+// 第一次点“上膛”（改图标、改文字、变红），第二次点才真的清理；10 秒无操作自动解除。
+struct FSXcodeClean: ControlWidget {
+    var body: some ControlWidgetConfiguration {
+        StaticControlConfiguration(
+            kind: "com.freeswitch.FreeSwitch.control.xcodeClean",
+            provider: FSToggleProvider(id: "xcodeCleanArmed")
+        ) { armed in
+            ControlWidgetToggle(isOn: armed, action: SetSwitchIntent("xcodeCleanArmed")) {
+                Label(armed ? "再点一次确认" : "Xcode 清理",
+                      systemImage: armed ? "exclamationmark.triangle.fill" : "hammer.fill")
+            }
+            .tint(armed ? Color.red : nil)
+        }
+        .displayName("Xcode 清理")
+        .description("清空 Xcode 的 DerivedData。点两次确认，下次构建会全量重编。")
+    }
+}
 
 // WidgetBundle 的 builder 不嵌套时最多只放得下 10 个，第 11 个就编译不过。
 // 拆成几组各自用 @WidgetBundleBuilder 标注的属性再拼起来，就能继续往下加

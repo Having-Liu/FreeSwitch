@@ -39,6 +39,10 @@ enum FreeSwitchTrigger {
                 add(center, fsPrefix + "set." + id + ".0")
             }
         }
+        // Xcode 清理的“点两次”确认状态。它不是 SwitchCatalog 里的开关
+        // （面板上不该出现这么个东西），只服务于控制中心那个控件，所以单独登记。
+        add(center, fsPrefix + "set.xcodeCleanArmed.1")
+        add(center, fsPrefix + "set.xcodeCleanArmed.0")
     }
 
     private static func add(_ center: CFNotificationCenter?, _ name: String) {
@@ -58,11 +62,10 @@ enum FreeSwitchTrigger {
     }
 
     /// 把开关状态写给控件，并刷新控制中心里的显示。
+    /// 接收已经拼好的状态字典，不要自己从 items 再拼一遍——
+    /// 那样调用方额外塞进去的键（比如 xcodeCleanArmed 这种不属于 SwitchCatalog 的）会被悄悄丢掉。
     @MainActor
-    static func publishStates(_ items: [SwitchItem]) {
-        var dict: [String: Bool] = [:]
-        for item in items where item.kind == .toggle { dict[item.id] = item.isOn }
-
+    static func publishStates(_ dict: [String: Bool]) {
         let url = statesURL
         // 容器由系统在扩展首次运行时创建。它还不存在时不要自己造目录，
         // 免得留下一个畸形容器让 containermanagerd 犯迷糊 —— 等扩展跑起来，下一次发布自然会写进去。
