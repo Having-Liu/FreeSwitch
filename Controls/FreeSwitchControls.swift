@@ -51,6 +51,34 @@ enum CtrlShared {
         try? data.write(to: url, options: .atomic)
     }
 
+    // MARK: 动作的执行阶段（idle / running / done）
+    // 开关状态是 Bool、阶段是字符串，schema 不同，所以分开两个文件。
+
+    private static var phasesURL: URL? {
+        FileManager.default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("FreeSwitch/phases.json")
+    }
+
+    static func phase(_ id: String) -> String {
+        guard let url = phasesURL,
+              let data = try? Data(contentsOf: url),
+              let dict = try? JSONDecoder().decode([String: String].self, from: data) else { return "idle" }
+        return dict[id] ?? "idle"
+    }
+
+    static func setPhase(_ id: String, _ phase: String) {
+        guard let url = phasesURL else { return }
+        var dict = (try? Data(contentsOf: url))
+            .flatMap { try? JSONDecoder().decode([String: String].self, from: $0) } ?? [:]
+        if phase == "idle" { dict.removeValue(forKey: id) } else { dict[id] = phase }
+        guard let data = try? JSONEncoder().encode(dict) else { return }
+        try? FileManager.default.createDirectory(
+            at: url.deletingLastPathComponent(), withIntermediateDirectories: true
+        )
+        try? data.write(to: url, options: .atomic)
+    }
+
     static func post(_ suffix: String) {
         CFNotificationCenterPostNotification(
             CFNotificationCenterGetDarwinNotifyCenter(),
@@ -67,6 +95,11 @@ struct TriggerSwitchIntent: AppIntent {
     init() {}
     init(_ id: String) { self.id = id }
     func perform() async throws -> some IntentResult {
+        // 正在处理就直接返回。控制中心允许连点，不挡住就会把同一个动作叠着跑。
+        guard CtrlShared.phase(id) != "running" else { return .result() }
+        // 先把「处理中」落进共享文件：控制中心在 intent 返回后会立刻回查，
+        // 这时主 App 往往还没收到通知，不先写就要等约一秒才看得到反馈。
+        CtrlShared.setPhase(id, "running")
         CtrlShared.post("trigger." + id)
         return .result()
     }
@@ -94,11 +127,37 @@ struct FSToggleProvider: ControlValueProvider {
     func currentValue() async throws -> Bool { CtrlShared.state(id) }
 }
 
-private func fsButton(id: String, name: String, symbol: String) -> some ControlWidgetConfiguration {
-    StaticControlConfiguration(kind: "com.freeswitch.FreeSwitch.control." + id) {
-        ControlWidgetButton(action: TriggerSwitchIntent(id)) {
-            Label(name, systemImage: symbol)
+struct FSPhaseProvider: ControlValueProvider {
+    let id: String
+    var previewValue: String { "idle" }
+    func currentValue() async throws -> String { CtrlShared.phase(id) }
+}
+
+/// 动作控件的三种面孔：常态、处理中、已完成。
+private struct FSActionLabel: View {
+    let phase: String
+    let name: String
+    let symbol: String
+    var body: some View {
+        switch phase {
+        case "running": Label("处理中…", systemImage: "hourglass")
+        case "done":    Label("已完成", systemImage: "checkmark.circle.fill")
+        default:        Label(name, systemImage: symbol)
         }
+    }
+}
+
+// 动作控件给的是事后反馈而非事前确认：点一下立刻执行，控件随即显示「处理中」，
+// 完成后显示「已完成」并变绿，两秒后回到常态。处理中期间的重复点击会被忽略。
+private func fsButton(id: String, name: String, symbol: String) -> some ControlWidgetConfiguration {
+    StaticControlConfiguration(
+        kind: "com.freeswitch.FreeSwitch.control." + id,
+        provider: FSPhaseProvider(id: id)
+    ) { phase in
+        ControlWidgetButton(action: TriggerSwitchIntent(id)) {
+            FSActionLabel(phase: phase, name: name, symbol: symbol)
+        }
+        .tint(phase == "done" ? Color.green : nil)
     }
     .displayName(LocalizedStringResource(stringLiteral: name))
 }
@@ -125,31 +184,11 @@ struct FSDoNotDisturb: ControlWidget { var body: some ControlWidgetConfiguration
 struct FSLockScreen: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "lockScreen", name: "锁定屏幕", symbol: "lock.fill") } }
 struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "screenClean", name: "屏幕清洁", symbol: "sparkles") } }
 struct FSEmptyTrash: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "emptyTrash", name: "清空废纸篓", symbol: "trash.fill") } }
-// Xcode 清理要点两次才执行。
-//
-// 为什么不用 AppIntents 官方的 requestConfirmation：实测过了，它在 macOS 控制中心里
-// 是**静默放行**——不渲染任何界面、不抛错、直接往下走（探针显示 perform() 入口与
-// “确认通过”两条通知每次都在同一秒成对出现）。挂上它只会制造有确认的错觉。
-//
-// 控制中心的控件也没有弹窗能力：整个 API 只有图标、文字、状态行和 tint，
-// 没有自定义视图层级。所以确认只能用控件自己的两态来表达：
-// 第一次点“上膛”（改图标、改文字、变红），第二次点才真的清理；10 秒无操作自动解除。
-struct FSXcodeClean: ControlWidget {
-    var body: some ControlWidgetConfiguration {
-        StaticControlConfiguration(
-            kind: "com.freeswitch.FreeSwitch.control.xcodeClean",
-            provider: FSToggleProvider(id: "xcodeCleanArmed")
-        ) { armed in
-            ControlWidgetToggle(isOn: armed, action: SetSwitchIntent("xcodeCleanArmed")) {
-                Label(armed ? "再点一次确认" : "Xcode 清理",
-                      systemImage: armed ? "exclamationmark.triangle.fill" : "hammer.fill")
-            }
-            .tint(armed ? Color.red : nil)
-        }
-        .displayName("Xcode 清理")
-        .description("清空 Xcode 的 DerivedData。点两次确认，下次构建会全量重编。")
-    }
-}
+// 注：这里曾试过用 AppIntents 官方的 requestConfirmation 做二次确认，实测它在
+// macOS 控制中心里是静默放行——不渲染界面、不抛错、直接往下走（探针显示 perform()
+// 入口与“确认通过”两条通知每次都在同一秒成对出现）。控件 API 也没有弹窗能力。
+// 最终改成点一下就执行，用「处理中 / 已完成」做事后反馈，顺带挡住重复触发。
+struct FSXcodeClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "xcodeClean", name: "Xcode 清理", symbol: "hammer.fill") } }
 
 // WidgetBundle 的 builder 不嵌套时最多只放得下 10 个，第 11 个就编译不过。
 // 拆成几组各自用 @WidgetBundleBuilder 标注的属性再拼起来，就能继续往下加

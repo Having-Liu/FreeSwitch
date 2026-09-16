@@ -122,35 +122,52 @@ final class SwitchStore: ObservableObject {
 
     /// 把状态发布给控制中心控件。默认只在真的发生变化时才写文件、刷控件，
     /// 免得定时核对每 5 秒都触发一次无谓的 IO 与控件重载。
-    // MARK: Xcode 清理的“点两次”确认
-    // 控制中心弹不出确认框（官方 requestConfirmation 实测是静默放行，控件 API 也没有弹窗），
-    // 所以用控件的两态表达：第一次点上膛，第二次点才真清理。
-    // 上膛状态带有效期，靠 5 秒一次的核对自然过期——publish 每次重算它，过期即回落。
-    private var xcodeCleanArmedUntil: Date?
-    private var xcodeCleanArmed: Bool { (xcodeCleanArmedUntil ?? .distantPast) > Date() }
+    // MARK: 动作的执行阶段（控制中心里显示「处理中 / 已完成」）
+    // 控件没有弹窗能力，但换得了图标和文字。比起事前确认，事后反馈更有用：
+    // 能看见它真的在做、做完了；而「处理中」本身就挡住了重复触发。
+    private var phases: [String: String] = [:]
+    private var lastPhases: [String: String] = [:]
+    private var idleTasks: [String: Task<Void, Never>] = [:]
 
-    private func setXcodeCleanArmed(_ arm: Bool) {
-        if arm {
-            xcodeCleanArmedUntil = Date().addingTimeInterval(10)
-        } else {
-            // 从“已上膛”翻回去就是确认执行；若已经超时，这一下什么都不做。
-            let wasArmed = xcodeCleanArmed
-            xcodeCleanArmedUntil = nil
-            if wasArmed {
-                performAction("xcodeClean")
-                flash("xcodeClean")
-            }
-        }
+    private func setPhase(_ id: String, _ phase: String) {
+        if phase == "idle" { phases.removeValue(forKey: id) } else { phases[id] = phase }
         publish(force: true)
+    }
+
+    /// 执行一个动作：先把「处理中」发出去，做完显示「已完成」，两秒后回到常态。
+    private func beginAction(_ id: String) {
+        setPhase(id, "running")
+        flash(id)
+        // 慢动作必须离开主线程。清 DerivedData 可能要删好几个 G，
+        // 同步跑在主线程上不只是界面冻住——「处理中」根本没机会被画出来。
+        if id == "xcodeClean" {
+            Task { [weak self] in
+                await Task.detached { _ = SystemController.cleanXcodeCaches() }.value
+                self?.finishAction(id)
+            }
+        } else {
+            performAction(id)
+            finishAction(id)
+        }
+    }
+
+    private func finishAction(_ id: String) {
+        setPhase(id, "done")
+        idleTasks[id]?.cancel()
+        idleTasks[id] = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            guard !Task.isCancelled else { return }
+            self?.setPhase(id, "idle")
+        }
     }
 
     private func publish(force: Bool = false) {
         var dict: [String: Bool] = [:]
         for item in items where item.kind == .toggle { dict[item.id] = item.isOn }
-        dict["xcodeCleanArmed"] = xcodeCleanArmed
-        guard force || dict != lastPublished else { return }
+        guard force || dict != lastPublished || phases != lastPhases else { return }
         lastPublished = dict
-        FreeSwitchTrigger.publishStates(dict)
+        lastPhases = phases
+        FreeSwitchTrigger.publishStates(dict, phases: phases)
     }
 
     /// 是否有“常驻类”开关处于激活状态。
@@ -280,8 +297,9 @@ final class SwitchStore: ObservableObject {
             // 用回读到的真实状态更新，避免授权失败/设备不支持时磁贴“说谎”。
             setOn(id, perform(id, on: newValue))
         case .action:
-            performAction(id)
-            flash(id)
+            // 正在处理就忽略这次触发，别把同一个动作叠着跑。
+            guard phases[id] != "running" else { return }
+            beginAction(id)
         case .picker:
             break
         }
@@ -290,7 +308,6 @@ final class SwitchStore: ObservableObject {
 
     /// 设为指定状态（供控制中心开关控件用；非开关类则执行动作）。
     func setSwitch(_ id: String, on: Bool) {
-        if id == "xcodeCleanArmed" { setXcodeCleanArmed(on); return }
         guard let item = SwitchCatalog.item(id) else { return }
         if item.kind == .toggle {
             setOn(id, perform(id, on: on))

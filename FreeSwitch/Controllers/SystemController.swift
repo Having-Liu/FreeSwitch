@@ -65,7 +65,8 @@ enum SystemController {
 
     // MARK: Xcode 缓存清理（DerivedData）
     @discardableResult
-    static func cleanXcodeCaches() -> Int {
+    /// 可能要删好几个 G，务必放在主线程之外调用。
+    nonisolated static func cleanXcodeCaches() -> Int {
         let base = ("~/Library/Developer/Xcode/DerivedData" as NSString).expandingTildeInPath
         let fileManager = FileManager.default
         guard let items = try? fileManager.contentsOfDirectory(atPath: base) else { return 0 }
