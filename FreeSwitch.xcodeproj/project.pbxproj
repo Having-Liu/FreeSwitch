@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		000000000000000221000000 /* FreeSwitchControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000230 /* FreeSwitchControls.swift */; };
 		000000000000000161000000 /* FreeSwitchControls.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 000000000000000000000220 /* FreeSwitchControls.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		000000000000000221000000 /* FreeSwitchControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000230 /* FreeSwitchControls.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -21,25 +21,15 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXTargetDependency section */
-		000000000000000170000000 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 000000000000000200000000 /* FreeSwitchControls */;
-			targetProxy = 000000000000000171000000 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		000000000000000160000000 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 13;
+			dstSubfolder = PlugIns;
 			files = (
 				000000000000000161000000 /* FreeSwitchControls.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -82,15 +72,6 @@
 			);
 			sourceTree = "<group>";
 		};
-		000000000000000000000020 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				000000000000000000000120 /* FreeSwitch.app */,
-				000000000000000000000220 /* FreeSwitchControls.appex */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		000000000000000000000011 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
@@ -99,6 +80,15 @@
 				000000000000000000000232 /* FreeSwitchControls.entitlements */,
 			);
 			path = Controls;
+			sourceTree = "<group>";
+		};
+		000000000000000000000020 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000120 /* FreeSwitch.app */,
+				000000000000000000000220 /* FreeSwitchControls.appex */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -114,10 +104,10 @@
 				000000000000000150000000 /* Embed Privileged Helper */,
 				000000000000000160000000 /* Embed Foundation Extensions */,
 			);
+			buildRules = (
+			);
 			dependencies = (
 				000000000000000170000000 /* PBXTargetDependency */,
-			);
-			buildRules = (
 			);
 			fileSystemSynchronizedGroups = (
 				000000000000000000000010 /* FreeSwitch */,
@@ -136,8 +126,6 @@
 				000000000000000240000000 /* Resources */,
 			);
 			buildRules = (
-			);
-			dependencies = (
 			);
 			name = FreeSwitchControls;
 			productName = FreeSwitchControls;
@@ -238,6 +226,14 @@
 			);
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		000000000000000170000000 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 000000000000000200000000 /* FreeSwitchControls */;
+			targetProxy = 000000000000000171000000 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		000000000000000011000000 /* Debug configuration for PBXProject "FreeSwitch" */ = {
@@ -462,50 +458,50 @@
 			};
 			name = Release;
 		};
-		000000000000000211000000 /* Debug */ = {
+		000000000000000211000000 /* Debug configuration for PBXNativeTarget "FreeSwitchControls" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
 				CODE_SIGN_ENTITLEMENTS = Controls/FreeSwitchControls.entitlements;
-				DEVELOPMENT_TEAM = MXHBUQH27V;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				MARKETING_VERSION = 1.0;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = MXHBUQH27V;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Controls/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.freeswitch.FreeSwitch.Controls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = macosx;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				SWIFT_EMIT_LOC_STRINGS = YES;
+				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		000000000000000212000000 /* Release */ = {
+		000000000000000212000000 /* Release configuration for PBXNativeTarget "FreeSwitchControls" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
 				CODE_SIGN_ENTITLEMENTS = Controls/FreeSwitchControls.entitlements;
-				DEVELOPMENT_TEAM = MXHBUQH27V;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				MARKETING_VERSION = 1.0;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MXHBUQH27V;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Controls/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.freeswitch.FreeSwitch.Controls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				SDKROOT = macosx;
-				SUPPORTED_PLATFORMS = macosx;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				SWIFT_EMIT_LOC_STRINGS = YES;
+				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -531,8 +527,8 @@
 		000000000000000210000000 /* Build configuration list for PBXNativeTarget "FreeSwitchControls" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				000000000000000211000000 /* Debug */,
-				000000000000000212000000 /* Release */,
+				000000000000000211000000 /* Debug configuration for PBXNativeTarget "FreeSwitchControls" */,
+				000000000000000212000000 /* Release configuration for PBXNativeTarget "FreeSwitchControls" */,
 			);
 			defaultConfigurationName = Release;
 		};
