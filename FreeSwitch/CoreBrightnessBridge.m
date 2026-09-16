@@ -12,18 +12,29 @@ static void FSEnsureCoreBrightnessLoaded(void) {
 
 @implementation CoreBrightnessBridge
 
+// 客户端缓存住，不要每次调用都新建。
+// 每建一个就是一次 XPC 连接的建立与拆除，而状态核对每 5 秒会读一次夜览和原彩——
+// 一个整天常驻的菜单栏 App 这样空耗电量，日志里能看到每 5 秒一条连接取消。
 + (id)blueLightClient {
-    FSEnsureCoreBrightnessLoaded();
-    Class cls = NSClassFromString(@"CBBlueLightClient");
-    if (!cls) { return nil; }
-    return [[cls alloc] init];
+    static id client = nil;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        FSEnsureCoreBrightnessLoaded();
+        Class cls = NSClassFromString(@"CBBlueLightClient");
+        if (cls) { client = [[cls alloc] init]; }
+    });
+    return client;
 }
 
 + (id)trueToneClient {
-    FSEnsureCoreBrightnessLoaded();
-    Class cls = NSClassFromString(@"CBTrueToneClient");
-    if (!cls) { return nil; }
-    return [[cls alloc] init];
+    static id client = nil;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        FSEnsureCoreBrightnessLoaded();
+        Class cls = NSClassFromString(@"CBTrueToneClient");
+        if (cls) { client = [[cls alloc] init]; }
+    });
+    return client;
 }
 
 #pragma mark - Night Shift
