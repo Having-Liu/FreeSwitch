@@ -117,6 +117,8 @@ struct FSNightShift: ControlWidget { var body: some ControlWidgetConfiguration {
 struct FSKeepAwake: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "keepAwake", name: "保持亮屏", symbol: "cup.and.saucer.fill") } }
 struct FSLowPower: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "lowPowerMode", name: "低电量", symbol: "leaf.fill") } }
 struct FSMuteMic: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "muteMic", name: "麦克风静音", symbol: "mic.slash.fill") } }
+// 锁定键盘特别适合放控制中心：键盘被锁住时，这里是纯鼠标可达的解锁入口。
+struct FSLockKeyboard: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "lockKeyboard", name: "锁定键盘", symbol: "keyboard") } }
 
 struct FSDoNotDisturb: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "doNotDisturb", name: "勿扰", symbol: "moon.zzz.fill") } }
 struct FSLockScreen: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "lockScreen", name: "锁定屏幕", symbol: "lock.fill") } }
@@ -131,6 +133,7 @@ struct FreeSwitchControls: WidgetBundle {
         FSKeepAwake()
         FSLowPower()
         FSMuteMic()
+        FSLockKeyboard()
         FSDoNotDisturb()
         FSLockScreen()
         FSScreenClean()
