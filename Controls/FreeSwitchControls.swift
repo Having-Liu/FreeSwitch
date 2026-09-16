@@ -2,6 +2,12 @@ import WidgetKit
 import SwiftUI
 import AppIntents
 import Foundation
+import OSLog
+
+// 诊断用：记录控制中心每次回查 provider 的时刻。已降到 debug 级，平时不写日志库。
+// 实时查看（注意要用绝对路径，log 常被 shell 里的同名函数截走）：
+//   /usr/bin/log stream --predicate 'subsystem == "com.freeswitch.FreeSwitch"' --level debug
+let fsLog = Logger(subsystem: "com.freeswitch.FreeSwitch", category: "control")
 
 // 控制中心控件。开关类用 ControlWidgetToggle 显示状态：
 //  - 状态从共享 App Group 读取（主 App 负责回写）
@@ -99,6 +105,7 @@ struct TriggerSwitchIntent: AppIntent {
         guard CtrlShared.phase(id) != "running" else { return .result() }
         // 先把「处理中」落进共享文件：控制中心在 intent 返回后会立刻回查，
         // 这时主 App 往往还没收到通知，不先写就要等约一秒才看得到反馈。
+        fsLog.debug("intent trigger \(id, privacy: .public)")
         CtrlShared.setPhase(id, "running")
         CtrlShared.post("trigger." + id)
         return .result()
@@ -124,13 +131,21 @@ struct SetSwitchIntent: SetValueIntent {
 struct FSToggleProvider: ControlValueProvider {
     let id: String
     var previewValue: Bool { false }
-    func currentValue() async throws -> Bool { CtrlShared.state(id) }
+    func currentValue() async throws -> Bool {
+        let value = CtrlShared.state(id)
+        fsLog.debug("query state \(id, privacy: .public) -> \(value, privacy: .public)")
+        return value
+    }
 }
 
 struct FSPhaseProvider: ControlValueProvider {
     let id: String
     var previewValue: String { "idle" }
-    func currentValue() async throws -> String { CtrlShared.phase(id) }
+    func currentValue() async throws -> String {
+        let phase = CtrlShared.phase(id)
+        fsLog.debug("query phase \(id, privacy: .public) -> \(phase, privacy: .public)")
+        return phase
+    }
 }
 
 /// 动作控件的三种面孔：常态、处理中、已完成。

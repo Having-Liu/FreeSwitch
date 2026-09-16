@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import OSLog
 
 enum SwitchKind {
     case toggle   // 有开/关状态
@@ -131,6 +132,7 @@ final class SwitchStore: ObservableObject {
 
     private func setPhase(_ id: String, _ phase: String) {
         if phase == "idle" { phases.removeValue(forKey: id) } else { phases[id] = phase }
+        FreeSwitchTrigger.log.debug("app writes \(id, privacy: .public) = \(phase, privacy: .public)")
         publish(force: true)
     }
 

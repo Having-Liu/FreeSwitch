@@ -1,5 +1,6 @@
 import Foundation
 import WidgetKit
+import OSLog
 
 // 控制中心控件 ↔ 主 App 的桥。
 //  - 控件发 Darwin 通知：<AppGroup>.trigger.<id>（动作）
@@ -29,6 +30,9 @@ private let fsCallback: CFNotificationCallback = { _, _, cfName, _, _ in
 
 enum FreeSwitchTrigger {
     static let suite = "MXHBUQH27V.group.com.freeswitch.FreeSwitch"
+
+    /// 诊断用，和扩展共用一个 subsystem，好把两边的时间线并到一起看。debug 级，平时不落盘。
+    static let log = Logger(subsystem: "com.freeswitch.FreeSwitch", category: "app")
 
     static func startObserving() {
         let center = CFNotificationCenterGetDarwinNotifyCenter()
@@ -71,6 +75,7 @@ enum FreeSwitchTrigger {
         write(statesURL, dict)
         write(phasesURL, phases)
         if #available(macOS 26.0, *) {
+            log.debug("app asks reloadAllControls")
             ControlCenter.shared.reloadAllControls()
         }
     }
