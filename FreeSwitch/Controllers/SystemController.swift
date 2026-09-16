@@ -72,12 +72,11 @@ enum SystemController {
     }
 
     // MARK: 低电量模式
+    /// 用 ProcessInfo 读，不要 fork `pmset -g` 去解析文本：
+    /// 前者是进程内的即时值，后者既贵又滞后于刚刚写下去的设置（回读会拿到旧值）。
+    /// 它还配套一个 NSProcessInfoPowerStateDidChange 通知，外部改动也能第一时间知道。
     static func lowPowerModeEnabled() -> Bool {
-        let result = Shell.run("/usr/bin/pmset", ["-g"])
-        for line in result.output.split(separator: "\n") where line.contains("lowpowermode") {
-            return line.contains("1")
-        }
-        return false
+        ProcessInfo.processInfo.isLowPowerModeEnabled
     }
 
     /// 切换低电量模式。装了特权助手就免密走 XPC，否则回退到 AppleScript 管理员授权（弹密码）。

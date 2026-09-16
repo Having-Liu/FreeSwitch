@@ -60,6 +60,9 @@ final class SwitchStore: ObservableObject {
     @Published var flashingID: String?
 
     private var themeObserver: NSObjectProtocol?
+    private var powerObserver: NSObjectProtocol?
+    private var reconcileTimer: Timer?
+    private var lastPublished: [String: Bool] = [:]
 
     private init() {
         // 外观在别处被改动时，实时刷新“黑暗模式”状态。
@@ -68,8 +71,57 @@ final class SwitchStore: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.setOn("darkMode", AppearanceController.isDarkMode()) }
+            MainActor.assumeIsolated {
+                self?.setOn("darkMode", AppearanceController.isDarkMode())
+                self?.publish()
+            }
         }
+
+        // 低电量模式不只有我们会改：电量低于 20% 时系统会自动打开，
+        // 用户也可能在系统设置或控制中心的电池区里改。这是官方通知，及时且免费。
+        powerObserver = NotificationCenter.default.addObserver(
+            forName: .NSProcessInfoPowerStateDidChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.setOn("lowPowerMode", SystemController.lowPowerModeEnabled())
+                self?.publish()
+            }
+        }
+
+        // 麦克风被会议 App / 硬件键静音，或默认输入设备被换掉。
+        AudioController.observeMicChanges { [weak self] in
+            self?.setOn("muteMic", AudioController.micMuted())
+            self?.publish()
+        }
+
+        // 兜底：夜览、原彩这些在系统设置里也能改，却没有好用的通知。
+        // 定期只做“进程内、不 fork 子进程”的廉价读取核对一遍。
+        reconcileTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.reconcile() }
+        }
+    }
+
+    /// 廉价核对：只读进程内就能拿到的状态，绝不 fork 子进程
+    /// （`pmset -g`、`system_profiler` 这类太贵，不能每 5 秒跑一次）。
+    private func reconcile() {
+        setOn("darkMode", AppearanceController.isDarkMode())
+        if AppearanceController.nightShiftSupported { setOn("nightShift", AppearanceController.isNightShiftOn()) }
+        if AppearanceController.trueToneSupported { setOn("trueTone", AppearanceController.isTrueToneOn()) }
+        setOn("lowPowerMode", SystemController.lowPowerModeEnabled())
+        setOn("muteMic", AudioController.micMuted())
+        setOn("keepAwake", PowerController.shared.keepAwake)
+        setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
+        publish()
+    }
+
+    /// 把状态发布给控制中心控件。默认只在真的发生变化时才写文件、刷控件，
+    /// 免得定时核对每 5 秒都触发一次无谓的 IO 与控件重载。
+    private func publish(force: Bool = false) {
+        var dict: [String: Bool] = [:]
+        for item in items where item.kind == .toggle { dict[item.id] = item.isOn }
+        guard force || dict != lastPublished else { return }
+        lastPublished = dict
+        FreeSwitchTrigger.publishStates(items)
     }
 
     /// 是否有“常驻类”开关处于激活状态。
@@ -120,7 +172,7 @@ final class SwitchStore: ObservableObject {
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
 
         loadHeadphoneStatus()
-        FreeSwitchTrigger.publishStates(items)
+        publish(force: true)
     }
 
     /// 有效目标耳机：优先设置里手动选的，否则自动识别一个已配对音频设备。
@@ -175,7 +227,7 @@ final class SwitchStore: ObservableObject {
         case .picker:
             break
         }
-        FreeSwitchTrigger.publishStates(items)
+        publish(force: true)
     }
 
     /// 设为指定状态（供控制中心开关控件用；非开关类则执行动作）。
@@ -183,7 +235,7 @@ final class SwitchStore: ObservableObject {
         guard let item = SwitchCatalog.item(id) else { return }
         if item.kind == .toggle {
             setOn(id, perform(id, on: on))
-            FreeSwitchTrigger.publishStates(items)
+            publish(force: true)
         } else {
             activate(id)
         }
@@ -197,7 +249,9 @@ final class SwitchStore: ObservableObject {
         case "nightShift":   AppearanceController.setNightShift(on); return on
         case "trueTone":     AppearanceController.setTrueTone(on); return AppearanceController.isTrueToneOn()
         case "keepAwake":    PowerController.shared.setKeepAwake(on); return PowerController.shared.keepAwake
-        case "lowPowerMode": SystemController.setLowPowerMode(on); return SystemController.lowPowerModeEnabled()
+        // 改电源设置是异步的（走 XPC 助手或管理员授权弹窗），此刻回读必然是旧值。
+        // 先按目标值显示，真实结果由 NSProcessInfoPowerStateDidChange 通知纠正。
+        case "lowPowerMode": SystemController.setLowPowerMode(on); return on
         case "muteMic":      AudioController.setMicMuted(on); return AudioController.micMuted()
         case "hideDesktop":  SystemController.setDesktopIconsHidden(on); return on
         case "showHidden":   SystemController.setShowHiddenFiles(on); return on
