@@ -31,6 +31,26 @@ enum CtrlShared {
         return dict[id] ?? false
     }
 
+    /// 由扩展自己先把目标值落进状态文件（乐观值）。
+    ///
+    /// 扩展发完通知就返回了，真正执行并回写状态的是主 App——另一个进程。
+    /// 控制中心在 intent 返回后会马上回查 currentValue()，那一刻主 App 往往还没处理完，
+    /// 读到的仍是旧值，于是控件“先不切换、过一会才跳到对的”。
+    /// 先在这里落一个乐观值就能消掉这段空窗；主 App 随后会用真实结果确认或纠正它。
+    ///
+    /// 这之所以可行，是因为状态文件就在本扩展自己的沙盒容器里，写它不需要任何 entitlement。
+    static func setOptimistic(_ id: String, _ value: Bool) {
+        guard let url = statesURL else { return }
+        var dict = (try? Data(contentsOf: url))
+            .flatMap { try? JSONDecoder().decode([String: Bool].self, from: $0) } ?? [:]
+        dict[id] = value
+        guard let data = try? JSONEncoder().encode(dict) else { return }
+        try? FileManager.default.createDirectory(
+            at: url.deletingLastPathComponent(), withIntermediateDirectories: true
+        )
+        try? data.write(to: url, options: .atomic)
+    }
+
     static func post(_ suffix: String) {
         CFNotificationCenterPostNotification(
             CFNotificationCenterGetDarwinNotifyCenter(),
@@ -60,6 +80,9 @@ struct SetSwitchIntent: SetValueIntent {
     init() {}
     init(_ id: String) { self.id = id }
     func perform() async throws -> some IntentResult {
+        // 顺序要紧：先落乐观值，再发通知。
+        // 反过来的话，主 App 可能抢在我们写文件之前就完成并回写，随后又被这里的旧值覆盖。
+        CtrlShared.setOptimistic(id, value)
         CtrlShared.post("set." + id + "." + (value ? "1" : "0"))
         return .result()
     }
