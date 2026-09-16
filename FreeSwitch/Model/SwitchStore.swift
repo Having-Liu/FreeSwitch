@@ -13,35 +13,54 @@ struct SwitchItem: Identifiable {
     let title: String
     let symbol: String
     let kind: SwitchKind
+    let section: String
+    let hue: Color
+    /// 占几列。带参数的开关占两列，腾出的宽度用来显示它的当前值和量规——
+    /// 强行让 21 个东西一样大，正是这些开关此前无处安放的原因。
+    let span: Int
     var isOn: Bool = false
     var isSupported: Bool = true
-    var detail: String? = nil   // 磁贴上的小字（如耳机电量）
+    var detail: String? = nil   // 宽磁贴上的当前值（剩余时长、电量、分辨率）
+    var gauge: Double? = nil    // 0…1，底边量规；只有真有量可报的开关才给
 }
 
-/// 全部开关的静态目录（顺序即默认顺序）。
+/// 全部开关的静态目录。按分区成组——21 个一字排开时谁也扫不出信息。
 enum SwitchCatalog {
+    static let sections = ["外观与显示", "电源", "声音与输入", "桌面与文件", "专注与清洁"]
+
     static let all: [SwitchItem] = [
-        SwitchItem(id: "darkMode",         title: "黑暗模式",     symbol: "moon.fill",               kind: .toggle),
-        SwitchItem(id: "nightShift",       title: "夜览",         symbol: "sunset.fill",             kind: .toggle),
-        SwitchItem(id: "trueTone",         title: "原彩显示",     symbol: "circle.righthalf.filled", kind: .toggle),
-        SwitchItem(id: "keepAwake",        title: "保持亮屏",     symbol: "cup.and.saucer.fill",     kind: .toggle),
-        SwitchItem(id: "lowPowerMode",     title: "低电量模式",   symbol: "leaf.fill",               kind: .toggle),
-        SwitchItem(id: "muteMic",          title: "麦克风静音",   symbol: "mic.slash.fill",          kind: .toggle),
-        SwitchItem(id: "hideDesktop",      title: "隐藏桌面",     symbol: "rectangle.dashed",        kind: .toggle),
-        SwitchItem(id: "showHidden",       title: "显示隐藏文件", symbol: "eye.fill",                kind: .toggle),
-        SwitchItem(id: "lockKeyboard",     title: "锁定键盘",     symbol: "keyboard",                kind: .toggle),
-        SwitchItem(id: "screenClean",      title: "屏幕清洁",     symbol: "sparkles",                kind: .action),
-        SwitchItem(id: "displaySleep",     title: "显示器休眠",   symbol: "display",                 kind: .action),
-        SwitchItem(id: "lockScreen",       title: "锁定屏幕",     symbol: "lock.fill",               kind: .action),
-        SwitchItem(id: "screensaver",      title: "屏幕保护",     symbol: "photo.on.rectangle",      kind: .action),
-        SwitchItem(id: "playMusic",        title: "播放 / 暂停",  symbol: "playpause.fill",          kind: .action),
-        SwitchItem(id: "connectHeadphones",title: "耳机连接",     symbol: "airpods.pro",             kind: .toggle),
-        SwitchItem(id: "emptyTrash",       title: "清空废纸篓",   symbol: "trash.fill",              kind: .action),
-        SwitchItem(id: "emptyClipboard",   title: "清空剪贴板",   symbol: "doc.on.clipboard",        kind: .action),
-        SwitchItem(id: "ejectDisk",        title: "推出磁盘",     symbol: "eject.fill",              kind: .action),
-        SwitchItem(id: "doNotDisturb",     title: "勿扰 / 专注",  symbol: "moon.zzz.fill",           kind: .action),
-        SwitchItem(id: "xcodeClean",       title: "Xcode 清理",   symbol: "hammer.fill",             kind: .action),
-        SwitchItem(id: "resolution",       title: "屏幕分辨率",   symbol: "aspectratio",             kind: .picker),
+        // 外观与显示
+        SwitchItem(id: "darkMode",   title: "黑暗模式", symbol: "moon.fill",               kind: .toggle, section: "外观与显示", hue: SwitchHue.indigo, span: 1),
+        SwitchItem(id: "nightShift", title: "夜览",     symbol: "sunset.fill",             kind: .toggle, section: "外观与显示", hue: SwitchHue.amber,  span: 1),
+        SwitchItem(id: "trueTone",   title: "原彩显示", symbol: "circle.righthalf.filled", kind: .toggle, section: "外观与显示", hue: SwitchHue.teal,   span: 1),
+        SwitchItem(id: "resolution", title: "屏幕分辨率", symbol: "aspectratio",           kind: .picker, section: "外观与显示", hue: SwitchHue.blue,   span: 2),
+
+        // 电源
+        // kind 仍是 .toggle：它有真实的开/关态，控制中心的开关控件、全局热键、
+        // 以及写进共享状态文件的那一份都依赖这个语义。“占两列、可展开”是表现，由 span 决定。
+        SwitchItem(id: "keepAwake",    title: "保持亮屏",   symbol: "cup.and.saucer.fill", kind: .toggle, section: "电源", hue: SwitchHue.coffee,  span: 2),
+        SwitchItem(id: "lowPowerMode", title: "低电量模式", symbol: "leaf.fill",           kind: .toggle, section: "电源", hue: SwitchHue.green,   span: 1),
+        SwitchItem(id: "displaySleep", title: "显示器休眠", symbol: "display",             kind: .action, section: "电源", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "lockScreen",   title: "锁定屏幕",   symbol: "lock.fill",           kind: .action, section: "电源", hue: SwitchHue.neutral, span: 1),
+
+        // 声音与输入
+        SwitchItem(id: "muteMic",           title: "麦克风静音", symbol: "mic.slash.fill", kind: .toggle, section: "声音与输入", hue: SwitchHue.red,     span: 1),
+        SwitchItem(id: "connectHeadphones", title: "耳机连接",   symbol: "airpods.pro",    kind: .toggle, section: "声音与输入", hue: SwitchHue.cyan,    span: 2),
+        SwitchItem(id: "playMusic",         title: "播放 / 暂停", symbol: "playpause.fill", kind: .action, section: "声音与输入", hue: SwitchHue.neutral, span: 1),
+
+        // 桌面与文件
+        SwitchItem(id: "hideDesktop",    title: "隐藏桌面",     symbol: "rectangle.dashed", kind: .toggle, section: "桌面与文件", hue: SwitchHue.blue,    span: 1),
+        SwitchItem(id: "showHidden",     title: "显示隐藏文件", symbol: "eye.fill",         kind: .toggle, section: "桌面与文件", hue: SwitchHue.violet,  span: 1),
+        SwitchItem(id: "emptyClipboard", title: "清空剪贴板",   symbol: "doc.on.clipboard", kind: .action, section: "桌面与文件", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "emptyTrash",     title: "清空废纸篓",   symbol: "trash.fill",       kind: .action, section: "桌面与文件", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "ejectDisk",      title: "推出磁盘",     symbol: "eject.fill",       kind: .action, section: "桌面与文件", hue: SwitchHue.neutral, span: 1),
+
+        // 专注与清洁
+        SwitchItem(id: "doNotDisturb", title: "勿扰 / 专注", symbol: "moon.zzz.fill",      kind: .action, section: "专注与清洁", hue: SwitchHue.violet,  span: 1),
+        SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "sparkles",           kind: .action, section: "专注与清洁", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "lockKeyboard", title: "锁定键盘",    symbol: "keyboard",           kind: .toggle, section: "专注与清洁", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "screensaver",  title: "屏幕保护",    symbol: "photo.on.rectangle", kind: .action, section: "专注与清洁", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "xcodeClean",   title: "Xcode 清理",  symbol: "hammer.fill",        kind: .action, section: "专注与清洁", hue: SwitchHue.neutral, span: 1),
     ]
 
     static let defaultIDs: [String] = all.map(\.id)
@@ -126,7 +145,8 @@ final class SwitchStore: ObservableObject {
     // MARK: 动作的执行阶段（控制中心里显示「处理中 / 已完成」）
     // 控件没有弹窗能力，但换得了图标和文字。比起事前确认，事后反馈更有用：
     // 能看见它真的在做、做完了；而「处理中」本身就挡住了重复触发。
-    private var phases: [String: String] = [:]
+    /// 面板和控制中心读同一份执行阶段，两处显示才一致。
+    @Published private(set) var phases: [String: String] = [:]
     private var lastPhases: [String: String] = [:]
     private var idleTasks: [String: Task<Void, Never>] = [:]
 
@@ -232,6 +252,11 @@ final class SwitchStore: ObservableObject {
         items[i].detail = detail
     }
 
+    private func setGauge(_ id: String, _ value: Double?) {
+        guard let i = index(id) else { return }
+        items[i].gauge = value
+    }
+
     /// 从系统读取当前真实状态。
     func refresh() {
         setOn("darkMode", AppearanceController.isDarkMode())
@@ -245,11 +270,13 @@ final class SwitchStore: ObservableObject {
 
         setOn("keepAwake", PowerController.shared.keepAwake)
         if PowerController.shared.keepAwake {
-            var text = PowerController.shared.remainingMinutes.map { "剩 \($0) 分" } ?? "一直"
+            var text = PowerController.shared.remainingMinutes.map { "剩 \($0) 分" } ?? "一直亮屏"
             if PowerController.shared.clamshell { text += " · 合盖" }
             setDetail("keepAwake", text)
+            setGauge("keepAwake", PowerController.shared.progress)
         } else {
-            setDetail("keepAwake", nil)
+            setDetail("keepAwake", "已关闭")
+            setGauge("keepAwake", nil)
         }
         setFromSystem("lowPowerMode", SystemController.lowPowerModeEnabled())
         setFromSystem("muteMic", AudioController.micMuted())
@@ -273,17 +300,23 @@ final class SwitchStore: ObservableObject {
     func loadHeadphoneStatus() {
         guard let device = effectiveHeadphone() else {
             setOn("connectHeadphones", false)
-            setDetail("connectHeadphones", nil)
+            setDetail("connectHeadphones", "未选择设备")
+            setGauge("connectHeadphones", nil)
             return
         }
         let connected = BluetoothController.isConnected(device.id)
         setOn("connectHeadphones", connected)
-        setDetail("connectHeadphones", connected ? "已连接" : nil)
+        setDetail("connectHeadphones", connected ? device.name : "未连接")
+        setGauge("connectHeadphones", nil)
         guard connected else { return }
         let address = device.id
+        let name = device.name
         Task { [weak self] in
             let battery = await Task.detached { BluetoothController.batteryPercent(for: address) }.value
-            if let battery { self?.setDetail("connectHeadphones", "\(battery)%") }
+            if let battery {
+                self?.setDetail("connectHeadphones", "\(name) · \(battery)%")
+                self?.setGauge("connectHeadphones", Double(battery) / 100)
+            }
         }
     }
 

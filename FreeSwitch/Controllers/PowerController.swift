@@ -10,6 +10,14 @@ final class PowerController {
     private(set) var keepAwake = false
     private(set) var keepAwakeDeadline: Date?   // nil = 一直亮屏（无限）
     private(set) var clamshell = false          // 合盖也不休眠
+    private(set) var totalMinutes: Int?         // 本次设定的总时长，用来算剩余比例
+
+    /// 剩余比例，供磁贴底边的量规用。「一直亮屏」没有终点，视作满格。
+    var progress: Double? {
+        guard keepAwake else { return nil }
+        guard let total = totalMinutes, total > 0, let left = remainingMinutes else { return 1 }
+        return min(1, max(0, Double(left) / Double(total)))
+    }
     private var autoOffTask: Task<Void, Never>?
     private let clamshellFlagKey = "keepAwake.clamshellActive"
 
@@ -24,6 +32,7 @@ final class PowerController {
         autoOffTask?.cancel()
         autoOffTask = nil
         keepAwakeDeadline = nil
+        totalMinutes = on ? minutes : nil
 
         if on {
             if assertionID == 0 {

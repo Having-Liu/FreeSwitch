@@ -1,193 +1,148 @@
 import SwiftUI
 
-/// 单个开关磁贴。
+// 面板的网格尺寸。面板宽度固定，所以直接算出列宽——
+// 带参数的开关占两列，多出来的宽度用于显示它的当前值和量规。
+enum TileMetrics {
+    static let panelWidth: CGFloat = 340
+    static let padding: CGFloat = 11
+    static let gap: CGFloat = 7
+    static let height: CGFloat = 60
+    static var unit: CGFloat { (panelWidth - padding * 2 - gap * 3) / 4 }
+    static func width(span: Int) -> CGFloat {
+        unit * CGFloat(span) + gap * CGFloat(span - 1)
+    }
+}
+
+/// 单列磁贴：开关或一次性动作。
 struct SwitchTileView: View {
     let item: SwitchItem
-    let isFlashing: Bool
+    let phase: String            // idle / running / done
     let action: () -> Void
 
-    @State private var hovering = false
-
-    private var highlighted: Bool {
-        (item.kind == .toggle && item.isOn) || isFlashing
-    }
+    private var isOn: Bool { item.kind == .toggle && item.isOn }
+    private var isDone: Bool { phase == "done" }
 
     var body: some View {
         Button(action: action) {
             VStack(spacing: 5) {
-                Image(systemName: item.symbol)
-                    .font(.system(size: 20, weight: .medium))
-                    .frame(height: 24)
-                Text(item.title)
-                    .font(.system(size: 11))
+                Image(systemName: symbol)
+                    .font(.system(size: 19, weight: .medium))
+                    .frame(height: 22)
+                    .symbolEffect(.pulse, isActive: phase == "running")
+                Text(label)
+                    .font(.system(size: 10.5))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                if let detail = item.detail {
-                    Text(detail)
-                        .font(.system(size: 9))
-                        .lineLimit(1)
-                        .opacity(0.85)
-                }
+                    .minimumScaleFactor(0.75)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 64)
-            .foregroundStyle(highlighted ? Color.white : Color.primary)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(highlighted ? Color.accentColor : Color.primary.opacity(hovering ? 0.12 : 0.06))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
-            )
-            .scaleEffect(hovering && item.isSupported ? 1.04 : 1)
+            .frame(width: TileMetrics.width(span: item.span), height: TileMetrics.height)
+            .foregroundStyle(isOn || isDone ? Color.white : Color.primary)
+            .glassTile(hue: isDone ? SwitchHue.green : item.hue, isOn: isOn || isDone)
             .opacity(item.isSupported ? 1 : 0.35)
         }
         .buttonStyle(.plain)
         .disabled(!item.isSupported)
-        .onHover { hovering = $0 }
         .help(item.isSupported ? item.title : "\(item.title)（当前设备不支持）")
-        .animation(.easeInOut(duration: 0.15), value: highlighted)
-        .animation(.easeInOut(duration: 0.12), value: hovering)
+        .animation(.easeInOut(duration: 0.18), value: isOn)
+        .animation(.easeInOut(duration: 0.18), value: phase)
     }
-}
 
-/// 保持亮屏磁贴：点击弹出时长菜单（一直 / 30 分 / 1 小时 / 2 小时 / 关闭）。
-/// 全局热键仍可直接切换“一直亮屏”。
-struct KeepAwakeTileView: View {
-    let item: SwitchItem
-    @EnvironmentObject private var store: SwitchStore
-
-    var body: some View {
-        Menu {
-            Button { apply(nil) } label: {
-                menuRow("一直亮屏", checked: item.isOn && PowerController.shared.keepAwakeDeadline == nil)
-            }
-            Button { apply(30) } label: { Text("30 分钟") }
-            Button { apply(60) } label: { Text("1 小时") }
-            Button { apply(120) } label: { Text("2 小时") }
-            Divider()
-            Button { toggleClamshell() } label: {
-                menuRow("合盖也不休眠（装包继续跑）", checked: PowerController.shared.clamshell)
-            }
-            if item.isOn {
-                Divider()
-                Button("关闭") { apply(off: true) }
-            }
-        } label: {
-            VStack(spacing: 5) {
-                Image(systemName: item.symbol)
-                    .font(.system(size: 20, weight: .medium))
-                    .frame(height: 24)
-                Text(item.title)
-                    .font(.system(size: 11))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                if let detail = item.detail {
-                    Text(detail)
-                        .font(.system(size: 9))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
-                        .opacity(0.85)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 64)
-            .foregroundStyle(item.isOn ? Color.white : Color.primary)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(item.isOn ? Color.accentColor : Color.primary.opacity(0.06))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
-            )
+    private var symbol: String {
+        switch phase {
+        case "running": return "hourglass"
+        case "done":    return "checkmark"
+        default:        return item.symbol
         }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
     }
-
-    private func apply(_ minutes: Int?) {
-        // 改时长时保留当前的“合盖不休眠”设置，避免重复弹密码。
-        PowerController.shared.setKeepAwake(true, minutes: minutes, clamshell: PowerController.shared.clamshell)
-        store.refresh()
-    }
-
-    private func apply(off: Bool) {
-        PowerController.shared.setKeepAwake(false)
-        store.refresh()
-    }
-
-    private func toggleClamshell() {
-        let want = !PowerController.shared.clamshell
-        // 开启合盖不休眠时顺带开启保持亮屏，并沿用当前剩余时长。
-        PowerController.shared.setKeepAwake(true, minutes: PowerController.shared.remainingMinutes, clamshell: want)
-        store.refresh()
-    }
-
-    @ViewBuilder
-    private func menuRow(_ title: String, checked: Bool) -> some View {
-        if checked { Label(title, systemImage: "checkmark") } else { Text(title) }
+    private var label: String {
+        switch phase {
+        case "running": return "处理中…"
+        case "done":    return "已完成"
+        default:        return item.title
+        }
     }
 }
 
-/// 分辨率磁贴：点击弹出分辨率菜单。多显示器时每块屏一个子菜单。
-struct ResolutionTileView: View {
+/// 双列磁贴：带参数的开关。左半边按主操作，右侧箭头就地展开选项。
+///
+/// 这里刻意不用 `Menu`——`Menu` 配 `.menuStyle(.borderlessButton)` 不采纳自定义 label 的
+/// 布局，磁贴的尺寸和背景会被整个丢掉（这正是旧版「保持亮屏」塌掉的原因）。
+struct WideTileView: View {
     let item: SwitchItem
+    let isExpanded: Bool
+    let primary: () -> Void
+    let toggleExpand: () -> Void
 
-    @State private var displays: [ResolutionController.Display] = []
+    private var isOn: Bool { item.kind == .toggle && item.isOn }
 
     var body: some View {
-        Menu {
-            if displays.count <= 1, let display = displays.first {
-                resolutionButtons(for: display)
-            } else {
-                ForEach(displays) { display in
-                    Menu(display.name) {
-                        resolutionButtons(for: display)
+        HStack(spacing: 0) {
+            Button(action: primary) {
+                HStack(spacing: 9) {
+                    Image(systemName: item.symbol)
+                        .font(.system(size: 19, weight: .medium))
+                        .frame(width: 22)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(item.title)
+                            .font(.system(size: 10.5))
+                            .lineLimit(1)
+                        if let detail = item.detail {
+                            Text(detail)
+                                .font(.system(size: 9))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                                .opacity(0.75)
+                        }
                     }
+                    Spacer(minLength: 0)
                 }
+                .padding(.leading, 11)
+                .contentShape(Rectangle())
             }
-        } label: {
-            VStack(spacing: 5) {
-                Image(systemName: item.symbol)
-                    .font(.system(size: 20, weight: .medium))
-                    .frame(height: 24)
-                Text(item.title)
-                    .font(.system(size: 11))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 64)
-            .foregroundStyle(Color.primary)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.primary.opacity(0.06))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
-            )
-        }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .onAppear { displays = ResolutionController.displays() }
-    }
+            .buttonStyle(.plain)
 
-    @ViewBuilder
-    private func resolutionButtons(for display: ResolutionController.Display) -> some View {
-        ForEach(display.resolutions) { resolution in
-            Button {
-                ResolutionController.apply(resolution, to: display.id)
-                displays = ResolutionController.displays()
-            } label: {
-                if display.currentID == resolution.id {
-                    Label(resolution.label, systemImage: "checkmark")
-                } else {
-                    Text(resolution.label)
-                }
+            Button(action: toggleExpand) {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 9, weight: .semibold))
+                    .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                    .frame(width: 26, height: TileMetrics.height)
+                    .opacity(0.55)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help("展开选项")
+        }
+        .frame(width: TileMetrics.width(span: item.span), height: TileMetrics.height)
+        .foregroundStyle(isOn ? Color.white : Color.primary)
+        .overlay(alignment: .bottom) {
+            // 量规：保持亮屏走剩余时长，耳机走电量。有量可报才画。
+            if let gauge = item.gauge {
+                TileGauge(value: gauge, hue: item.hue, isOn: isOn)
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 5)
             }
         }
+        .glassTile(hue: item.hue, isOn: isOn)
+        .animation(.easeInOut(duration: 0.18), value: isOn)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isExpanded)
+    }
+}
+
+/// 抽屉里的选项胶囊。
+struct TileChip: View {
+    let title: String
+    let selected: Bool
+    let hue: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 11))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .foregroundStyle(selected ? Color.white : Color.primary)
+                .glassTile(hue: hue, isOn: selected, radius: 8)
+        }
+        .buttonStyle(.plain)
     }
 }
