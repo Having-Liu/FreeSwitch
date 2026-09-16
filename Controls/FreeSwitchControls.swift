@@ -119,24 +119,43 @@ struct FSLowPower: ControlWidget { var body: some ControlWidgetConfiguration { f
 struct FSMuteMic: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "muteMic", name: "麦克风静音", symbol: "mic.slash.fill") } }
 // 锁定键盘特别适合放控制中心：键盘被锁住时，这里是纯鼠标可达的解锁入口。
 struct FSLockKeyboard: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "lockKeyboard", name: "锁定键盘", symbol: "keyboard") } }
+struct FSShowHidden: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "showHidden", name: "显示隐藏文件", symbol: "eye.fill") } }
 
 struct FSDoNotDisturb: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "doNotDisturb", name: "勿扰", symbol: "moon.zzz.fill") } }
 struct FSLockScreen: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "lockScreen", name: "锁定屏幕", symbol: "lock.fill") } }
 struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "screenClean", name: "屏幕清洁", symbol: "sparkles") } }
 struct FSEmptyTrash: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "emptyTrash", name: "清空废纸篓", symbol: "trash.fill") } }
+struct FSXcodeClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "xcodeClean", name: "Xcode 清理", symbol: "hammer.fill") } }
 
+// WidgetBundle 的 builder 不嵌套时最多只放得下 10 个，第 11 个就编译不过。
+// 拆成几组各自用 @WidgetBundleBuilder 标注的属性再拼起来，就能继续往下加
+// （每组自己仍受那个 10 个的上限约束）。
 @main
 struct FreeSwitchControls: WidgetBundle {
     var body: some Widget {
+        toggles
+        actions
+    }
+
+    /// 有开/关状态的，用 ControlWidgetToggle。
+    @WidgetBundleBuilder
+    private var toggles: some Widget {
         FSDarkMode()
         FSNightShift()
         FSKeepAwake()
         FSLowPower()
         FSMuteMic()
         FSLockKeyboard()
+        FSShowHidden()
+    }
+
+    /// 点一下执行一次的，用 ControlWidgetButton。
+    @WidgetBundleBuilder
+    private var actions: some Widget {
         FSDoNotDisturb()
         FSLockScreen()
         FSScreenClean()
         FSEmptyTrash()
+        FSXcodeClean()
     }
 }

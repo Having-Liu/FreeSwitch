@@ -111,6 +111,10 @@ final class SwitchStore: ObservableObject {
         if AppearanceController.trueToneSupported { setFromSystem("trueTone", AppearanceController.isTrueToneOn()) }
         setFromSystem("lowPowerMode", SystemController.lowPowerModeEnabled())
         setFromSystem("muteMic", AudioController.micMuted())
+        // 这两个在访达里也能改（Cmd+Shift+. 切隐藏文件），所以要核对。
+        // 现在它们走 CFPreferences 读，进程内、不 fork，够便宜。
+        setFromSystem("showHidden", SystemController.showHiddenFiles())
+        setFromSystem("hideDesktop", SystemController.desktopIconsHidden())
         setOn("keepAwake", PowerController.shared.keepAwake)
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
         publish()

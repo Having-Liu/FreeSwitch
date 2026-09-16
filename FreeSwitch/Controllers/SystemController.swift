@@ -9,9 +9,22 @@ enum SystemController {
         Shell.run("/usr/bin/killall", ["Finder"])
     }
 
+    /// 读访达的某个偏好项。用 CFPreferences 直接读，不 fork `defaults read`——
+    /// 只有足够便宜，这些状态才能纳入每 5 秒的核对。
+    /// 这很要紧：访达里 Cmd+Shift+. 就能切「显示隐藏文件」，不核对的话控件会一直显示过期值。
+    /// 读之前先同步一次，否则拿到的可能是本进程缓存里的旧值，看不见别人刚改的。
+    private static func finderFlag(_ key: String) -> Bool? {
+        let domain = "com.apple.finder" as CFString
+        CFPreferencesAppSynchronize(domain)
+        guard let value = CFPreferencesCopyAppValue(key as CFString, domain) else { return nil }
+        if let number = value as? NSNumber { return number.boolValue }
+        if let text = value as? String { return ["1", "true", "yes"].contains(text.lowercased()) }
+        return nil
+    }
+
     static func desktopIconsHidden() -> Bool {
-        let result = Shell.run("/usr/bin/defaults", ["read", "com.apple.finder", "CreateDesktop"])
-        return result.output.trimmingCharacters(in: .whitespacesAndNewlines) == "0"
+        // CreateDesktop 缺省（没设过）时桌面图标是显示的。
+        finderFlag("CreateDesktop") == false
     }
 
     // MARK: 显示隐藏文件
@@ -21,9 +34,7 @@ enum SystemController {
     }
 
     static func showHiddenFiles() -> Bool {
-        let result = Shell.run("/usr/bin/defaults", ["read", "com.apple.finder", "AppleShowAllFiles"])
-        let value = result.output.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return value == "1" || value == "true" || value == "yes"
+        finderFlag("AppleShowAllFiles") ?? false
     }
 
     // MARK: 清空废纸篓（会弹出访达的确认）
