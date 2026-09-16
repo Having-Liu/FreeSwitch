@@ -151,11 +151,20 @@ final class SwitchStore: ObservableObject {
         }
     }
 
+    /// 「已完成」要停留够久。
+    ///
+    /// 控制中心只在 intent 返回后必定回查一次，之后就靠 reloadAllControls()——而那是
+    /// 被系统节流的，不是立即重绘。慢动作（比如清 DerivedData）的时序是：回查时看到
+    /// running，显示「处理中」；等真正完成写下 done 时，早已过了那次回查，只能等刷新。
+    /// 停留窗口若短于刷新延迟，刷新落地时阶段已经回落，「已完成」就永远看不见。
+    /// 所以这里给足 5 秒——快动作那边不受影响，它在回查时就已经是 done 了。
+    private static let doneDisplaySeconds: UInt64 = 5
+
     private func finishAction(_ id: String) {
         setPhase(id, "done")
         idleTasks[id]?.cancel()
         idleTasks[id] = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            try? await Task.sleep(nanoseconds: Self.doneDisplaySeconds * 1_000_000_000)
             guard !Task.isCancelled else { return }
             self?.setPhase(id, "idle")
         }
