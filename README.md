@@ -57,15 +57,21 @@
 
 ## 彻底卸载
 
-设置窗口底部有「彻底卸载 FreeSwitch…」按钮；也可以直接跑：
+设置窗口里有「彻底卸载 FreeSwitch…」按钮；也可以在终端运行：
 
 ```bash
-./scripts/uninstall.sh
+./scripts/uninstall.sh          # 会先确认
+./scripts/uninstall.sh --list   # 只列出会删除的路径，不做任何改动
 ```
 
-把 App 拖进废纸篓是清不干净的——控制中心的扩展登记（`pluginkit`）、控件快照缓存（`chronod`）、特权助手与登录项（`SMAppService`／后台项）、以及「合盖也不休眠」改过的 `pmset` 设置都会留在系统里继续生效。卸载会一并删除并**还原电源设置**。想从零干净重装（尤其是调控制中心控件）时，先卸载再 `install.sh`。
+两个入口共用同一份实现 `FreeSwitch/Support/uninstall.sh`（随 App 打包）。把 App 拖进废纸篓是清不干净的——控制中心的扩展登记、控件快照缓存、特权助手与登录项、「合盖也不休眠」改过的电源设置都会留下来继续生效。
 
-也可以直接在 Xcode 里打开 `FreeSwitch.xcodeproj` 按 Run —— 但**这样调不通控制中心控件**，原因见下。
+实现上有几处必须按顺序来，都是踩过的坑：
+
+- **偏好设置要等 App 退出后再删**，并用 `defaults delete`。App 还活着时删文件没用，退出时会被写回来。
+- **删扩展容器前，先注销扩展、结束其进程、重启 chronod**，否则控制中心会把扩展重新拉起，容器又被建出来。
+- **由 App 发起的删除，对扩展的沙盒容器等会静默失败**（同一个容器，开发用的 shell 却能删）。删不掉的交给访达移到废纸篓；仍有残留会发通知并在访达里标出来，过程记录在 `/tmp/FreeSwitch-uninstall.log`。
+- 后台项登记（`sfltool dumpbtm`）里的旧记录不做处理：注销后它们只是停用的记录，唯一的清除手段 `sfltool resetbtm` 会重置所有 App 的后台项授权。
 
 ## 系统控制中心
 

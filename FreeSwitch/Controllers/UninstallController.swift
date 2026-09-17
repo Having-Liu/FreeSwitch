@@ -1,22 +1,22 @@
 import AppKit
 import ServiceManagement
 
-/// 彻底卸载：把 App 在系统里登记过的一切清干净，再删掉自己。
+/// 彻底卸载。
 ///
-/// 单纯把 App 拖进废纸篓是不够的 —— 控制中心的扩展登记（pluginkit）、
-/// 控件快照缓存（chronod）、特权助手与登录项（SMAppService）、
-/// 以及「合盖也不休眠」改过的 pmset 设置，都会留在系统里继续生效。
+/// 分两段完成：
+///  1. 需要 App 自己身份的几步，在退出前于进程内完成——还原「合盖不休眠」、解锁键盘、
+///     注销特权助手与开机自启（SMAppService 只能由 App 本身注销）。
+///  2. 删除文件和偏好，交给随 App 打包的 uninstall.sh，在 App 退出之后执行。
+///     那份脚本也是命令行 scripts/uninstall.sh 的实现，两个入口共用一套。
+///
+/// 为什么不再在进程内删文件——两点都实测过：
+///  - App 还活着时删掉的偏好，会在退出时被写回来（残留的偏好里有设置窗口的位置，
+///    那是 AppKit 在窗口关闭时自动写的）；
+///  - 扩展的沙盒容器、App 不再声明的旧 group 容器，由 App 发起的删除会静默失败，
+///    按容器的创建时间核对过，是压根没删掉而不是删了又被重建。
+///    脚本里对这些有兜底（交给访达移到废纸篓）和逐项核对，删不掉会通知并在访达里标出来。
 @MainActor
 enum UninstallController {
-
-    /// 卸载过的 App Group（含历史命名），卸载时一并清掉。
-    private static let groupIDs = [
-        FreeSwitchTrigger.suite,
-        "group.com.freeswitch.FreeSwitch",   // 早期版本用过的 iOS 式命名
-    ]
-
-    private static let bundleID = "com.freeswitch.FreeSwitch"
-    private static let extensionID = "com.freeswitch.FreeSwitch.Controls"
 
     // MARK: 入口
 
@@ -32,8 +32,12 @@ enum UninstallController {
         • 免密特权助手、开机自启登录项
         • 你的全部设置：开关顺序、显示项、全局快捷键、耳机选择
         • 「合盖也不休眠」改过的系统电源设置（还原为默认）
+        • 授予过的隐私权限（辅助功能、自动化等）
 
-        这一步不可撤销。卸载完成后 FreeSwitch 会自动退出。
+        少数受系统保护、无法直接删除的数据会由访达移到废纸篓；
+        如果仍有没清掉的，卸载完会通知你，并在访达里标出来。
+
+        这一步不可撤销。卸载开始后 FreeSwitch 会立即退出。
         """
         alert.addButton(withTitle: "彻底卸载")
         alert.addButton(withTitle: "取消")
@@ -46,68 +50,37 @@ enum UninstallController {
         perform()
     }
 
-    // MARK: 清理
+    // MARK: 执行
 
     private static func perform() {
-        // 1) 先还原改过的系统设置，否则卸载后合盖将永不休眠。
-        PowerController.shared.recoverClamshellIfNeeded()
-
-        // 2) 关掉所有还开着的常驻开关（锁键盘的事件拦截等）。
+        // 这几步需要 App 自己的身份，必须在退出前做。
+        PowerController.shared.recoverClamshellIfNeeded()   // 否则卸载后合盖永不休眠
         InputBlocker.shared.setKeyboardLocked(false)
-
-        // 3) 注销特权助手与开机自启。
         HelperClient.shared.uninstall()
         try? SMAppService.mainApp.unregister()
 
-        // 4) 注销控制中心扩展。pluginkit 按 bundle id 只认一份，
-        //    不注销的话残留登记会一直指向一个已经不存在的包。
-        let appexPath = Bundle.main.bundleURL
-            .appendingPathComponent("Contents/PlugIns/FreeSwitchControls.appex").path
-        _ = Shell.run("/usr/bin/pluginkit", ["-r", appexPath])
-
-        // 5) 删掉用户数据。
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        var paths: [URL] = [
-            home.appendingPathComponent("Library/Preferences/\(bundleID).plist"),
-            home.appendingPathComponent("Library/Preferences/\(extensionID).plist"),
-            home.appendingPathComponent("Library/Caches/\(bundleID)"),
-            home.appendingPathComponent("Library/Caches/\(extensionID)"),
-            home.appendingPathComponent("Library/HTTPStorages/\(bundleID)"),
-            home.appendingPathComponent("Library/Saved Application State/\(bundleID).savedState"),
-            home.appendingPathComponent("Library/Containers/\(extensionID)"),
-        ]
-        for group in groupIDs {
-            paths.append(home.appendingPathComponent("Library/Group Containers/\(group)"))
+        guard launchCleanupScript() else {
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = "没能启动卸载脚本"
+            alert.informativeText = "App 包里缺少 uninstall.sh，文件和设置没有被删除。请在终端运行项目里的 scripts/uninstall.sh 完成卸载。"
+            alert.runModal()
+            return
         }
-        for path in paths { try? FileManager.default.removeItem(at: path) }
-
-        UserDefaults.standard.removePersistentDomain(forName: bundleID)
-        UserDefaults.standard.synchronize()
-
-        // 6) 剩下的必须在本进程退出之后做（删掉正在运行的自己），
-        //    交给一个脱离本进程的 shell：等我们退出，再删包、注销 LaunchServices、
-        //    最后重启 chronod/ControlCenter 把控件快照缓存清掉。
-        scheduleSelfRemoval()
-
         NSApp.terminate(nil)
     }
 
-    private static func scheduleSelfRemoval() {
-        let appPath = Bundle.main.bundleURL.path
-        let lsregister = "/System/Library/Frameworks/CoreServices.framework"
-            + "/Frameworks/LaunchServices.framework/Support/lsregister"
-
-        let script = """
-        while pgrep -x FreeSwitch >/dev/null 2>&1; do sleep 0.5; done
-        "\(lsregister)" -u "\(appPath)" 2>/dev/null
-        rm -rf "\(appPath)"
-        killall chronod 2>/dev/null
-        killall ControlCenter 2>/dev/null
-        """
+    /// 把脚本拷到临时目录再运行：脚本会删掉 App 包，不能让它从即将被删除的包里执行。
+    /// 子进程在 App 退出后继续运行（会被 launchd 接管），它会先等 App 进程完全退出再动手。
+    private static func launchCleanupScript() -> Bool {
+        guard let bundled = Bundle.main.url(forResource: "uninstall", withExtension: "sh") else { return false }
+        let temp = FileManager.default.temporaryDirectory.appendingPathComponent("FreeSwitch-uninstall.sh")
+        try? FileManager.default.removeItem(at: temp)
+        guard (try? FileManager.default.copyItem(at: bundled, to: temp)) != nil else { return false }
 
         let task = Process()
-        task.launchPath = "/bin/sh"
-        task.arguments = ["-c", script]
-        try? task.run()   // 不 wait：本进程马上就退出了，交给它自己跑完
+        task.executableURL = URL(fileURLWithPath: "/bin/bash")
+        task.arguments = [temp.path, "--from-app", "--app-path", Bundle.main.bundleURL.path]
+        return (try? task.run()) != nil
     }
 }
