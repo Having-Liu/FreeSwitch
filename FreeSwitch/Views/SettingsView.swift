@@ -13,14 +13,24 @@ struct SettingsView: View {
             header
             Divider()
             List {
-                Section("开关（拖动排序，勾选显示）") {
-                    ForEach(prefs.order, id: \.self) { id in
-                        if let item = SwitchCatalog.item(id) {
-                            row(for: item)
+                Section("开关（拖动排序，可以拖进其他分组；分组名点一下就能改）") {
+                    // 分组标题和开关摊平在同一个 ForEach 里：.onMove 只能在一个 ForEach 内挪动，
+                    // 分成多个 Section 就拖不过去了。开关拖过哪个分组标题，就落进哪个分组。
+                    ForEach(prefs.groupRows) { entry in
+                        switch entry {
+                        case .group(let id):
+                            if let group = prefs.groups.first(where: { $0.id == id }) {
+                                groupHeader(group)
+                                    .moveDisabled(true)
+                            }
+                        case .item(let id):
+                            if let item = SwitchCatalog.item(id) {
+                                row(for: item)
+                            }
                         }
                     }
                     .onMove { offsets, destination in
-                        prefs.move(fromOffsets: offsets, toOffset: destination)
+                        prefs.moveRows(fromOffsets: offsets, toOffset: destination)
                     }
                 }
 
@@ -111,6 +121,31 @@ struct SettingsView: View {
         }
     }
 
+    /// 分组标题行：名字直接点开就能改，右侧上下箭头调整分组的先后。标题本身不可拖动。
+    private func groupHeader(_ group: SwitchGroup) -> some View {
+        let index = prefs.groups.firstIndex(where: { $0.id == group.id }) ?? 0
+        return HStack(spacing: 6) {
+            TextField("分组名称", text: Binding(
+                get: { group.name },
+                set: { prefs.renameGroup(group.id, to: $0) }
+            ))
+            .textFieldStyle(.plain)
+            .font(.system(size: 12, weight: .semibold))
+            .help("点一下就能改名；清空则显示默认名")
+            Spacer()
+            Button { prefs.moveGroup(group.id, by: -1) } label: { Image(systemName: "chevron.up") }
+                .buttonStyle(.borderless)
+                .disabled(index == 0)
+                .help("分组上移")
+            Button { prefs.moveGroup(group.id, by: 1) } label: { Image(systemName: "chevron.down") }
+                .buttonStyle(.borderless)
+                .disabled(index == prefs.groups.count - 1)
+                .help("分组下移")
+        }
+        .padding(.top, 8)
+        .padding(.bottom, 2)
+    }
+
     private func row(for item: SwitchItem) -> some View {
         HStack(spacing: 10) {
             Image(systemName: "line.3.horizontal")
@@ -168,8 +203,8 @@ struct SettingsView: View {
             Button("全部显示") {
                 for id in SwitchCatalog.defaultIDs { prefs.setVisible(id, true) }
             }
-            Button("恢复默认顺序") {
-                prefs.order = SwitchCatalog.defaultIDs
+            Button("恢复默认分组") {
+                prefs.resetGroups()
             }
         }
         .padding(16)

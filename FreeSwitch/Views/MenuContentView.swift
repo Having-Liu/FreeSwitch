@@ -22,7 +22,7 @@ struct MenuContentView: View {
         VStack(spacing: 0) {
             header
             Divider()
-            if visibleItems.isEmpty {
+            if !hasVisibleItems {
                 emptyState
             } else if gridHeight > maxGridHeight {
                 ScrollView { measuredGrid }
@@ -39,10 +39,14 @@ struct MenuContentView: View {
 
     // MARK: 数据
 
-    private var visibleItems: [SwitchItem] { prefs.visibleItems(from: store.items) }
+    /// 某个分组里要显示的开关：按用户排定的顺序，去掉在设置里隐藏的。
+    private func visibleItems(in group: SwitchGroup) -> [SwitchItem] {
+        let byID = Dictionary(uniqueKeysWithValues: store.items.map { ($0.id, $0) })
+        return group.items.compactMap { byID[$0] }.filter { prefs.isVisible($0.id) }
+    }
 
-    private func items(in section: String) -> [SwitchItem] {
-        visibleItems.filter { $0.section == section }
+    private var hasVisibleItems: Bool {
+        prefs.groups.contains { !visibleItems(in: $0).isEmpty }
     }
 
     /// 面板从菜单栏往下展开，网格能用的高度 = 屏幕可视区域 − 标题栏 − 一点余量。
@@ -50,42 +54,21 @@ struct MenuContentView: View {
         (NSScreen.main?.visibleFrame.height ?? 800) - 64
     }
 
-    /// 把磁贴装进每行 5 列。
-    ///  - 放不下时往后找能塞进空位的，而不是直接换行留下空洞；
-    ///  - 行尾仍剩空位时分给行内的宽磁贴（它至少两列，有弹性），让每行右边缘对齐。
-    /// 只有一行里既没有宽磁贴、又凑不满时才会留空——通常是用户在设置里隐藏了一些开关。
+    /// 排进每行 5 列。规则在 GroupLayout.pack（有独立测试）：用户排定的顺序优先，
+    /// 放不下就换行，绝不把后面的开关往前挪；行尾空位只拉宽宽磁贴去补。
     private func rows(_ items: [SwitchItem]) -> [[PlacedTile]] {
-        let columns = TileMetrics.columns
-        var pending = items
-        var result: [[PlacedTile]] = []
-        while !pending.isEmpty {
-            var row: [PlacedTile] = []
-            var used = 0
-            var index = 0
-            while index < pending.count, used < columns {
-                let span = min(pending[index].span, columns)
-                if used + span <= columns {
-                    row.append(PlacedTile(item: pending.remove(at: index), span: span))
-                    used += span
-                } else {
-                    index += 1
-                }
-            }
-            if used < columns, let wide = row.firstIndex(where: { $0.item.span > 1 }) {
-                row[wide].span += columns - used
-            }
-            result.append(row)
+        GroupLayout.pack(spans: items.map(\.span), columns: TileMetrics.columns).map { row in
+            row.map { PlacedTile(item: items[$0.index], span: $0.span) }
         }
-        return result
     }
 
     // MARK: 视图
 
     private var grid: some View {
         VStack(alignment: .leading, spacing: 13) {
-            ForEach(SwitchCatalog.sections, id: \.self) { section in
-                let items = items(in: section)
-                if !items.isEmpty { sectionView(section, items) }
+            ForEach(prefs.groups) { group in
+                let items = visibleItems(in: group)
+                if !items.isEmpty { sectionView(prefs.displayName(of: group), items) }
             }
         }
         .padding(TileMetrics.padding)

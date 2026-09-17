@@ -2,20 +2,24 @@ import SwiftUI
 import Combine
 import ServiceManagement
 
-/// 用户偏好：开关的显示/顺序、全局快捷键、开机自启。持久化到 UserDefaults。
+/// 用户偏好：开关的分组与顺序、显示项、全局快捷键、耳机、开机自启。持久化到 UserDefaults。
 @MainActor
 final class Preferences: ObservableObject {
     static let shared = Preferences()
 
     private let defaults = UserDefaults.standard
     private enum Keys {
-        static let order = "pref.order"
+        static let groups = "pref.groups"
+        /// 旧版的全局顺序。只在第一次迁移到分组时读一次，迁移完即删除。
+        static let legacyOrder = "pref.order"
         static let hidden = "pref.hidden"
         static let hotkeys = "pref.hotkeys"
         static let headphone = "pref.headphone"
     }
 
-    @Published var order: [String] { didSet { persistOrder() } }
+    /// 用户的分组：分组顺序、分组名、组内开关及其顺序，全部归用户所有。
+    /// 合并、跨组移动、排版这些核心逻辑在 SwitchGroups.swift，那里有独立测试。
+    @Published var groups: [SwitchGroup] { didSet { persistGroups() } }
     @Published var hidden: Set<String> { didSet { persistHidden() } }
     @Published var hotkeys: [String: Hotkey] {
         didSet {
@@ -28,14 +32,19 @@ final class Preferences: ObservableObject {
     }
 
     private init() {
-        // 顺序：以存储为准，并补上目录里新增、去掉已删除的开关。
-        let stored = defaults.stringArray(forKey: Keys.order) ?? []
-        var merged = stored.filter { SwitchCatalog.defaultIDs.contains($0) }
-        // 目录里新增、但存储里没有的开关，按其目录顺序插入到相应位置（而非全部堆到末尾）。
-        for (catalogIndex, id) in SwitchCatalog.defaultIDs.enumerated() where !merged.contains(id) {
-            merged.insert(id, at: min(catalogIndex, merged.count))
+        if let data = defaults.data(forKey: Keys.groups),
+           let stored = try? JSONDecoder().decode([SwitchGroup].self, from: data) {
+            // 与当前目录对齐：去掉已删除的开关，新增的开关放进它的默认分组。
+            groups = GroupLayout.merged(stored,
+                                        defaults: SwitchCatalog.defaultGroups,
+                                        catalog: SwitchCatalog.groupCatalog)
+        } else {
+            // 第一次用分组：按默认分组建，组内沿用旧版保存的顺序。
+            let legacy = defaults.stringArray(forKey: Keys.legacyOrder) ?? []
+            groups = GroupLayout.defaultGroups(defaults: SwitchCatalog.defaultGroups,
+                                               catalog: SwitchCatalog.groupCatalog,
+                                               legacyOrder: legacy)
         }
-        order = merged
 
         hidden = Set(defaults.stringArray(forKey: Keys.hidden) ?? [])
 
@@ -47,22 +56,49 @@ final class Preferences: ObservableObject {
         }
 
         headphoneAddress = defaults.string(forKey: Keys.headphone)
+
+        // init 里给属性赋值不会触发 didSet，迁移或对齐后的分组必须在这里手动存一次。
+        // 否则旧顺序马上被删掉，下次启动就只能退回目录顺序——用户排好的顺序会丢。
+        persistGroups()
+        defaults.removeObject(forKey: Keys.legacyOrder)
     }
 
-    // MARK: 显示的开关（按顺序、去掉隐藏的）
-    func visibleItems(from items: [SwitchItem]) -> [SwitchItem] {
-        let byID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
-        return order.compactMap { id in hidden.contains(id) ? nil : byID[id] }
+    // MARK: 分组
+
+    /// 设置列表用：分组标题和开关摊平成一个可拖动列表。
+    var groupRows: [GroupRow] { GroupLayout.rows(for: groups) }
+
+    func moveRows(fromOffsets source: IndexSet, toOffset destination: Int) {
+        groups = GroupLayout.applyingMove(to: groups, from: source, to: destination)
     }
+
+    func moveGroup(_ id: String, by offset: Int) {
+        groups = GroupLayout.movingGroup(groups, id: id, by: offset)
+    }
+
+    func renameGroup(_ id: String, to name: String) {
+        guard let index = groups.firstIndex(where: { $0.id == id }) else { return }
+        groups[index].name = name
+    }
+
+    /// 分组的显示名。用户把名字清空时退回默认名，面板上不会出现空标题。
+    func displayName(of group: SwitchGroup) -> String {
+        let trimmed = group.name.trimmingCharacters(in: .whitespaces)
+        if !trimmed.isEmpty { return trimmed }
+        return SwitchCatalog.defaultGroups.first { $0.id == group.id }?.name ?? group.id
+    }
+
+    func resetGroups() {
+        groups = GroupLayout.defaultGroups(defaults: SwitchCatalog.defaultGroups,
+                                           catalog: SwitchCatalog.groupCatalog)
+    }
+
+    // MARK: 显示项
 
     func isVisible(_ id: String) -> Bool { !hidden.contains(id) }
 
     func setVisible(_ id: String, _ visible: Bool) {
         if visible { hidden.remove(id) } else { hidden.insert(id) }
-    }
-
-    func move(fromOffsets: IndexSet, toOffset: Int) {
-        order.move(fromOffsets: fromOffsets, toOffset: toOffset)
     }
 
     // MARK: 快捷键
@@ -88,7 +124,9 @@ final class Preferences: ObservableObject {
     }
 
     // MARK: 持久化
-    private func persistOrder()  { defaults.set(order, forKey: Keys.order) }
+    private func persistGroups() {
+        if let data = try? JSONEncoder().encode(groups) { defaults.set(data, forKey: Keys.groups) }
+    }
     private func persistHidden() { defaults.set(Array(hidden), forKey: Keys.hidden) }
     private func persistHotkeys() {
         if let data = try? JSONEncoder().encode(hotkeys) { defaults.set(data, forKey: Keys.hotkeys) }

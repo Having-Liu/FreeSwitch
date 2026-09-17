@@ -17,7 +17,9 @@ struct SwitchItem: Identifiable {
     /// 每个名字都在本机 CoreGlyphs 的 name_availability.plist 里核对过确实存在。
     let symbol: String
     let kind: SwitchKind
-    let section: String
+    /// 默认分组的 id。只决定第一次使用和「恢复默认分组」时开关落在哪，
+    /// 之后用户可以把它拖到任何分组（分组数据在 Preferences.groups）。
+    let defaultGroup: String
     let hue: Color
     /// 占几列。带参数的开关占两列，腾出的宽度用来显示它的当前值和量规——
     /// 强行让 21 个东西一样大，正是这些开关此前无处安放的原因。
@@ -35,54 +37,64 @@ struct SwitchItem: Identifiable {
 
 /// 全部开关的静态目录。按分区成组——21 个一字排开时谁也扫不出信息。
 enum SwitchCatalog {
-    static let sections = ["外观与显示", "电源", "声音与输入", "桌面与文件", "专注与清洁"]
+    /// 默认分组：id 稳定（存储和归属都靠它，改名不影响），名字是默认名，用户可以改。
+    static let defaultGroups: [(id: String, name: String)] = [
+        ("display", "外观与显示"),
+        ("power",   "电源"),
+        ("audio",   "声音与输入"),
+        ("files",   "桌面与文件"),
+        ("focus",   "专注与清洁"),
+    ]
+
+    /// 给分组逻辑（SwitchGroups.swift）用的精简视图：每个开关和它的默认分组。
+    static var groupCatalog: [(id: String, group: String)] { all.map { ($0.id, $0.defaultGroup) } }
 
     static let all: [SwitchItem] = [
         // 外观与显示
-        SwitchItem(id: "darkMode",   title: "黑暗模式",   symbol: "circle.lefthalf.filled", kind: .toggle, section: "外观与显示", hue: SwitchHue.indigo, span: 1),
-        SwitchItem(id: "nightShift", title: "夜览",       symbol: "sunset.fill",            kind: .toggle, section: "外观与显示", hue: SwitchHue.amber,  span: 1),
+        SwitchItem(id: "darkMode",   title: "黑暗模式",   symbol: "circle.lefthalf.filled", kind: .toggle, defaultGroup: "display", hue: SwitchHue.indigo, span: 1),
+        SwitchItem(id: "nightShift", title: "夜览",       symbol: "sunset.fill",            kind: .toggle, defaultGroup: "display", hue: SwitchHue.amber,  span: 1),
         // 原彩讲的是颜色准确，调色盘直接指向「颜色」，而且是实心的。
         // 弃用过的：lightspectrum.horizontal 缩小后像条形码；camera.filters 是细线圆，
         // 放在浅色玻璃上发虚看不清；sun.max.fill 读作「亮度」，还会和旁边夜览的太阳撞。
-        SwitchItem(id: "trueTone",   title: "原彩显示",   symbol: "paintpalette.fill",      kind: .toggle, section: "外观与显示", hue: SwitchHue.teal,   span: 1),
+        SwitchItem(id: "trueTone",   title: "原彩显示",   symbol: "paintpalette.fill",      kind: .toggle, defaultGroup: "display", hue: SwitchHue.teal,   span: 1),
         // aspectratio 像裁切比例；屏幕加外扩箭头才是「尺寸」。
-        SwitchItem(id: "resolution", title: "屏幕分辨率", symbol: "arrow.up.left.and.arrow.down.right.rectangle", kind: .picker, section: "外观与显示", hue: SwitchHue.blue, span: 2),
+        SwitchItem(id: "resolution", title: "屏幕分辨率", symbol: "arrow.up.left.and.arrow.down.right.rectangle", kind: .picker, defaultGroup: "display", hue: SwitchHue.blue, span: 2),
 
         // 电源
         // kind 仍是 .toggle：它有真实的开/关态，控制中心的开关控件、全局热键、
         // 以及写进共享状态文件的那一份都依赖这个语义。“占两列、可展开”是表现，由 span 决定。
-        SwitchItem(id: "keepAwake",    title: "保持亮屏",   symbol: "cup.and.heat.waves.fill", kind: .toggle, section: "电源", hue: SwitchHue.coffee,  span: 2),
+        SwitchItem(id: "keepAwake",    title: "保持亮屏",   symbol: "cup.and.heat.waves.fill", kind: .toggle, defaultGroup: "power", hue: SwitchHue.coffee,  span: 2),
         // 叶子是 iOS 的节能暗示；Mac 上低电量就是菜单栏那个黄电池。
-        SwitchItem(id: "lowPowerMode", title: "低电量模式", symbol: "battery.25percent",       kind: .toggle, section: "电源", hue: SwitchHue.yellow,  span: 1),
+        SwitchItem(id: "lowPowerMode", title: "低电量模式", symbol: "battery.25percent",       kind: .toggle, defaultGroup: "power", hue: SwitchHue.yellow,  span: 1),
         // powersleep 名字看着对，画出来却是一轮月亮，会和「专注」撞；改用显示器叠 zzz 角标。
-        SwitchItem(id: "displaySleep", title: "显示器休眠", symbol: "display",                 kind: .action, section: "电源", hue: SwitchHue.indigo,  span: 1, badge: "zzz"),
-        SwitchItem(id: "lockScreen",   title: "锁定屏幕",   symbol: "lock.display",            kind: .action, section: "电源", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "displaySleep", title: "显示器休眠", symbol: "display",                 kind: .action, defaultGroup: "power", hue: SwitchHue.indigo,  span: 1, badge: "zzz"),
+        SwitchItem(id: "lockScreen",   title: "锁定屏幕",   symbol: "lock.display",            kind: .action, defaultGroup: "power", hue: SwitchHue.neutral, span: 1),
 
         // 声音与输入
-        SwitchItem(id: "muteMic",           title: "麦克风静音",  symbol: "mic.slash.fill", kind: .toggle, section: "声音与输入", hue: SwitchHue.red,     span: 1, accentsPrimaryLayer: true),
-        SwitchItem(id: "connectHeadphones", title: "耳机连接",    symbol: "airpods.pro",    kind: .toggle, section: "声音与输入", hue: SwitchHue.cyan,    span: 2),
-        SwitchItem(id: "playMusic",         title: "播放 / 暂停", symbol: "playpause.fill", kind: .action, section: "声音与输入", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "muteMic",           title: "麦克风静音",  symbol: "mic.slash.fill", kind: .toggle, defaultGroup: "audio", hue: SwitchHue.red,     span: 1, accentsPrimaryLayer: true),
+        SwitchItem(id: "connectHeadphones", title: "耳机连接",    symbol: "airpods.pro",    kind: .toggle, defaultGroup: "audio", hue: SwitchHue.cyan,    span: 2),
+        SwitchItem(id: "playMusic",         title: "播放 / 暂停", symbol: "playpause.fill", kind: .action, defaultGroup: "audio", hue: SwitchHue.neutral, span: 1),
 
         // 桌面与文件
         // 虚线框太抽象；带菜单栏和程序坞的屏幕才是「桌面」。
-        SwitchItem(id: "hideDesktop",    title: "隐藏桌面",     symbol: "menubar.dock.rectangle", kind: .toggle, section: "桌面与文件", hue: SwitchHue.blue,    span: 1),
-        SwitchItem(id: "showHidden",     title: "显示隐藏文件", symbol: "eye.fill",               kind: .toggle, section: "桌面与文件", hue: SwitchHue.violet,  span: 1),
+        SwitchItem(id: "hideDesktop",    title: "隐藏桌面",     symbol: "menubar.dock.rectangle", kind: .toggle, defaultGroup: "files", hue: SwitchHue.blue,    span: 1),
+        SwitchItem(id: "showHidden",     title: "显示隐藏文件", symbol: "eye.fill",               kind: .toggle, defaultGroup: "files", hue: SwitchHue.violet,  span: 1),
         // doc.on.clipboard 是系统的「粘贴/复制」图标，会被读成复制；换成剪贴板本身。
-        SwitchItem(id: "emptyClipboard", title: "清空剪贴板",   symbol: "clipboard.fill",         kind: .action, section: "桌面与文件", hue: SwitchHue.neutral, span: 1),
-        SwitchItem(id: "emptyTrash",     title: "清空废纸篓",   symbol: "trash.fill",             kind: .action, section: "桌面与文件", hue: SwitchHue.neutral, span: 1),
-        SwitchItem(id: "ejectDisk",      title: "推出磁盘",     symbol: "eject.fill",             kind: .action, section: "桌面与文件", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "emptyClipboard", title: "清空剪贴板",   symbol: "clipboard.fill",         kind: .action, defaultGroup: "files", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "emptyTrash",     title: "清空废纸篓",   symbol: "trash.fill",             kind: .action, defaultGroup: "files", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "ejectDisk",      title: "推出磁盘",     symbol: "eject.fill",             kind: .action, defaultGroup: "files", hue: SwitchHue.neutral, span: 1),
 
         // 专注与清洁
         // 系统的专注就是月亮；moon.zzz 更像睡眠。月亮现在只归它一个。
-        SwitchItem(id: "doNotDisturb", title: "勿扰 / 专注", symbol: "moon.fill",                 kind: .action, section: "专注与清洁", hue: SwitchHue.violet,  span: 1),
+        SwitchItem(id: "doNotDisturb", title: "勿扰 / 专注", symbol: "moon.fill",                 kind: .action, defaultGroup: "focus", hue: SwitchHue.violet,  span: 1),
         // sparkles 如今常被读成 AI；泡泡加闪光才是「清洁」。
-        SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "bubbles.and.sparkles.fill", kind: .action, section: "专注与清洁", hue: SwitchHue.cyan,    span: 1),
+        SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "bubbles.and.sparkles.fill", kind: .action, defaultGroup: "focus", hue: SwitchHue.cyan,    span: 1),
         // SF 里没有「键盘+锁」，叠一个锁角标。
-        SwitchItem(id: "lockKeyboard", title: "锁定键盘",    symbol: "keyboard.fill",             kind: .toggle, section: "专注与清洁", hue: SwitchHue.neutral, span: 1, badge: "lock.fill"),
+        SwitchItem(id: "lockKeyboard", title: "锁定键盘",    symbol: "keyboard.fill",             kind: .toggle, defaultGroup: "focus", hue: SwitchHue.neutral, span: 1, badge: "lock.fill"),
         // play.display 的三角会和「播放 / 暂停」撞；photo.tv 是屏幕里有画面。
-        SwitchItem(id: "screensaver",  title: "屏幕保护",    symbol: "photo.tv",                  kind: .action, section: "专注与清洁", hue: SwitchHue.teal,    span: 1),
+        SwitchItem(id: "screensaver",  title: "屏幕保护",    symbol: "photo.tv",                  kind: .action, defaultGroup: "focus", hue: SwitchHue.teal,    span: 1),
         // Xcode 自己的图标就是锤子。
-        SwitchItem(id: "xcodeClean",   title: "Xcode 清理",  symbol: "hammer.fill",               kind: .action, section: "专注与清洁", hue: SwitchHue.blue,    span: 1),
+        SwitchItem(id: "xcodeClean",   title: "Xcode 清理",  symbol: "hammer.fill",               kind: .action, defaultGroup: "focus", hue: SwitchHue.blue,    span: 1),
     ]
 
     static let defaultIDs: [String] = all.map(\.id)
