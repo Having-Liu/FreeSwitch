@@ -41,9 +41,10 @@ enum SwitchCatalog {
         // 外观与显示
         SwitchItem(id: "darkMode",   title: "黑暗模式",   symbol: "circle.lefthalf.filled", kind: .toggle, section: "外观与显示", hue: SwitchHue.indigo, span: 1),
         SwitchItem(id: "nightShift", title: "夜览",       symbol: "sunset.fill",            kind: .toggle, section: "外观与显示", hue: SwitchHue.amber,  span: 1),
-        // 原彩是按环境光调色温，本身就抽象；三色圆叠在一起至少清楚指向「颜色」。
-        // lightspectrum.horizontal 缩小后像栅格/条形码，弃用。
-        SwitchItem(id: "trueTone",   title: "原彩显示",   symbol: "camera.filters",         kind: .toggle, section: "外观与显示", hue: SwitchHue.teal,   span: 1),
+        // 原彩讲的是颜色准确，调色盘直接指向「颜色」，而且是实心的。
+        // 弃用过的：lightspectrum.horizontal 缩小后像条形码；camera.filters 是细线圆，
+        // 放在浅色玻璃上发虚看不清；sun.max.fill 读作「亮度」，还会和旁边夜览的太阳撞。
+        SwitchItem(id: "trueTone",   title: "原彩显示",   symbol: "paintpalette.fill",      kind: .toggle, section: "外观与显示", hue: SwitchHue.teal,   span: 1),
         // aspectratio 像裁切比例；屏幕加外扩箭头才是「尺寸」。
         SwitchItem(id: "resolution", title: "屏幕分辨率", symbol: "arrow.up.left.and.arrow.down.right.rectangle", kind: .picker, section: "外观与显示", hue: SwitchHue.blue, span: 2),
 
@@ -134,6 +135,13 @@ final class SwitchStore: ObservableObject {
         // 麦克风被会议 App / 硬件键静音，或默认输入设备被换掉。
         AudioController.observeMicChanges { [weak self] in
             self?.setOn("muteMic", AudioController.micMuted())
+            self?.publish()
+        }
+
+        // 耳机连上或断开时，连接状态和电量跟着刷新。
+        // 这曾是面板上那个手动「刷新」按钮唯一真正有用的场景——其余状态早已由通知和定时核对覆盖。
+        BluetoothController.observeConnections { [weak self] in
+            self?.loadHeadphoneStatus()
             self?.publish()
         }
 

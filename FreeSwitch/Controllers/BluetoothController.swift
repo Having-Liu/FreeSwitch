@@ -47,6 +47,17 @@ enum BluetoothController {
         IOBluetoothDevice(addressString: address)?.name
     }
 
+    // MARK: 连接变化
+
+    private static var connectionObserver: BluetoothConnectionObserver?
+
+    /// 音频类蓝牙设备连上或断开时回调。
+    static func observeConnections(_ handler: @escaping @MainActor () -> Void) {
+        let observer = BluetoothConnectionObserver(handler: handler)
+        connectionObserver = observer
+        observer.start()
+    }
+
     /// 通过 system_profiler 读取已连接蓝牙设备的电量（较慢，请在后台调用）。
     /// AirPods 取左右耳中较低者；其它设备取主电量。
     nonisolated static func batteryPercent(for address: String) -> Int? {
@@ -83,5 +94,60 @@ enum BluetoothController {
     nonisolated private static func percent(_ value: Any?) -> Int? {
         guard let string = value as? String else { return nil }
         return Int(string.replacingOccurrences(of: "%", with: "").trimmingCharacters(in: .whitespaces))
+    }
+}
+
+/// 接收 IOBluetooth 的连接 / 断开通知。
+///
+/// IOBluetooth 的通知是 target/selector 形式，只能交给 NSObject 子类接收。
+/// 连接通知是全局的（任何设备连上都会来），断开通知则要逐个设备登记，
+/// 所以每连上一个音频设备就给它补登一次断开通知；启动时已经连着的也要补。
+/// 通知在注册时所在的主线程 run loop 上投递。
+final class BluetoothConnectionObserver: NSObject {
+    private let handler: @MainActor () -> Void
+    private var connectNotification: IOBluetoothUserNotification?
+    private var disconnectNotifications: [IOBluetoothUserNotification] = []
+
+    /// 音频类设备（耳机、AirPods）。鼠标键盘的连接变化与耳机状态无关，不必触发刷新。
+    private static let audioMajorClass: BluetoothDeviceClassMajor = 0x04
+
+    init(handler: @escaping @MainActor () -> Void) {
+        self.handler = handler
+    }
+
+    func start() {
+        let paired = IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] ?? []
+        for device in paired where device.isConnected() && isAudio(device) {
+            watchDisconnect(of: device)
+        }
+        connectNotification = IOBluetoothDevice.register(
+            forConnectNotifications: self,
+            selector: #selector(deviceConnected(_:device:))
+        )
+    }
+
+    private func isAudio(_ device: IOBluetoothDevice) -> Bool {
+        device.deviceClassMajor == Self.audioMajorClass
+    }
+
+    private func watchDisconnect(of device: IOBluetoothDevice) {
+        if let note = device.register(forDisconnectNotification: self,
+                                      selector: #selector(deviceDisconnected(_:device:))) {
+            disconnectNotifications.append(note)
+        }
+    }
+
+    @objc private func deviceConnected(_ note: IOBluetoothUserNotification, device: IOBluetoothDevice) {
+        guard isAudio(device) else { return }
+        watchDisconnect(of: device)
+        handler()
+    }
+
+    @objc private func deviceDisconnected(_ note: IOBluetoothUserNotification, device: IOBluetoothDevice) {
+        // 这个设备的断开通知已经用完了，注销并丢掉，免得数组随每次连接越积越多。
+        note.unregister()
+        disconnectNotifications.removeAll { $0 === note }
+        guard isAudio(device) else { return }
+        handler()
     }
 }

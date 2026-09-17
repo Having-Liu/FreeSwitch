@@ -1,13 +1,17 @@
 import SwiftUI
 
-// 面板的网格尺寸。面板宽度固定，所以直接算出列宽——
-// 带参数的开关占两列，多出来的宽度用于显示它的当前值和量规。
+// 面板的网格尺寸：每行 5 列，面板宽度由列宽反推。
+// 5 列时各分区恰好能排满一行（1+1+1+2、2+1+1+1、五个单列），4 列则到处是空洞。
+// 带参数的开关至少占两列，多出来的宽度用于显示它的当前值和量规。
 enum TileMetrics {
-    static let panelWidth: CGFloat = 340
+    static let columns = 5
+    static let unit: CGFloat = 76        // 单列宽度：放得下「显示隐藏文件」这样的六字标签
     static let padding: CGFloat = 11
     static let gap: CGFloat = 7
     static let height: CGFloat = 60
-    static var unit: CGFloat { (panelWidth - padding * 2 - gap * 3) / 4 }
+    static var panelWidth: CGFloat {
+        unit * CGFloat(columns) + gap * CGFloat(columns - 1) + padding * 2
+    }
     static func width(span: Int) -> CGFloat {
         unit * CGFloat(span) + gap * CGFloat(span - 1)
     }
@@ -110,6 +114,8 @@ struct SwitchTileView: View {
 /// 布局，磁贴的尺寸和背景会被整个丢掉（这正是旧版「保持亮屏」塌掉的原因）。
 struct WideTileView: View {
     let item: SwitchItem
+    /// 实际占的列数。排版时行尾剩下的空位会分给宽磁贴，所以可能比 item.span 大。
+    let span: Int
     let isExpanded: Bool
     let primary: () -> Void
     let toggleExpand: () -> Void
@@ -152,7 +158,7 @@ struct WideTileView: View {
             .buttonStyle(.plain)
             .help("展开选项")
         }
-        .frame(width: TileMetrics.width(span: item.span), height: TileMetrics.height)
+        .frame(width: TileMetrics.width(span: span), height: TileMetrics.height)
         .foregroundStyle(isOn ? Color.white : Color.primary)
         .overlay(alignment: .bottom) {
             // 量规：保持亮屏走剩余时长，耳机走电量。有量可报才画。
