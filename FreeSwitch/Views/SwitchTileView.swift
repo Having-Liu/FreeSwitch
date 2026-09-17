@@ -13,6 +13,41 @@ enum TileMetrics {
     }
 }
 
+/// 开关的图标：SF 符号，加上可选的右下角标。
+///
+/// 关闭时按各自色相着色——扫一眼靠颜色就能分辨，不用逐个读字；中性色的开关用正文色，
+/// 免得灰蒙蒙的像被禁用。开启时磁贴已经染上色相，图标改为白色，否则会和底色糊成一片。
+struct SwitchIcon: View {
+    let item: SwitchItem
+    let isOn: Bool
+    let size: CGFloat
+
+    private var tint: Color { item.hue == SwitchHue.neutral ? Color.primary : item.hue }
+
+    var body: some View {
+        glyph(item.symbol, size: size)
+            .overlay(alignment: .bottomTrailing) {
+                if let badge = item.badge {
+                    glyph(badge, size: size * 0.46)
+                        .offset(x: size * 0.30, y: size * 0.16)
+                }
+            }
+    }
+
+    @ViewBuilder
+    private func glyph(_ name: String, size: CGFloat) -> some View {
+        let image = Image(systemName: name).font(.system(size: size, weight: .medium))
+        if isOn {
+            image.foregroundStyle(Color.white)
+        } else if item.accentsPrimaryLayer {
+            // 只染主图层：麦克风静音是斜线红、话筒保持正文色。
+            image.symbolRenderingMode(.palette).foregroundStyle(tint, Color.primary)
+        } else {
+            image.foregroundStyle(tint)
+        }
+    }
+}
+
 /// 单列磁贴：开关或一次性动作。
 struct SwitchTileView: View {
     let item: SwitchItem
@@ -25,10 +60,17 @@ struct SwitchTileView: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 5) {
-                Image(systemName: symbol)
-                    .font(.system(size: 19, weight: .medium))
-                    .frame(height: 22)
-                    .symbolEffect(.pulse, isActive: phase == "running")
+                Group {
+                    if phase == "idle" {
+                        SwitchIcon(item: item, isOn: isOn, size: 19)
+                    } else {
+                        // 处理中 / 已完成：临时换成沙漏和对勾，不带角标。
+                        Image(systemName: symbol)
+                            .font(.system(size: 19, weight: .medium))
+                            .symbolEffect(.pulse, isActive: phase == "running")
+                    }
+                }
+                .frame(height: 22)
                 Text(label)
                     .font(.system(size: 10.5))
                     .lineLimit(1)
@@ -78,8 +120,7 @@ struct WideTileView: View {
         HStack(spacing: 0) {
             Button(action: primary) {
                 HStack(spacing: 9) {
-                    Image(systemName: item.symbol)
-                        .font(.system(size: 19, weight: .medium))
+                    SwitchIcon(item: item, isOn: isOn, size: 19)
                         .frame(width: 22)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(item.title)

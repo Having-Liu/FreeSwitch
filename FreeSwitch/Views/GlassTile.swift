@@ -5,6 +5,8 @@ import SwiftUI
 enum SwitchHue {
     static let indigo = Color(red: 0.357, green: 0.357, blue: 0.839)
     static let amber  = Color(red: 0.910, green: 0.569, blue: 0.176)
+    /// 低电量模式用黄：图标是 Mac 菜单栏里那个黄电池，色相跟着图标走，开启时染色才对得上。
+    static let yellow = Color(red: 0.930, green: 0.720, blue: 0.050)
     static let teal   = Color(red: 0.184, green: 0.659, blue: 0.627)
     static let blue   = Color(red: 0.290, green: 0.549, blue: 0.910)
     static let coffee = Color(red: 0.706, green: 0.475, blue: 0.310)

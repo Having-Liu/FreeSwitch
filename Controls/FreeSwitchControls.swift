@@ -10,7 +10,7 @@ import OSLog
 let fsLog = Logger(subsystem: "com.freeswitch.FreeSwitch", category: "control")
 
 // 控制中心控件。开关类用 ControlWidgetToggle 显示状态：
-//  - 状态从共享 App Group 读取（主 App 负责回写）
+//  - 状态从本扩展自己沙盒容器里的 states.json 读取（主 App 负责回写，见 CtrlShared）
 //  - 翻动 → SetValueIntent 发 Darwin 通知，主 App 按目标值设置后回写状态并刷新控件
 // 动作类用 ControlWidgetButton（点一下执行）。
 
@@ -163,7 +163,8 @@ private struct FSActionLabel: View {
 }
 
 // 动作控件给的是事后反馈而非事前确认：点一下立刻执行，控件随即显示「处理中」，
-// 完成后显示「已完成」并变绿，两秒后回到常态。处理中期间的重复点击会被忽略。
+// 完成后显示「已完成」并变绿，五秒后回到常态（控制中心的刷新有 5 秒节流，窗口再短就画不出来）。
+// 处理中期间的重复点击会被忽略。
 private func fsButton(id: String, name: String, symbol: String) -> some ControlWidgetConfiguration {
     StaticControlConfiguration(
         kind: "com.freeswitch.FreeSwitch.control." + id,
@@ -186,18 +187,18 @@ private func fsToggle(id: String, name: String, symbol: String) -> some ControlW
     .displayName(LocalizedStringResource(stringLiteral: name))
 }
 
-struct FSDarkMode: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "darkMode", name: "深色模式", symbol: "moon.fill") } }
+struct FSDarkMode: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "darkMode", name: "深色模式", symbol: "circle.lefthalf.filled") } }
 struct FSNightShift: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "nightShift", name: "夜览", symbol: "sunset.fill") } }
-struct FSKeepAwake: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "keepAwake", name: "保持亮屏", symbol: "cup.and.saucer.fill") } }
-struct FSLowPower: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "lowPowerMode", name: "低电量", symbol: "leaf.fill") } }
+struct FSKeepAwake: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "keepAwake", name: "保持亮屏", symbol: "cup.and.heat.waves.fill") } }
+struct FSLowPower: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "lowPowerMode", name: "低电量", symbol: "battery.25percent") } }
 struct FSMuteMic: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "muteMic", name: "麦克风静音", symbol: "mic.slash.fill") } }
 // 锁定键盘特别适合放控制中心：键盘被锁住时，这里是纯鼠标可达的解锁入口。
-struct FSLockKeyboard: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "lockKeyboard", name: "锁定键盘", symbol: "keyboard") } }
+struct FSLockKeyboard: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "lockKeyboard", name: "锁定键盘", symbol: "keyboard.fill") } }
 struct FSShowHidden: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "showHidden", name: "显示隐藏文件", symbol: "eye.fill") } }
 
-struct FSDoNotDisturb: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "doNotDisturb", name: "勿扰", symbol: "moon.zzz.fill") } }
-struct FSLockScreen: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "lockScreen", name: "锁定屏幕", symbol: "lock.fill") } }
-struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "screenClean", name: "屏幕清洁", symbol: "sparkles") } }
+struct FSDoNotDisturb: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "doNotDisturb", name: "勿扰", symbol: "moon.fill") } }
+struct FSLockScreen: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "lockScreen", name: "锁定屏幕", symbol: "lock.display") } }
+struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "screenClean", name: "屏幕清洁", symbol: "bubbles.and.sparkles.fill") } }
 struct FSEmptyTrash: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "emptyTrash", name: "清空废纸篓", symbol: "trash.fill") } }
 // 注：这里曾试过用 AppIntents 官方的 requestConfirmation 做二次确认，实测它在
 // macOS 控制中心里是静默放行——不渲染界面、不抛错、直接往下走（探针显示 perform()

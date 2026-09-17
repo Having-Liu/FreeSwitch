@@ -115,9 +115,9 @@ struct SettingsView: View {
         HStack(spacing: 10) {
             Image(systemName: "line.3.horizontal")
                 .foregroundStyle(.tertiary)
-            Image(systemName: item.symbol)
+            // 和面板用同一个图标组件，两处的图形、颜色、角标保持一致。
+            SwitchIcon(item: item, isOn: false, size: 14)
                 .frame(width: 22)
-                .foregroundStyle(Color.accentColor)
             Text(item.title)
                 .frame(width: 120, alignment: .leading)
 
