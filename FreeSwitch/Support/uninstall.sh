@@ -218,8 +218,10 @@ if [ "$FAILED" = 0 ]; then
         say "✓ 已彻底卸载，没有任何残留。"
         NOTE="所有数据都已清除，没有残留。"
     else
-        NOTE="数据已全部清除；另有 ${#SHELLS[@]} 个空容器，想连壳一起删就在访达里手动移到废纸篓。"
-        say "✓ 数据已全部清除。想连壳一起删：在访达里手动移到废纸篓，或在终端运行 scripts/uninstall.sh。"
+        # 通知里不写「去访达手动删」：空壳是 0 个文件的系统托管目录，留着不影响任何东西，
+        # 把它说成待办事项只会让用户以为卸载没做完。想连壳一起删的办法写在日志里就够了。
+        NOTE="数据已全部清除。剩下 ${#SHELLS[@]} 个系统托管的空目录，里面什么都没有。"
+        say "✓ 数据已全部清除。那 ${#SHELLS[@]} 个空壳留着无妨；一定要连壳删就在访达里移到废纸篓，或在终端运行 scripts/uninstall.sh。"
     fi
     [ "$FROM_APP" = 1 ] && osascript -e "display notification \"$NOTE\" with title \"FreeSwitch 已彻底卸载\"" >/dev/null 2>&1
     exit 0
