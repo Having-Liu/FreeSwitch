@@ -32,6 +32,9 @@ FROM_APP=0
 ASSUME_YES=0
 LIST_ONLY=0
 REPORT=/tmp/FreeSwitch-uninstall.log
+# App 在退出前用自己的身份清空并核对过的容器。本脚本没有 App 的 entitlement，
+# 对这些路径只能报「看不了」，但 App 那边是真查过的，以它的结论为准。
+VERIFIED=""
 LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 
 while [ $# -gt 0 ]; do
@@ -40,6 +43,7 @@ while [ $# -gt 0 ]; do
         --from-app) FROM_APP=1; ASSUME_YES=1 ;;
         --app-path) APP="$2"; shift ;;
         --repo)     REPO="$2"; shift ;;
+        --verified-empty) VERIFIED="$VERIFIED$2"$'\n'; shift ;;
         --list)     LIST_ONLY=1 ;;
     esac
     shift
@@ -165,7 +169,12 @@ SHELLS=()
 UNSURE=()
 for t in "$APP" "${TARGETS[@]}"; do
     [ -e "$t" ] || continue
-    case "$(container_state "$t")" in
+    state=$(container_state "$t")
+    # 看不了，但 App 退出前已经清空并核对过——采信它，别再报一条假的「卸载未完全」。
+    if [ "$state" = unreadable ] && printf '%s' "$VERIFIED" | grep -qxF "$t"; then
+        state=empty
+    fi
+    case "$state" in
         empty)      SHELLS+=("$t") ;;
         unreadable) UNSURE+=("$t") ;;
         *)          LEFT+=("$t") ;;
@@ -175,45 +184,53 @@ if defaults read "$BUNDLE" >/dev/null 2>&1; then
     LEFT+=("偏好设置域 $BUNDLE（仍可被读到）")
 fi
 
-if [ ${#UNSURE[@]} -gt 0 ]; then
-    say "⚠ 以下 ${#UNSURE[@]} 项没有权限查看，无法确认是否已清空："
-    for u in "${UNSURE[@]}"; do say "  $u"; done
-    say "  在终端运行 scripts/uninstall.sh 可以彻底清掉它们（终端的权限够）。"
-    if [ "$FROM_APP" = 1 ]; then
-        osascript -e "display notification \"有 ${#UNSURE[@]} 项无法确认，已在访达中标出。\" with title \"FreeSwitch 卸载未完全\"" >/dev/null 2>&1
-        for u in "${UNSURE[@]}"; do open -R "$u"; done
+# 三类一次报全。以前 UNSURE 一非空就提前 exit，把后面「空壳」那段整个吞掉，
+# 用户只看到「无法确认」，不知道其余的到底清没清。
+FAILED=0
+
+if [ ${#LEFT[@]} -gt 0 ]; then
+    FAILED=1
+    say "✗ 以下 ${#LEFT[@]} 项没能清除："
+    CHRONO=0
+    for l in "${LEFT[@]}"; do
+        say "  $l"
+        [ -d "$l" ] && has_chrono_leftover "$l" && CHRONO=1
+    done
+    if [ "$CHRONO" = 1 ]; then
+        say "  其中有控制中心写的控件占位快照——说明控制中心里还留着 FreeSwitch 的控件。"
+        say "  请拉开控制中心，把 FreeSwitch 的控件长按移除，否则这个容器删掉还会再被建出来。"
     fi
-    exit 1
 fi
 
-if [ ${#LEFT[@]} -eq 0 ]; then
+if [ ${#UNSURE[@]} -gt 0 ]; then
+    FAILED=1
+    say "⚠ 以下 ${#UNSURE[@]} 项没有权限查看，无法确认是否已清空："
+    for u in "${UNSURE[@]}"; do say "  $u"; done
+fi
+
+if [ ${#SHELLS[@]} -gt 0 ]; then
+    say "· 另有 ${#SHELLS[@]} 个空容器：数据已清干净，只剩一个由系统托管、App 删不掉的空壳。"
+    for s in "${SHELLS[@]}"; do say "  $s"; done
+fi
+
+if [ "$FAILED" = 0 ]; then
     if [ ${#SHELLS[@]} -eq 0 ]; then
         say "✓ 已彻底卸载，没有任何残留。"
         NOTE="所有数据都已清除，没有残留。"
     else
-        say "✓ 数据已全部清除。另有 ${#SHELLS[@]} 个由系统托管的空容器（里面什么都没有，App 的身份删不掉它）："
-        for s in "${SHELLS[@]}"; do say "  $s"; done
-        say "  想彻底删掉的话：在访达里手动移到废纸篓，或在终端运行 scripts/uninstall.sh（终端的权限够）。"
-        NOTE="数据已全部清除；另有 ${#SHELLS[@]} 个空容器需要在访达里手动删除。"
+        NOTE="数据已全部清除；另有 ${#SHELLS[@]} 个空容器，想连壳一起删就在访达里手动移到废纸篓。"
+        say "✓ 数据已全部清除。想连壳一起删：在访达里手动移到废纸篓，或在终端运行 scripts/uninstall.sh。"
     fi
     [ "$FROM_APP" = 1 ] && osascript -e "display notification \"$NOTE\" with title \"FreeSwitch 已彻底卸载\"" >/dev/null 2>&1
     exit 0
 fi
 
-say "✗ 以下 ${#LEFT[@]} 项没能清除："
-CHRONO=0
-for l in "${LEFT[@]}"; do
-    say "  $l"
-    [ -d "$l" ] && has_chrono_leftover "$l" && CHRONO=1
-done
-if [ "$CHRONO" = 1 ]; then
-    say "  其中有控制中心写的控件占位快照——说明控制中心里还留着 FreeSwitch 的控件。"
-    say "  请拉开控制中心，把 FreeSwitch 的控件长按移除，否则这个容器删掉还会再被建出来。"
-fi
+N=$(( ${#LEFT[@]} + ${#UNSURE[@]} ))
+say "  在终端运行 scripts/uninstall.sh 可以彻底清掉它们（终端的权限够）。"
 if [ "$FROM_APP" = 1 ]; then
-    osascript -e "display notification \"有 ${#LEFT[@]} 项没能自动清除，已在访达中标出，按 ⌘⌫ 即可删除。\" with title \"FreeSwitch 卸载未完全\"" >/dev/null 2>&1
-    for l in "${LEFT[@]}"; do
-        [ -e "$l" ] && open -R "$l"
-    done
+    osascript -e "display notification \"有 $N 项没能自动清除，已在访达中标出。\" with title \"FreeSwitch 卸载未完全\"" >/dev/null 2>&1
+    # bash 3.2 + set -u：展开空数组会报 unbound variable，所以两个数组各自判空再展开。
+    [ ${#LEFT[@]} -gt 0 ]   && for l in "${LEFT[@]}";   do [ -e "$l" ] && open -R "$l"; done
+    [ ${#UNSURE[@]} -gt 0 ] && for u in "${UNSURE[@]}"; do [ -e "$u" ] && open -R "$u"; done
 fi
 exit 1

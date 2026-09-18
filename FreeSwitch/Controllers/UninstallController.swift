@@ -62,9 +62,9 @@ enum UninstallController {
         HelperClient.shared.uninstall()
         try? SMAppService.mainApp.unregister()
 
-        wipeContainerData()
+        let verifiedEmpty = wipeContainerData()
 
-        guard launchCleanupScript() else {
+        guard launchCleanupScript(verifiedEmpty: verifiedEmpty) else {
             let alert = NSAlert()
             alert.alertStyle = .warning
             alert.messageText = "没能启动卸载脚本"
@@ -75,30 +75,56 @@ enum UninstallController {
         NSApp.terminate(nil)
     }
 
-    /// 趁 App 还活着，用 App 自己的身份把容器里的数据清掉。
+    /// 趁 App 还活着，用 App 自己的身份把容器里的数据清掉，并**当场核对**清干净了没有。
+    /// 返回核对通过的容器路径。
     ///
     /// 这一步不能留给退出后那个脚本：脚本虽然继承了 App 的身份，却不带 App 的 entitlement，
     /// group 容器连列目录都不允许——实测它因此把「列不出东西」当成「里面是空的」，
     /// 谎报成已清空。容器根目录仍旧删不掉（归 containermanagerd 管），
     /// 但至少数据是在这里、由有权限的一方清干净的。
-    private static func wipeContainerData() {
+    ///
+    /// 核对结果要带给脚本：否则脚本只能说「没权限查看，无法确认」，于是明明已经清干净了，
+    /// 用户还是收到一条「卸载未完全」的通知——实测过一次，比谎报好，但仍旧不准。
+    private static func wipeContainerData() -> [URL] {
         let home = FileManager.default.homeDirectoryForCurrentUser
-        let roots = [
-            home.appendingPathComponent("Library/Containers/\(FreeSwitchTrigger.extensionBundleID)/Data"),
+        let containers = [
+            home.appendingPathComponent("Library/Containers/\(FreeSwitchTrigger.extensionBundleID)"),
             home.appendingPathComponent("Library/Group Containers/\(FreeSwitchTrigger.suite)"),
         ]
-        let manager = FileManager.default
-        for root in roots {
-            guard let items = try? manager.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) else { continue }
-            for item in items where item.lastPathComponent != ".com.apple.containermanagerd.metadata.plist" {
-                try? manager.removeItem(at: item)
-            }
+        return containers.filter { container in
+            wipe(container)
+            return remainingFileCount(in: container) == 0
         }
+    }
+
+    private static let containerMetadata = ".com.apple.containermanagerd.metadata.plist"
+
+    /// 删掉容器里除系统元数据之外的一切。根目录本身留着——那是删不掉的。
+    private static func wipe(_ container: URL) {
+        let manager = FileManager.default
+        guard let items = try? manager.contentsOfDirectory(at: container, includingPropertiesForKeys: nil) else { return }
+        for item in items where item.lastPathComponent != containerMetadata {
+            try? manager.removeItem(at: item)
+        }
+    }
+
+    /// 只数真正的文件。清空之后系统会把 Data/ 下那套标准骨架（Desktop、Documents…）
+    /// 重新建出来，那是系统的脚手架，不是残留数据。
+    private static func remainingFileCount(in container: URL) -> Int {
+        let manager = FileManager.default
+        guard let walker = manager.enumerator(at: container, includingPropertiesForKeys: [.isRegularFileKey]) else { return 0 }
+        var count = 0
+        for case let url as URL in walker {
+            guard url.lastPathComponent != containerMetadata,
+                  (try? url.resourceValues(forKeys: [.isRegularFileKey]))?.isRegularFile == true else { continue }
+            count += 1
+        }
+        return count
     }
 
     /// 把脚本拷到临时目录再运行：脚本会删掉 App 包，不能让它从即将被删除的包里执行。
     /// 子进程在 App 退出后继续运行（会被 launchd 接管），它会先等 App 进程完全退出再动手。
-    private static func launchCleanupScript() -> Bool {
+    private static func launchCleanupScript(verifiedEmpty: [URL]) -> Bool {
         guard let bundled = Bundle.main.url(forResource: "uninstall", withExtension: "sh") else { return false }
         let temp = FileManager.default.temporaryDirectory.appendingPathComponent("FreeSwitch-uninstall.sh")
         try? FileManager.default.removeItem(at: temp)
@@ -106,7 +132,9 @@ enum UninstallController {
 
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/bin/bash")
-        task.arguments = [temp.path, "--from-app", "--app-path", Bundle.main.bundleURL.path]
+        var arguments = [temp.path, "--from-app", "--app-path", Bundle.main.bundleURL.path]
+        for url in verifiedEmpty { arguments += ["--verified-empty", url.path] }
+        task.arguments = arguments
         return (try? task.run()) != nil
     }
 }
