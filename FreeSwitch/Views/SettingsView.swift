@@ -6,7 +6,7 @@ import SwiftUI
 /// 整个文件可以在两个项目之间直接搬）。这里只负责：分几页、每页放什么。
 ///
 /// 为什么从「一条长滚动」改成分页——旧版把五件性质完全不同的事塞进同一个 List：
-/// 24 个开关的排序、耳机选设备、勿扰的一次性配置、免密助手、彻底卸载。
+/// 二十多个开关的排序、耳机选设备、勿扰的一次性配置、免密助手、彻底卸载。
 /// 结果是想点「彻底卸载」得先滚过 24 行开关，而分区标题吸顶时还会糊在开关上。
 struct SettingsView: View {
     @ObservedObject private var prefs = Preferences.shared
@@ -51,7 +51,6 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             SettingsSidebarGroup(title: L("常用")) {
                 item(.switches)
-                item(.devices)
             }
             SettingsSidebarGroup(title: L("高级")) {
                 item(.permissions)
@@ -114,7 +113,6 @@ struct SettingsView: View {
     private var page: some View {
         switch pane {
         case .switches:    SwitchesPane(prefs: prefs)
-        case .devices:     DevicesPane(prefs: prefs)
         case .permissions: PermissionsPane()
         case .uninstall:   UninstallPane()
         }
@@ -124,14 +122,13 @@ struct SettingsView: View {
 // MARK: - 分页
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case switches, devices, permissions, uninstall
+    case switches, permissions, uninstall
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .switches:    return L("开关")
-        case .devices:     return L("设备")
         case .permissions: return L("权限")
         case .uninstall:   return L("彻底卸载")
         }
@@ -140,7 +137,6 @@ enum SettingsPane: String, CaseIterable, Identifiable {
     var symbol: String {
         switch self {
         case .switches:    return "switch.2"
-        case .devices:     return "headphones"
         case .permissions: return "lock.shield"
         case .uninstall:   return "trash"
         }

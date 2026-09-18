@@ -80,7 +80,6 @@ enum SwitchCatalog {
 
         // 声音与输入
         SwitchItem(id: "muteMic",           title: "麦克风静音",  symbol: "mic.slash.fill", kind: .toggle, defaultGroup: "audio", hue: SwitchHue.red,     span: 1, accentsPrimaryLayer: true),
-        SwitchItem(id: "connectHeadphones", title: "耳机连接",    symbol: "airpods.pro",    kind: .toggle, defaultGroup: "audio", hue: SwitchHue.cyan,    span: 2),
         SwitchItem(id: "playMusic",         title: "播放 / 暂停", symbol: "playpause.fill", kind: .action, defaultGroup: "audio", hue: SwitchHue.neutral, span: 1),
 
         // 桌面与文件
@@ -162,13 +161,6 @@ final class SwitchStore: ObservableObject {
             self?.publish()
         }
 
-        // 耳机连上或断开时，连接状态和电量跟着刷新。
-        // 这曾是面板上那个手动「刷新」按钮唯一真正有用的场景——其余状态早已由通知和定时核对覆盖。
-        //
-        // **只在蓝牙已经授权时才挂。** 注册 IOBluetooth 的通知会碰蓝牙，
-        // 那一下就会把系统授权弹窗甩到用户脸上——而他可能刚装上、一个开关都还没点过。
-        // 没授权就先不挂；等用户自己去点「耳机连接」或在权限页里请求，再补挂（见 startBluetoothIfAllowed）。
-        startBluetoothIfAllowed()
 
         // 兜底：夜览、原彩这些在系统设置里也能改，却没有好用的通知。
         // 定期只做“进程内、不 fork 子进程”的廉价读取核对一遍。
@@ -355,65 +347,7 @@ final class SwitchStore: ObservableObject {
         setOn("hideWindows", WindowController.shared.isHiding)
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
 
-        // 同理：没授权就别去读耳机状态，读一下就等于替用户按下了那个弹窗。
-        if Permission.bluetooth.isGranted { loadHeadphoneStatus() }
         publish(force: true)
-    }
-
-    private var bluetoothObserving = false
-
-    /// 蓝牙已授权就挂上连接通知；没授权什么都不做，也**不会**触发弹窗。
-    /// 可以重复调用——用户在权限页授权完、或第一次点「耳机连接」之后再调一次就补上了。
-    func startBluetoothIfAllowed() {
-        guard !bluetoothObserving, Permission.bluetooth.isGranted else { return }
-        bluetoothObserving = true
-        BluetoothController.observeConnections { [weak self] in
-            self?.loadHeadphoneStatus()
-            self?.publish()
-        }
-    }
-
-    /// 有效目标耳机：优先设置里手动选的，否则自动识别一个已配对音频设备。
-    private func effectiveHeadphone() -> BluetoothController.Device? {
-        if let address = Preferences.shared.headphoneAddress {
-            return .init(id: address, name: BluetoothController.name(for: address) ?? address)
-        }
-        return BluetoothController.bestAudioDevice()
-    }
-
-    /// 刷新耳机连接状态 + 异步读取电量（system_profiler 较慢，放后台）。
-    func loadHeadphoneStatus() {
-        guard let device = effectiveHeadphone() else {
-            setOn("connectHeadphones", false)
-            setDetail("connectHeadphones", L("未选择设备"))
-            setGauge("connectHeadphones", nil)
-            return
-        }
-        let connected = BluetoothController.isConnected(device.id)
-        setOn("connectHeadphones", connected)
-        setDetail("connectHeadphones", connected ? device.name : L("未连接"))
-        setGauge("connectHeadphones", nil)
-        guard connected else { return }
-        let address = device.id
-        let name = device.name
-        Task { [weak self] in
-            let battery = await Task.detached { BluetoothController.batteryPercent(for: address) }.value
-            if let battery {
-                self?.setDetail("connectHeadphones", "\(name) · \(battery)%")
-                self?.setGauge("connectHeadphones", Double(battery) / 100)
-            }
-        }
-    }
-
-    /// 连上耳机后，重试把系统默认输出切到该设备。
-    private func switchOutput(to name: String) {
-        Task { [weak self] in
-            for _ in 0..<10 {
-                if AudioController.setDefaultOutput(named: name) { break }
-                try? await Task.sleep(nanoseconds: 400_000_000)
-            }
-            self?.loadHeadphoneStatus()
-        }
     }
 
     /// 处理一次点击 / 热键触发。
@@ -472,35 +406,11 @@ final class SwitchStore: ObservableObject {
         case "hideWidgets":  SystemController.setDesktopWidgetsHidden(on); return SystemController.desktopWidgetsHidden()
         case "showHidden":   SystemController.setShowHiddenFiles(on); return on
         case "lockKeyboard": InputBlocker.shared.setKeyboardLocked(on); return InputBlocker.shared.isKeyboardLocked
-        case "connectHeadphones":
-            // 用户自己点了这个开关——从这一刻起碰蓝牙是他要求的，弹窗也就不突兀了。
-            // 顺手把连接通知补挂上（首次授权前它一直没挂）。
-            defer { startBluetoothIfAllowed() }
-            guard let device = effectiveHeadphone() else {
-                AudioController.connectHeadphones() // 没有已配对音频设备时打开蓝牙设置
-                return false
-            }
-            // 记住自动挑中的设备，之后一直用它。
-            if Preferences.shared.headphoneAddress == nil {
-                Preferences.shared.headphoneAddress = device.id
-            }
-            let address = device.id
-            let name = device.name
-            if on { setDetail("connectHeadphones", L("连接中…")) }
-            // openConnection 会阻塞（设备在盒里时等到超时），放后台执行，避免卡住菜单。
-            Task { [weak self] in
-                await Task.detached { BluetoothController.setConnected(address, on) }.value
-                if on {
-                    self?.switchOutput(to: name) // 内部重试并最终刷新状态
-                } else {
-                    self?.loadHeadphoneStatus()
-                }
-            }
-            return on
         default: return on
         }
     }
 
+    /// 一次性动作：点一下就执行，没有开/关状态。
     private func performAction(_ id: String) {
         switch id {
         case "screenClean":       InputBlocker.shared.startScreenClean()

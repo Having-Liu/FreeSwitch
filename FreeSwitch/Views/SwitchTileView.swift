@@ -161,7 +161,7 @@ struct WideTileView: View {
         .frame(width: TileMetrics.width(span: span), height: TileMetrics.height)
         .foregroundStyle(isOn ? Color.white : Color.primary)
         .overlay(alignment: .bottom) {
-            // 量规：保持亮屏走剩余时长，耳机走电量。有量可报才画。
+            // 量规：目前只有「保持亮屏」用它显示剩余时长。有量可报才画。
             if let gauge = item.gauge {
                 TileGauge(value: gauge, hue: item.hue, isOn: isOn)
                     .padding(.horizontal, 10)

@@ -151,45 +151,6 @@ private struct SwitchRow: View {
     }
 }
 
-// MARK: - 设备
-
-struct DevicesPane: View {
-    @ObservedObject var prefs: Preferences
-    @State private var pairedDevices: [BluetoothController.Device] = []
-
-    var body: some View {
-        VStack(spacing: 0) {
-            PaneHeader(title: L("设备"),
-                       subtitle: L("耳机连接（选择“耳机连接”开关要一键连/断的设备）"))
-            Form {
-                Section {
-                    Picker(L("目标设备"), selection: Binding(
-                        get: { prefs.headphoneAddress ?? "" },
-                        set: { prefs.headphoneAddress = $0.isEmpty ? nil : $0 }
-                    )) {
-                        Text("未选择（点开关将打开蓝牙设置）").tag("")
-                        ForEach(pairedDevices) { device in
-                            Text(device.name).tag(device.id)
-                        }
-                        // 保存过、但这次没列出来的设备也要能显示为已选中。
-                        // 只有地址没有名字时，标成「已保存的设备」再把地址放小字，
-                        // 别把一串 MAC 地址当设备名甩给用户看。
-                        if let saved = prefs.headphoneAddress,
-                           !pairedDevices.contains(where: { $0.id == saved }) {
-                            Text(L("已保存的设备（%@）", saved)).tag(saved)
-                        }
-                    }
-                    Button(L("加载已配对的蓝牙设备（需授权）")) {
-                        pairedDevices = BluetoothController.pairedDevices()
-                    }
-                }
-            }
-            .formStyle(.grouped)
-            .scrollContentBackground(.hidden)
-        }
-    }
-}
-
 // MARK: - 权限
 
 /// 权限页。
@@ -197,7 +158,6 @@ struct DevicesPane: View {
 /// 只**显示**状态，不在打开页面时请求任何东西——读状态的那几个 API 都不会弹窗
 /// （见 Permission）。弹窗只在用户自己按下「请求授权」时出现。
 struct PermissionsPane: View {
-    @State private var bluetooth: Permission.State = .notDetermined
     @State private var systemEvents: Permission.State = .notDetermined
     @State private var finder: Permission.State = .notDetermined
     @State private var accessibility: Permission.State = .notDetermined
@@ -208,20 +168,6 @@ struct PermissionsPane: View {
             PaneHeader(title: L("权限"), subtitle: L("用到哪项才需要哪项，没用到可以一直空着"))
             Form {
                 Section {
-                    PermissionRow(
-                        symbol: "wave.3.right",
-                        title: L("蓝牙"),
-                        detail: L("「耳机连接」要用它来连接和断开你选的设备"),
-                        state: bluetooth,
-                        request: {
-                            Permission.requestBluetooth {
-                                bluetooth = $0
-                                // 刚授权完，把之前没挂上的连接通知补上。
-                                if $0.isGranted { SwitchStore.shared.startBluetoothIfAllowed() }
-                            }
-                        },
-                        openSettings: { Permission.openSettings("Privacy_Bluetooth") })
-
                     PermissionRow(
                         symbol: "gearshape.2",
                         title: L("自动化 · 系统事件"),
@@ -283,7 +229,6 @@ struct PermissionsPane: View {
     }
 
     private func reload() {
-        bluetooth = Permission.bluetooth
         systemEvents = Permission.automation(of: "com.apple.systemevents")
         finder = Permission.automation(of: "com.apple.finder")
         accessibility = Permission.accessibility

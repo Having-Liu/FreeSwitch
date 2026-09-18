@@ -5,7 +5,7 @@
 
 > Free & open-source menu-bar toggles for macOS — a clean-room reimplementation of One Switch's feature set, built on public system APIs.
 
-## 功能一览（23 个开关）
+## 功能一览（22 个开关）
 
 | 开关 | 说明 | 实现 |
 |------|------|------|
@@ -26,7 +26,6 @@
 | 锁定屏幕 | 立即锁屏 | login.framework `SACLockScreenImmediate` |
 | 屏幕保护 | 启动屏保 | ScreenSaverEngine |
 | 播放 / 暂停 | 媒体播放控制 | 系统多媒体键事件 |
-| 耳机连接 | 一键连/断所选 AirPods/耳机，显示电量，连上自动切声音输出 | IOBluetooth + CoreAudio + system_profiler（设置里先选设备；可绑全局热键） |
 | 清空废纸篓 | 清倒废纸篓 | Finder |
 | 清空剪贴板 | 清空剪贴板 | NSPasteboard |
 | 推出磁盘 | 推出所有外置/可推出卷 | NSWorkspace |
@@ -103,21 +102,20 @@ CoreAudio），不 fork 子进程；`publish()` 早就有「内容没变就不�
 
 ## 权限：用到了才请求
 
-原则是**没真用到就不要去碰**。只要碰一下 IOBluetooth、发一条 AppleEvent，系统就会把授权弹窗甩到用户脸上——
+原则是**没真用到就不要去碰**。只要发一条 AppleEvent、请求一次辅助功能，系统就会把授权弹窗甩到用户脸上——
 而那时候他可能刚装上、一个开关都还没点过。
 
 所以每一项都有一个**不触发弹窗**的读法（`FreeSwitch/Support/Permissions.swift`）：
 
 | 权限 | 只读状态 | 触发弹窗 |
 |---|---|---|
-| 蓝牙 | `CBManager.authorization`（纯查询，不实例化 central） | 实例化一个 `CBCentralManager` |
 | 自动化 | `AEDeterminePermissionToAutomateTarget(…, askUserIfNeeded: false)` | 同一个调用传 `true` |
 | 辅助功能 | `AXIsProcessTrusted()` | `AXIsProcessTrustedWithOptions([prompt: true])` |
 
 几个要点：
 
 - **不要用「试着调一次、看结果对不对」来判断授权。** 试的那一下就把弹窗招出来了。
-- **启动时不挂蓝牙通知。** `BluetoothController.observeConnections` 会碰蓝牙，原来它在 `SwitchStore.init` 里无条件执行，等于每个新用户一启动就被问一次蓝牙——即使他根本不用「耳机连接」。现在只在**已授权**时挂；用户自己点了「耳机连接」或在权限页里授权之后，再由 `startBluetoothIfAllowed()` 补挂。
+- **蓝牙依赖已经整个去掉。** 「耳机连接」删掉之后 App 不再碰 IOBluetooth，`NSBluetoothAlwaysUsageDescription` 也一并撤了——留着会让系统在隐私设置里给它列一项本来不需要的权限。
 - **目标 App 没在跑时，自动化这套 API 什么也答不了。** 「系统事件」是按需启动的后台 agent，平时根本不在进程列表里；这时查询返回 `procNotFound`(-600)，既读不出状态，`askUserIfNeeded: true` 也弹不出授权框——症状就是「点了请求授权毫无反应」。两处都要处理：
   - **读**：-600 不能当成任何结论，要退回上一次**确定过**的答案（记在偏好里），否则同一项会随着目标 App 的起落在「已授权」和「请求授权」之间来回跳。
   - **请求**：不要调 `AEDeterminePermissionToAutomateTarget(…, true)`，改成发一条最无害的 AppleScript（`tell application id "…" to return name`）——脚本引擎会顺手把目标拉起来，授权框也就跟着出现了。结论**直接从这次执行的结果得出**，不要回头再查一次：后台 agent 服务完这条事件就退出了，再查只会拿到 -600，于是刚授权完按钮还是「请求授权」。
@@ -256,7 +254,6 @@ NOTARY_PROFILE=freeswitch-notary ./scripts/notarize.sh
 
 - **夜览 / 原彩**依赖私有框架 `CoreBrightness`，仅在支持的机型上可用；不同 macOS 版本行为可能变化。
 - **勿扰 / 专注已经删掉**。现代 macOS 禁止第三方 App 直接切换「专注」（私有框架 `DoNotDisturb` 需 Apple 专属授权，实测第三方调用被 `donotdisturbd` 以 XPC 拒绝）。唯一的官方路径是让用户自己去「快捷指令」建一个名为 `FreeSwitch DND` 的快捷指令，我们再 `shortcuts run` 它——为了一个开关要求用户先手工搭一条快捷指令，价值抵不过这个门槛，所以整条功能连同设置项一起移除了。控制中心里系统本来就有「专注模式」模块。
-- **耳机连接**用 IOBluetooth `openConnection/closeConnection`；需先在设置里选择目标设备，首次访问会请求蓝牙授权。
 - **低电量模式**需要管理员权限，切换时会弹出系统密码框。
 - **隐藏所有窗口**：**访达整个 App 藏不掉**。其它 App 全部隐藏后，系统必须有一个「当前 App」，于是它激活访达，而激活会取消隐藏。单独隐藏访达是成功的，改用 `hideOtherApplications` 也一样——这是 macOS 的行为，不是调用方式的问题。实现上分三轮收，每轮之前先激活 FreeSwitch 自己占住「当前 App」，能从「剩两三个」收敛到「只剩访达」。另外 `NSRunningApplication.hide()` 的**返回值不可信**（实测返回 `false`，一秒后那个 App 却确实隐藏了），所以不按返回值记账，真实状态一律按 `isHidden` 回读。
 

@@ -2,7 +2,7 @@ import SwiftUI
 
 /// 菜单栏弹出的主界面：按分区排列的开关磁贴。
 ///
-/// 带参数的开关（保持亮屏、耳机连接、屏幕分辨率）至少占两列，点磁贴弹出 popover 选项。
+/// 带参数的开关（保持亮屏、屏幕分辨率）至少占两列，点磁贴弹出 popover 选项。
 /// 几条经验写在这里，免得以后走回头路：
 ///  - 不要用 `Menu` 承载磁贴：配 `.menuStyle(.borderlessButton)` 时自定义 label 的布局
 ///    会被整个丢掉，磁贴的尺寸和背景都没了。
@@ -153,7 +153,6 @@ struct MenuContentView: View {
     private func options(for id: String) -> some View {
         switch id {
         case "keepAwake":         KeepAwakeOptions()
-        case "connectHeadphones": HeadphoneOptions()
         case "resolution":        ResolutionOptions()
         default:                  EmptyView()
         }

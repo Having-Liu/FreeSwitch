@@ -1,7 +1,7 @@
 import AppKit
 import CoreAudio
 
-/// 声音相关：麦克风静音、播放/暂停、耳机连接。
+/// 声音相关：麦克风静音、播放 / 暂停。
 enum AudioController {
 
     private static func defaultInputDevice() -> AudioDeviceID? {
@@ -96,39 +96,6 @@ enum AudioController {
         }
     }
 
-    /// 把系统默认输出切到名字匹配的设备（连接耳机后自动切声音）。返回是否成功。
-    @discardableResult
-    static func setDefaultOutput(named target: String) -> Bool {
-        var listAddress = AudioObjectPropertyAddress(
-            mSelector: kAudioHardwarePropertyDevices,
-            mScope: kAudioObjectPropertyScopeGlobal,
-            mElement: kAudioObjectPropertyElementMain
-        )
-        var dataSize: UInt32 = 0
-        let system = AudioObjectID(kAudioObjectSystemObject)
-        guard AudioObjectGetPropertyDataSize(system, &listAddress, 0, nil, &dataSize) == noErr else { return false }
-        let count = Int(dataSize) / MemoryLayout<AudioDeviceID>.size
-        var devices = [AudioDeviceID](repeating: 0, count: count)
-        guard AudioObjectGetPropertyData(system, &listAddress, 0, nil, &dataSize, &devices) == noErr else { return false }
-
-        for device in devices where deviceHasOutput(device) {
-            guard let name = deviceName(device) else { continue }
-            if name == target || name.contains(target) || target.contains(name) {
-                var defaultAddress = AudioObjectPropertyAddress(
-                    mSelector: kAudioHardwarePropertyDefaultOutputDevice,
-                    mScope: kAudioObjectPropertyScopeGlobal,
-                    mElement: kAudioObjectPropertyElementMain
-                )
-                var target = device
-                let status = AudioObjectSetPropertyData(
-                    system, &defaultAddress, 0, nil,
-                    UInt32(MemoryLayout<AudioDeviceID>.size), &target
-                )
-                return status == noErr
-            }
-        }
-        return false
-    }
 
     private static func deviceHasOutput(_ device: AudioDeviceID) -> Bool {
         var address = AudioObjectPropertyAddress(
@@ -206,8 +173,4 @@ enum AudioController {
         MediaKey.press(MediaKey.playPause)
     }
 
-    /// 耳机连接：v1 打开蓝牙设置（连接指定 AirPods 需 IOBluetooth，后续版本增强）。
-    static func connectHeadphones() {
-        Shell.run("/usr/bin/open", ["x-apple.systempreferences:com.apple.BluetoothSettings"])
-    }
 }

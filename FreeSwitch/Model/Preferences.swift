@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 import ServiceManagement
 
-/// 用户偏好：开关的分组与顺序、显示项、全局快捷键、耳机、开机自启。持久化到 UserDefaults。
+/// 用户偏好：开关的分组与顺序、显示项、全局快捷键、开机自启。持久化到 UserDefaults。
 @MainActor
 final class Preferences: ObservableObject {
     static let shared = Preferences()
@@ -27,10 +27,6 @@ final class Preferences: ObservableObject {
             HotkeyManager.shared.reload(from: hotkeys)
         }
     }
-    @Published var headphoneAddress: String? {
-        didSet { defaults.set(headphoneAddress, forKey: Keys.headphone) }
-    }
-
     private init() {
         if let data = defaults.data(forKey: Keys.groups),
            let stored = try? JSONDecoder().decode([SwitchGroup].self, from: data) {
@@ -55,7 +51,6 @@ final class Preferences: ObservableObject {
             hotkeys = [:]
         }
 
-        headphoneAddress = defaults.string(forKey: Keys.headphone)
 
         // init 里给属性赋值不会触发 didSet，迁移或对齐后的分组必须在这里手动存一次。
         // 否则旧顺序马上被删掉，下次启动就只能退回目录顺序——用户排好的顺序会丢。

@@ -73,53 +73,6 @@ struct KeepAwakeOptions: View {
     }
 }
 
-/// 耳机连接：设备、电量、连接/断开。
-struct HeadphoneOptions: View {
-    @EnvironmentObject private var store: SwitchStore
-
-    private var item: SwitchItem? { store.items.first { $0.id == "connectHeadphones" } }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 11) {
-            let connected = item?.isOn ?? false
-
-            HStack(spacing: 9) {
-                Image(systemName: "airpods.pro")
-                    .font(.system(size: 21))
-                    .foregroundStyle(connected ? SwitchHue.cyan : Color.secondary)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(item?.detail ?? L("未选择设备"))
-                        .font(.system(size: 12, weight: .medium))
-                        .lineLimit(1)
-                    Text(connected ? L("已连接") : L("未连接"))
-                        .font(.system(size: 10))
-                        .foregroundStyle(.secondary)
-                }
-                Spacer(minLength: 0)
-            }
-
-            if let gauge = item?.gauge {
-                TileGauge(value: gauge, hue: SwitchHue.cyan, isOn: false)
-            }
-
-            Divider()
-
-            Button(connected ? L("断开连接") : L("连接")) {
-                store.setSwitch("connectHeadphones", on: !connected)
-            }
-            .controlSize(.small)
-
-            Button("在系统设置里选择设备…") {
-                AudioController.connectHeadphones()
-            }
-            .buttonStyle(.link)
-            .font(.system(size: 11))
-        }
-        .frame(width: 236)
-    }
-}
-
-/// 屏幕分辨率：列表带勾选。分辨率字串长、可选项多，胶囊网格排不整齐，用列表。
 struct ResolutionOptions: View {
     @State private var displays: [ResolutionController.Display] = []
 

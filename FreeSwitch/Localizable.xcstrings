@@ -54,58 +54,6 @@
         }
       }
     },
-    "会删除并还原下面这些东西：\n\n• FreeSwitch.app 本身\n• 控制中心里的 FreeSwitch 控件与其扩展登记\n• 免密特权助手、开机自启登录项\n• 你的全部设置：开关顺序、显示项、全局快捷键、耳机选择\n• 「合盖也不休眠」改过的系统电源设置（还原为默认）\n• 授予过的隐私权限（辅助功能、自动化等）\n\n沙盒容器的根目录归系统管，App 自己删不掉，只能把里面清空；\n如果仍有没清掉的，卸载完会通知你，并在访达里标出来。\n\n另外请记得拉开控制中心，把 FreeSwitch 的控件长按移除——\n只要它们还在那儿，系统就会为它们把扩展的容器重新建出来。\n\n这一步不可撤销。卸载开始后 FreeSwitch 会立即退出。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This removes and restores:\n\n• FreeSwitch.app itself\n• The FreeSwitch controls in Control Center and their extension registration\n• The privileged helper and the login item\n• All your settings: switch order, visibility, global shortcuts, headphone choice\n• The system power settings changed by “Stay awake with the lid closed” (restored to default)\n• Privacy permissions you granted (Accessibility, Automation, …)\n\nThe root of a sandbox container belongs to the system and the app can’t delete it — only empty it.\nIf anything is left over, you’ll get a notification and it will be revealed in the Finder.\n\nAlso remember to open Control Center and long-press the FreeSwitch controls to remove them —\nas long as they’re there, the system will recreate the extension’s container for them.\n\nThis cannot be undone. FreeSwitch quits as soon as the uninstall starts."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "會刪除並還原下面這些東西：\n\n• FreeSwitch.app 本身\n• 控制中心裡的 FreeSwitch 控件與其擴充功能登記\n• 免密特權輔助程式、開機自動啟動登入項目\n• 你的全部設定：開關順序、顯示項、全域快速鍵、耳機選擇\n• 「闔蓋也不睡眠」改過的系統電源設定（還原為預設）\n• 授予過的隱私權限（輔助使用、自動化等）\n\n沙盒容器的根目錄歸系統管，App 自己刪不掉，只能把裡面清空；\n如果仍有沒清掉的，解除安裝完會通知你，並在 Finder 裡標出來。\n\n另外請記得拉開控制中心，把 FreeSwitch 的控件長按移除——\n只要它們還在那兒，系統就會為它們把擴充功能的容器重新建出來。\n\n這一步不可復原。解除安裝開始後 FreeSwitch 會立即結束。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "次のものを削除・復元します：\n\n• FreeSwitch.app 本体\n• コントロールセンターの FreeSwitch コントロールと機能拡張の登録\n• 特権ヘルパーとログイン項目\n• すべての設定：スイッチの順序、表示、グローバルショートカット、ヘッドフォンの選択\n• 「閉じてもスリープしない」で変更した電源設定（既定値に戻します）\n• 許可したプライバシー権限（アクセシビリティ、オートメーションなど）\n\nサンドボックスコンテナのルートはシステムの管理下にあり、App 自身では削除できず中身を空にすることしかできません。\n残ったものがあれば通知し、Finder で表示します。\n\nまたコントロールセンターを開き、FreeSwitch のコントロールを長押しして削除してください。\nそれらが残っている限り、システムが機能拡張のコンテナを作り直します。\n\nこの操作は取り消せません。開始するとすぐに FreeSwitch は終了します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다음 항목을 삭제하고 되돌립니다:\n\n• FreeSwitch.app 자체\n• 제어 센터의 FreeSwitch 컨트롤과 확장 프로그램 등록\n• 권한 도우미, 로그인 항목\n• 모든 설정: 스위치 순서, 표시 항목, 전역 단축키, 헤드폰 선택\n• ‘덮개를 닫아도 잠자기 안 함’이 바꾼 시스템 전원 설정 (기본값으로 복원)\n• 부여한 개인정보 권한 (손쉬운 사용, 자동화 등)\n\n샌드박스 컨테이너의 루트는 시스템이 관리하므로 앱이 직접 지울 수 없고 내용만 비울 수 있습니다.\n남은 것이 있으면 알려 주고 Finder에서 표시합니다.\n\n또한 제어 센터를 열어 FreeSwitch 컨트롤을 길게 눌러 제거하세요.\n컨트롤이 남아 있는 한 시스템이 확장 프로그램의 컨테이너를 다시 만듭니다.\n\n이 작업은 되돌릴 수 없습니다. 제거가 시작되면 FreeSwitch는 즉시 종료됩니다."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Entfernt und stellt Folgendes wieder her:\n\n• FreeSwitch.app selbst\n• Die FreeSwitch-Steuerelemente im Kontrollzentrum und ihre Erweiterungsregistrierung\n• Den privilegierten Helfer und das Anmeldeobjekt\n• Alle Einstellungen: Schalterreihenfolge, Sichtbarkeit, globale Kurzbefehle, Kopfhörerauswahl\n• Die von „Bei geschlossenem Deckel wach bleiben“ geänderten Energieeinstellungen (Standard wiederhergestellt)\n• Erteilte Datenschutz-Berechtigungen (Bedienungshilfen, Automatisierung usw.)\n\nDas Stammverzeichnis eines Sandbox-Containers gehört dem System; die App kann es nicht löschen, nur leeren.\nBleibt etwas übrig, wirst du benachrichtigt und es wird im Finder angezeigt.\n\nDenk außerdem daran, im Kontrollzentrum die FreeSwitch-Steuerelemente per langem Druck zu entfernen –\nsolange sie dort sind, legt das System den Container der Erweiterung erneut an.\n\nDies lässt sich nicht rückgängig machen. FreeSwitch beendet sich, sobald die Deinstallation startet."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cette opération supprime et restaure :\n\n• FreeSwitch.app lui-même\n• Les contrôles FreeSwitch du Centre de contrôle et l’enregistrement de leur extension\n• L’assistant privilégié et l’élément d’ouverture\n• Tous vos réglages : ordre des interrupteurs, affichage, raccourcis globaux, choix des écouteurs\n• Les réglages d’alimentation modifiés par « Rester allumé capot fermé » (remis par défaut)\n• Les autorisations de confidentialité accordées (Accessibilité, Automatisation, etc.)\n\nLa racine d’un conteneur sandbox appartient au système : l’app ne peut pas la supprimer, seulement la vider.\nS’il reste quelque chose, vous recevrez une notification et l’élément sera révélé dans le Finder.\n\nPensez aussi à ouvrir le Centre de contrôle et à supprimer les contrôles FreeSwitch par appui long —\ntant qu’ils y sont, le système recrée le conteneur de l’extension.\n\nCette action est irréversible. FreeSwitch quitte dès le début de la désinstallation."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esto elimina y restaura:\n\n• La propia FreeSwitch.app\n• Los controles de FreeSwitch en el Centro de Control y el registro de su extensión\n• El asistente privilegiado y el ítem de inicio de sesión\n• Todos tus ajustes: orden de los interruptores, visibilidad, atajos globales, elección de auriculares\n• Los ajustes de energía cambiados por «Seguir activo con la tapa cerrada» (se restauran)\n• Los permisos de privacidad concedidos (Accesibilidad, Automatización, etc.)\n\nLa raíz de un contenedor de sandbox pertenece al sistema: la app no puede borrarla, solo vaciarla.\nSi queda algo, recibirás una notificación y se mostrará en el Finder.\n\nRecuerda también abrir el Centro de Control y mantener pulsados los controles de FreeSwitch para quitarlos:\nmientras sigan ahí, el sistema volverá a crear el contenedor de la extensión.\n\nEsto no se puede deshacer. FreeSwitch se cerrará en cuanto empiece la desinstalación."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Будут удалены и восстановлены:\n\n• Само приложение FreeSwitch.app\n• Элементы FreeSwitch в Пункте управления и регистрация их расширения\n• Привилегированный помощник и объект входа\n• Все ваши настройки: порядок переключателей, видимость, глобальные сочетания, выбор наушников\n• Настройки питания, изменённые режимом «Не засыпать с закрытой крышкой» (вернутся к стандартным)\n• Выданные разрешения (Универсальный доступ, Автоматизация и т. д.)\n\nКорень песочного контейнера принадлежит системе: приложение не может его удалить, только очистить.\nЕсли что-то останется, вы получите уведомление, и это будет показано в Finder.\n\nТакже откройте Пункт управления и удалите элементы FreeSwitch долгим нажатием —\nпока они там, система будет заново создавать контейнер расширения.\n\nЭто действие необратимо. FreeSwitch завершится сразу после начала удаления."
-          }
-        }
-      }
-    },
     "彻底卸载 FreeSwitch？": {
       "localizations": {
         "en": {
@@ -1406,58 +1354,6 @@
         }
       }
     },
-    "耳机连接": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Headphones"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "耳機連線"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ヘッドフォン接続"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "헤드폰 연결"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopfhörer"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Écouteurs"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auriculares"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Наушники"
-          }
-        }
-      }
-    },
     "播放 / 暂停": {
       "localizations": {
         "en": {
@@ -2342,162 +2238,6 @@
         }
       }
     },
-    "未选择设备": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No device selected"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未選擇裝置"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "デバイス未選択"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "기기 미선택"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kein Gerät gewählt"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun appareil choisi"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin dispositivo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Устройство не выбрано"
-          }
-        }
-      }
-    },
-    "未连接": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not connected"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未連線"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未接続"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결 안 됨"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nicht verbunden"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non connecté"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No conectado"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не подключено"
-          }
-        }
-      }
-    },
-    "连接中…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connecting…"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連線中…"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "接続中…"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결 중…"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verbinde …"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connexion…"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conectando…"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подключение…"
-          }
-        }
-      }
-    },
     "黑暗模式、自动隐藏程序坞、清空废纸篓这几个开关，要通过「系统事件」或「访达」来执行。macOS 目前不允许 FreeSwitch 这么做，所以刚才那次点击没有产生任何效果。\n\n打开「系统设置 › 隐私与安全性 › 自动化」，把 FreeSwitch 下面的「系统事件」和「访达」打开即可。\n\n（彻底卸载会重置隐私授权，重装后需要重新授权一次。）": {
       "localizations": {
         "en": {
@@ -3066,214 +2806,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Переключатели (перетащите, чтобы изменить порядок или группу; нажмите на имя группы, чтобы переименовать)"
-          }
-        }
-      }
-    },
-    "耳机连接（选择“耳机连接”开关要一键连/断的设备）": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Headphones (pick the device the Headphones switch connects and disconnects)"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "耳機連線（選擇「耳機連線」開關要一鍵連／斷的裝置）"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ヘッドフォン接続（「ヘッドフォン接続」スイッチで接続・解除するデバイスを選びます）"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "헤드폰 연결 (헤드폰 연결 스위치로 연결·해제할 기기 선택)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kopfhörer (Gerät wählen, das der Schalter verbindet und trennt)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Écouteurs (choisissez l’appareil que l’interrupteur connecte et déconnecte)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auriculares (elige el dispositivo que conectará y desconectará el interruptor)"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Наушники (выберите устройство, которое переключатель подключает и отключает)"
-          }
-        }
-      }
-    },
-    "目标设备": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Device"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "目標裝置"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "対象デバイス"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "대상 기기"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerät"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Appareil"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dispositivo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Устройство"
-          }
-        }
-      }
-    },
-    "未选择（点开关将打开蓝牙设置）": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "None (the switch will open Bluetooth settings)"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未選擇（點開關將打開藍牙設定）"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未選択（スイッチを押すと Bluetooth 設定が開きます）"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "선택 안 함 (스위치를 누르면 블루투스 설정이 열림)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keines (der Schalter öffnet die Bluetooth-Einstellungen)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun (l’interrupteur ouvrira les réglages Bluetooth)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ninguno (el interruptor abrirá los ajustes de Bluetooth)"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не выбрано (переключатель откроет настройки Bluetooth)"
-          }
-        }
-      }
-    },
-    "加载已配对的蓝牙设备（需授权）": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Load paired Bluetooth devices (requires permission)"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "載入已配對的藍牙裝置（需授權）"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ペアリング済みの Bluetooth デバイスを読み込む（許可が必要）"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페어링된 블루투스 기기 불러오기 (권한 필요)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gekoppelte Bluetooth-Geräte laden (Berechtigung nötig)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Charger les appareils Bluetooth appairés (autorisation requise)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cargar dispositivos Bluetooth emparejados (requiere permiso)"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Загрузить сопряжённые устройства Bluetooth (нужно разрешение)"
           }
         }
       }
@@ -4578,214 +4110,6 @@
         }
       }
     },
-    "已连接": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connected"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已連線"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "接続済み"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결됨"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verbunden"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connecté"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conectado"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подключено"
-          }
-        }
-      }
-    },
-    "断开连接": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disconnect"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "中斷連線"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "接続を解除"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결 해제"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trennen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Déconnecter"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desconectar"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Отключить"
-          }
-        }
-      }
-    },
-    "连接": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "連線"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "接続"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "연결"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verbinden"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connecter"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conectar"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Подключить"
-          }
-        }
-      }
-    },
-    "在系统设置里选择设备…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose a device in System Settings…"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在系統設定裡選擇裝置…"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "システム設定でデバイスを選択…"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "시스템 설정에서 기기 선택…"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerät in den Systemeinstellungen wählen …"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choisir un appareil dans Réglages Système…"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Elegir un dispositivo en Ajustes del Sistema…"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выбрать устройство в Системных настройках…"
-          }
-        }
-      }
-    },
     "没有检测到可切换的分辨率": {
       "localizations": {
         "en": {
@@ -5150,58 +4474,6 @@
         }
       }
     },
-    "设备": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Devices"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "裝置"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "デバイス"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "기기"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Geräte"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Appareils"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dispositivos"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Устройства"
-          }
-        }
-      }
-    },
     "权限": {
       "localizations": {
         "en": {
@@ -5514,58 +4786,6 @@
         }
       }
     },
-    "已保存的设备（%@）": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saved device (%@)"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已儲存的裝置（%@）"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "保存済みのデバイス（%@）"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "저장된 기기 (%@)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gesichertes Gerät (%@)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Appareil enregistré (%@)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dispositivo guardado (%@)"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сохранённое устройство (%@)"
-          }
-        }
-      }
-    },
     "拖进废纸篓清不干净，这里能一次清完并还原": {
       "localizations": {
         "en": {
@@ -5666,110 +4886,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Каждое нужно только тем функциям, которые его используют — остальные можно не выдавать."
-          }
-        }
-      }
-    },
-    "蓝牙": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bluetooth"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "藍牙"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bluetooth"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "블루투스"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bluetooth"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bluetooth"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bluetooth"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bluetooth"
-          }
-        }
-      }
-    },
-    "「耳机连接」要用它来连接和断开你选的设备": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“Headphones” uses it to connect and disconnect the device you picked."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "「耳機連線」要用它來連接和中斷你選的裝置。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "「ヘッドフォン接続」が選んだデバイスの接続・解除に使います。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "‘헤드폰 연결’이 선택한 기기를 연결·해제하는 데 사용합니다."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„Kopfhörer“ verbindet und trennt damit das gewählte Gerät."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "« Écouteurs » s’en sert pour connecter et déconnecter l’appareil choisi."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«Auriculares» lo usa para conectar y desconectar el dispositivo elegido."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«Наушники» использует его для подключения и отключения выбранного устройства."
           }
         }
       }
@@ -6238,6 +5354,58 @@
           "stringUnit": {
             "state": "translated",
             "value": "Открыть Системные настройки"
+          }
+        }
+      }
+    },
+    "会删除并还原下面这些东西：\n\n• FreeSwitch.app 本身\n• 控制中心里的 FreeSwitch 控件与其扩展登记\n• 免密特权助手、开机自启登录项\n• 你的全部设置：开关顺序、显示项、全局快捷键\n• 「合盖也不休眠」改过的系统电源设置（还原为默认）\n• 授予过的隐私权限（辅助功能、自动化等）\n\n沙盒容器的根目录归系统管，App 自己删不掉，只能把里面清空；\n如果仍有没清掉的，卸载完会通知你，并在访达里标出来。\n\n另外请记得拉开控制中心，把 FreeSwitch 的控件长按移除——\n只要它们还在那儿，系统就会为它们把扩展的容器重新建出来。\n\n这一步不可撤销。卸载开始后 FreeSwitch 会立即退出。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This removes and restores:\n\n• FreeSwitch.app itself\n• The FreeSwitch controls in Control Center and their extension registration\n• The privileged helper and the login item\n• All your settings: switch order, visibility, global shortcuts\n• The system power settings changed by “Stay awake with the lid closed” (restored to default)\n• Privacy permissions you granted (Accessibility, Automation, …)\n\nThe root of a sandbox container belongs to the system and the app can’t delete it — only empty it.\nIf anything is left over, you’ll get a notification and it will be revealed in the Finder.\n\nAlso remember to open Control Center and long-press the FreeSwitch controls to remove them —\nas long as they’re there, the system will recreate the extension’s container for them.\n\nThis cannot be undone. FreeSwitch quits as soon as the uninstall starts."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "會刪除並還原下面這些東西：\n\n• FreeSwitch.app 本身\n• 控制中心裡的 FreeSwitch 控件與其擴充功能登記\n• 免密特權輔助程式、開機自動啟動登入項目\n• 你的全部設定：開關順序、顯示項、全域快速鍵\n• 「闔蓋也不睡眠」改過的系統電源設定（還原為預設）\n• 授予過的隱私權限（輔助使用、自動化等）\n\n沙盒容器的根目錄歸系統管，App 自己刪不掉，只能把裡面清空；\n如果仍有沒清掉的，解除安裝完會通知你，並在 Finder 裡標出來。\n\n另外請記得拉開控制中心，把 FreeSwitch 的控件長按移除——\n只要它們還在那兒，系統就會為它們把擴充功能的容器重新建出來。\n\n這一步不可復原。解除安裝開始後 FreeSwitch 會立即結束。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次のものを削除・復元します：\n\n• FreeSwitch.app 本体\n• コントロールセンターの FreeSwitch コントロールと機能拡張の登録\n• 特権ヘルパーとログイン項目\n• すべての設定：スイッチの順序、表示、グローバルショートカット\n• 「閉じてもスリープしない」で変更した電源設定（既定値に戻します）\n• 許可したプライバシー権限（アクセシビリティ、オートメーションなど）\n\nサンドボックスコンテナのルートはシステムの管理下にあり、App 自身では削除できず中身を空にすることしかできません。\n残ったものがあれば通知し、Finder で表示します。\n\nまたコントロールセンターを開き、FreeSwitch のコントロールを長押しして削除してください。\nそれらが残っている限り、システムが機能拡張のコンテナを作り直します。\n\nこの操作は取り消せません。開始するとすぐに FreeSwitch は終了します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 항목을 삭제하고 되돌립니다:\n\n• FreeSwitch.app 자체\n• 제어 센터의 FreeSwitch 컨트롤과 확장 프로그램 등록\n• 권한 도우미, 로그인 항목\n• 모든 설정: 스위치 순서, 표시 항목, 전역 단축키\n• ‘덮개를 닫아도 잠자기 안 함’이 바꾼 시스템 전원 설정 (기본값으로 복원)\n• 부여한 개인정보 권한 (손쉬운 사용, 자동화 등)\n\n샌드박스 컨테이너의 루트는 시스템이 관리하므로 앱이 직접 지울 수 없고 내용만 비울 수 있습니다.\n남은 것이 있으면 알려 주고 Finder에서 표시합니다.\n\n또한 제어 센터를 열어 FreeSwitch 컨트롤을 길게 눌러 제거하세요.\n컨트롤이 남아 있는 한 시스템이 확장 프로그램의 컨테이너를 다시 만듭니다.\n\n이 작업은 되돌릴 수 없습니다. 제거가 시작되면 FreeSwitch는 즉시 종료됩니다."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entfernt und stellt Folgendes wieder her:\n\n• FreeSwitch.app selbst\n• Die FreeSwitch-Steuerelemente im Kontrollzentrum und ihre Erweiterungsregistrierung\n• Den privilegierten Helfer und das Anmeldeobjekt\n• Alle Einstellungen: Schalterreihenfolge, Sichtbarkeit, globale Kurzbefehle\n• Die von „Bei geschlossenem Deckel wach bleiben“ geänderten Energieeinstellungen (Standard wiederhergestellt)\n• Erteilte Datenschutz-Berechtigungen (Bedienungshilfen, Automatisierung usw.)\n\nDas Stammverzeichnis eines Sandbox-Containers gehört dem System; die App kann es nicht löschen, nur leeren.\nBleibt etwas übrig, wirst du benachrichtigt und es wird im Finder angezeigt.\n\nDenk außerdem daran, im Kontrollzentrum die FreeSwitch-Steuerelemente per langem Druck zu entfernen –\nsolange sie dort sind, legt das System den Container der Erweiterung erneut an.\n\nDies lässt sich nicht rückgängig machen. FreeSwitch beendet sich, sobald die Deinstallation startet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette opération supprime et restaure :\n\n• FreeSwitch.app lui-même\n• Les contrôles FreeSwitch du Centre de contrôle et l’enregistrement de leur extension\n• L’assistant privilégié et l’élément d’ouverture\n• Tous vos réglages : ordre des interrupteurs, affichage, raccourcis globaux\n• Les réglages d’alimentation modifiés par « Rester allumé capot fermé » (remis par défaut)\n• Les autorisations de confidentialité accordées (Accessibilité, Automatisation, etc.)\n\nLa racine d’un conteneur sandbox appartient au système : l’app ne peut pas la supprimer, seulement la vider.\nS’il reste quelque chose, vous recevrez une notification et l’élément sera révélé dans le Finder.\n\nPensez aussi à ouvrir le Centre de contrôle et à supprimer les contrôles FreeSwitch par appui long —\ntant qu’ils y sont, le système recrée le conteneur de l’extension.\n\nCette action est irréversible. FreeSwitch quitte dès le début de la désinstallation."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto elimina y restaura:\n\n• La propia FreeSwitch.app\n• Los controles de FreeSwitch en el Centro de Control y el registro de su extensión\n• El asistente privilegiado y el ítem de inicio de sesión\n• Todos tus ajustes: orden de los interruptores, visibilidad, atajos globales\n• Los ajustes de energía cambiados por «Seguir activo con la tapa cerrada» (se restauran)\n• Los permisos de privacidad concedidos (Accesibilidad, Automatización, etc.)\n\nLa raíz de un contenedor de sandbox pertenece al sistema: la app no puede borrarla, solo vaciarla.\nSi queda algo, recibirás una notificación y se mostrará en el Finder.\n\nRecuerda también abrir el Centro de Control y mantener pulsados los controles de FreeSwitch para quitarlos:\nmientras sigan ahí, el sistema volverá a crear el contenedor de la extensión.\n\nEsto no se puede deshacer. FreeSwitch se cerrará en cuanto empiece la desinstalación."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Будут удалены и восстановлены:\n\n• Само приложение FreeSwitch.app\n• Элементы FreeSwitch в Пункте управления и регистрация их расширения\n• Привилегированный помощник и объект входа\n• Все ваши настройки: порядок переключателей, видимость, глобальные сочетания\n• Настройки питания, изменённые режимом «Не засыпать с закрытой крышкой» (вернутся к стандартным)\n• Выданные разрешения (Универсальный доступ, Автоматизация и т. д.)\n\nКорень песочного контейнера принадлежит системе: приложение не может его удалить, только очистить.\nЕсли что-то останется, вы получите уведомление, и это будет показано в Finder.\n\nТакже откройте Пункт управления и удалите элементы FreeSwitch долгим нажатием —\nпока они там, система будет заново создавать контейнер расширения.\n\nЭто действие необратимо. FreeSwitch завершится сразу после начала удаления."
           }
         }
       }
