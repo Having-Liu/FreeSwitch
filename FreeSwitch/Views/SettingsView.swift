@@ -1,264 +1,167 @@
 import SwiftUI
-import Carbon.HIToolbox
 
+/// 设置窗口。
+///
+/// 外壳、度量、侧边栏条目全部来自 `SettingsChrome.swift` 那层家族语言（和 Dam 共用一套，
+/// 整个文件可以在两个项目之间直接搬）。这里只负责：分几页、每页放什么。
+///
+/// 为什么从「一条长滚动」改成分页——旧版把五件性质完全不同的事塞进同一个 List：
+/// 24 个开关的排序、耳机选设备、勿扰的一次性配置、免密助手、彻底卸载。
+/// 结果是想点「彻底卸载」得先滚过 24 行开关，而分区标题吸顶时还会糊在开关上。
 struct SettingsView: View {
     @ObservedObject private var prefs = Preferences.shared
-    @State private var launchAtLogin = Preferences.shared.launchAtLogin
-    @State private var pairedDevices: [BluetoothController.Device] = []
-    @State private var dndConfigured = false
-    @State private var helperInstalled = false
+    @State private var pane: SettingsPane = .switches
+    @State private var identityHovering = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            header
-            Divider()
-            List {
-                Section("开关（拖动排序，可以拖进其他分组；分组名点一下就能改）") {
-                    // 分组标题和开关摊平在同一个 ForEach 里：.onMove 只能在一个 ForEach 内挪动，
-                    // 分成多个 Section 就拖不过去了。开关拖过哪个分组标题，就落进哪个分组。
-                    ForEach(prefs.groupRows) { entry in
-                        switch entry {
-                        case .group(let id):
-                            if let group = prefs.groups.first(where: { $0.id == id }) {
-                                groupHeader(group)
-                                    .moveDisabled(true)
-                            }
-                        case .item(let id):
-                            if let item = SwitchCatalog.item(id) {
-                                row(for: item)
-                            }
-                        }
-                    }
-                    .onMove { offsets, destination in
-                        prefs.moveRows(fromOffsets: offsets, toOffset: destination)
-                    }
-                }
+        ZStack(alignment: .topLeading) {
+            SettingsGlassShell(primaryHalo: SwitchHue.indigo, secondaryHalo: SwitchHue.blue)
 
-                Section("耳机连接（选择“耳机连接”开关要一键连/断的设备）") {
-                    Picker("目标设备", selection: Binding(
-                        get: { prefs.headphoneAddress ?? "" },
-                        set: { prefs.headphoneAddress = $0.isEmpty ? nil : $0 }
-                    )) {
-                        Text("未选择（点开关将打开蓝牙设置）").tag("")
-                        ForEach(pairedDevices) { device in
-                            Text(device.name).tag(device.id)
-                        }
-                        // 保证已保存但未在列表里的设备也能显示为已选。
-                        if let saved = prefs.headphoneAddress,
-                           !pairedDevices.contains(where: { $0.id == saved }) {
-                            Text(saved).tag(saved)
-                        }
-                    }
-                    Button("加载已配对的蓝牙设备（需授权）") {
-                        pairedDevices = BluetoothController.pairedDevices()
-                    }
-                }
+            sidebar
+                .frame(width: SettingsSurface.sidebarContentWidth)
+                .padding(.leading, SettingsSurface.sidebarHorizontalInset)
+                .padding(.top, SettingsSurface.titlebarClearance)
+                .padding(.bottom, 20)
 
-                Section("勿扰 / 专注（需一次性设置）") {
-                    Text("macOS 不允许第三方 App 直接切换「专注」。请在「快捷指令」新建一个名为 “FreeSwitch DND” 的快捷指令，加入动作「设定专注 → 勿扰 → 切换」。之后点面板里的「勿扰 / 专注」即可一键切换。")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    HStack {
-                        Button("打开快捷指令 App") { FocusController.openShortcutsApp() }
-                        Button("重新检测") { dndConfigured = FocusController.isConfigured() }
-                        Spacer()
-                        if dndConfigured {
-                            Label("已就绪", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-                        } else {
-                            Label("未检测到快捷指令", systemImage: "exclamationmark.circle").foregroundStyle(.orange)
-                        }
-                    }
-                }
-
-                Section("免密授权（可选）") {
-                    Text("切换「合盖也不休眠 / 低电量模式」默认要输一次管理员密码。安装一个很小的系统助手后即可免密——一次性授权，随时可移除。")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    HStack {
-                        if helperInstalled {
-                            Label("助手已安装（免密）", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-                            Spacer()
-                            Button("移除助手") {
-                                HelperClient.shared.uninstall()
-                                helperInstalled = HelperClient.shared.isInstalled
-                            }
-                        } else {
-                            Button("安装免密助手…") {
-                                _ = HelperClient.shared.installWithExplanation()
-                                helperInstalled = HelperClient.shared.isInstalled
-                            }
-                            Spacer()
-                            Label("未安装（用密码）", systemImage: "lock").foregroundStyle(.secondary)
-                        }
-                    }
-                }
-
-                Section("彻底卸载") {
-                    Text("直接把 App 拖进废纸篓是清不干净的：控制中心的控件登记、特权助手、登录项、以及「合盖也不休眠」改过的电源设置都会留在系统里。用下面这个按钮可以一次清完并还原。")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    HStack {
-                        Button("彻底卸载 FreeSwitch…", role: .destructive) {
-                            UninstallController.confirmAndUninstall()
-                        }
-                        Spacer()
-                    }
-                }
-            }
-            .listStyle(.inset)
-            Divider()
-            footer
+            page
+                .settingsContentCard()
+                .padding(.top, SettingsSurface.surfaceInset)
+                .padding(.bottom, SettingsSurface.surfaceInset)
+                .padding(.trailing, SettingsSurface.surfaceInset)
+                .padding(.leading, SettingsSurface.contentCardLeadingInset)
         }
-        .frame(width: 480, height: 600)
+        .background(SettingsWindowConfigurator())
+        // 侧边栏本身就占 286，窗口再窄内容卡片就没地方了。
+        // 比 Dam 的 990×720 小一圈：这边内容少，但结构和留白保持同一套。
+        .frame(minWidth: 880, idealWidth: 940, maxWidth: .infinity,
+               minHeight: 620, idealHeight: 700, maxHeight: .infinity)
+        .ignoresSafeArea()
         .onAppear {
+            // 设置窗口要能被前置、能进 Command-Tab，所以临时变回普通 App；
+            // 关掉窗口再变回菜单栏附件，否则程序坞里会一直留一个图标。
             NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
-            dndConfigured = FocusController.isConfigured()
-            helperInstalled = HelperClient.shared.isInstalled
         }
-        .onDisappear {
-            NSApp.setActivationPolicy(.accessory)
-        }
+        .onDisappear { NSApp.setActivationPolicy(.accessory) }
     }
 
-    /// 分组标题行：名字直接点开就能改，右侧上下箭头调整分组的先后。标题本身不可拖动。
-    private func groupHeader(_ group: SwitchGroup) -> some View {
-        let index = prefs.groups.firstIndex(where: { $0.id == group.id }) ?? 0
-        return HStack(spacing: 6) {
-            TextField("分组名称", text: Binding(
-                get: { group.name },
-                set: { prefs.renameGroup(group.id, to: $0) }
-            ))
-            .textFieldStyle(.plain)
-            .font(.system(size: 12, weight: .semibold))
-            .help("点一下就能改名；清空则显示默认名")
-            Spacer()
-            Button { prefs.moveGroup(group.id, by: -1) } label: { Image(systemName: "chevron.up") }
-                .buttonStyle(.borderless)
-                .disabled(index == 0)
-                .help("分组上移")
-            Button { prefs.moveGroup(group.id, by: 1) } label: { Image(systemName: "chevron.down") }
-                .buttonStyle(.borderless)
-                .disabled(index == prefs.groups.count - 1)
-                .help("分组下移")
-        }
-        .padding(.top, 8)
-        .padding(.bottom, 2)
-    }
+    // MARK: 侧边栏
 
-    private func row(for item: SwitchItem) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: "line.3.horizontal")
-                .foregroundStyle(.tertiary)
-            // 和面板用同一个图标组件，两处的图形、颜色、角标保持一致。
-            SwitchIcon(item: item, isOn: false, size: 14)
-                .frame(width: 22)
-            Text(item.localizedTitle)
-                .frame(width: 120, alignment: .leading)
-
-            Spacer()
-
-            if item.kind != .picker {
-                HotkeyRecorderView(id: item.id, prefs: prefs)
+    private var sidebar: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SettingsSidebarGroup(title: L("常用")) {
+                item(.switches)
+                item(.devices)
             }
-
-            Toggle("", isOn: Binding(
-                get: { prefs.isVisible(item.id) },
-                set: { prefs.setVisible(item.id, $0) }
-            ))
-            .labelsHidden()
-            .toggleStyle(.switch)
-            .controlSize(.mini)
-        }
-        .padding(.vertical, 2)
-    }
-
-    private var header: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "switch.2")
-                .font(.title2)
-                .foregroundStyle(Color.accentColor)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("FreeSwitch 设置").font(.headline)
-                Text("自定义菜单栏面板与全局快捷键").font(.caption).foregroundStyle(.secondary)
+            SettingsSidebarGroup(title: L("高级")) {
+                item(.permissions)
+                item(.uninstall)
             }
-            Spacer()
+            Spacer(minLength: 0)
+            identity
         }
-        .padding(16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    private var footer: some View {
-        HStack {
-            Toggle("开机自动启动", isOn: Binding(
-                get: { launchAtLogin },
-                set: { newValue in
-                    prefs.launchAtLogin = newValue
-                    launchAtLogin = prefs.launchAtLogin
+    private func item(_ target: SettingsPane) -> some View {
+        SettingsSidebarItem(symbol: target.symbol,
+                            title: target.title,
+                            isSelected: pane == target) { pane = target }
+    }
+
+    /// App 身份放侧边栏最下角——它是「这是什么」而不是「要设置什么」，
+    /// 不该在导航列表里占一格。Dam 的使用指南入口也在这个位置。
+    /// 整块就是项目主页的入口：一个「项目主页」按钮单独占一个设置区太孤零零了。
+    private var identity: some View {
+        Button {
+            if let url = URL(string: "https://github.com/Having-Liu/FreeSwitch") {
+                NSWorkspace.shared.open(url)
+            }
+        } label: {
+            HStack(spacing: 9) {
+                Image("handle")
+                    .font(.system(size: 18))
+                    .foregroundStyle(SwitchHue.indigo)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("FreeSwitch").font(.system(size: 12, weight: .semibold))
+                    Text(Self.versionString).font(.system(size: 10)).foregroundStyle(.secondary)
                 }
-            ))
-            .toggleStyle(.checkbox)
-
-            Spacer()
-
-            Button("全部显示") {
-                for id in SwitchCatalog.defaultIDs { prefs.setVisible(id, true) }
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+                    .opacity(identityHovering ? 1 : 0)
             }
-            Button("恢复默认分组") {
-                prefs.resetGroups()
-            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(identityHovering ? Color.white.opacity(0.32) : .clear))
+            .contentShape(.rect)
         }
-        .padding(16)
+        .buttonStyle(.plain)
+        .help(L("项目主页"))
+        .onHover { h in withAnimation(.easeOut(duration: 0.12)) { identityHovering = h } }
+    }
+
+    static var versionString: String {
+        let short = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+        return L("版本 %@", short)
+    }
+
+    // MARK: 内容
+
+    @ViewBuilder
+    private var page: some View {
+        switch pane {
+        case .switches:    SwitchesPane(prefs: prefs)
+        case .devices:     DevicesPane(prefs: prefs)
+        case .permissions: PermissionsPane()
+        case .uninstall:   UninstallPane()
+        }
     }
 }
 
-/// 快捷键录制控件：点击后按下组合键即记录。
-struct HotkeyRecorderView: View {
-    let id: String
-    @ObservedObject var prefs: Preferences
-    @State private var recording = false
-    @State private var monitor: Any?
+// MARK: - 分页
+
+enum SettingsPane: String, CaseIterable, Identifiable {
+    case switches, devices, permissions, uninstall
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .switches:    return L("开关")
+        case .devices:     return L("设备")
+        case .permissions: return L("权限")
+        case .uninstall:   return L("彻底卸载")
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .switches:    return "switch.2"
+        case .devices:     return "headphones"
+        case .permissions: return "lock.shield"
+        case .uninstall:   return "trash"
+        }
+    }
+}
+
+/// 每一页共用的头：标题 + 一句说明。说明是灰的小字，不抢标题。
+struct PaneHeader: View {
+    let title: String
+    var subtitle: String? = nil
 
     var body: some View {
-        Button(action: toggle) {
-            Text(label)
-                .font(.system(.caption, design: .rounded))
-                .frame(minWidth: 84)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background(
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(recording ? Color.accentColor.opacity(0.25) : Color.primary.opacity(0.08))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .strokeBorder(recording ? Color.accentColor : Color.clear, lineWidth: 1)
-                )
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title).font(.system(size: 16, weight: .semibold))
+            if let subtitle {
+                Text(subtitle).font(.system(size: 11)).foregroundStyle(.secondary)
+            }
         }
-        .buttonStyle(.plain)
-        .help("点击后按下快捷键；Esc 取消，Delete 清除")
-        .onDisappear(perform: stop)
-    }
-
-    private var label: String {
-        if recording { return L("按下…") }
-        return prefs.hotkeys[id]?.display ?? L("未设置")
-    }
-
-    private func toggle() { recording ? stop() : start() }
-
-    private func start() {
-        recording = true
-        monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
-            if event.keyCode == UInt16(kVK_Escape) { stop(); return nil }
-            if event.keyCode == UInt16(kVK_Delete) { prefs.setHotkey(nil, for: id); stop(); return nil }
-            if let hotkey = Hotkey(event: event) { prefs.setHotkey(hotkey, for: id); stop(); return nil }
-            return nil
-        }
-    }
-
-    private func stop() {
-        recording = false
-        if let monitor { NSEvent.removeMonitor(monitor) }
-        monitor = nil
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+        .padding(.bottom, 14)
     }
 }

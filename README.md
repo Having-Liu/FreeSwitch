@@ -73,6 +73,35 @@
 CoreAudio），不 fork 子进程；`publish()` 早就有「内容没变就不写盘」的判断。
 贵的从来不是读，是读完无条件写回 `@Published`。
 
+## 设置窗口的「家族语言」
+
+`FreeSwitch/Views/SettingsChrome.swift` 是和 **Dam**（同作者的另一个 App）共用的一层外壳：
+玻璃背景 + 浮在上面的侧边栏 + 压住侧边栏右缘的内容卡片。类型名、度量、材质参数都对齐 Dam 的
+`SettingsWindowChrome.swift` / `SettingsView.swift`，**整个文件可以在两个项目之间直接搬**。
+改动请两边同步，否则家族语言就散了。
+
+里面的数字不是随手挑的：
+
+| 常量 | 值 | 为什么 |
+|---|---|---|
+| `sidebarWidth` / `sidebarContentWidth` | 286 / 224 | Dam 的原值。不要因为「这个 App 内容少」去缩，缩了就不是同一套语言 |
+| `contentOverlap` | 34 | 卡片往左压住侧边栏。齐边会显得是两块拼版，压上去才有前后层次 |
+| `titlebarClearance` | 70 | 给手动摆到 (16, 14) 的红绿灯按钮让位 |
+| `outerWindowCornerRadiusEstimate` | 28 | NSWindow 的系统圆角没有稳定公开接口，这是校准值，用它反推卡片圆角让内外曲率同心 |
+
+几个必须照做的点：
+
+- **不能用系统标题栏。** 左边是一条浮在玻璃上的侧边栏，标题栏那条不透明横条会把玻璃从顶上切断，
+  侧边栏就变成「悬在一块白板上」。用 `fullSizeContentView` + 透明标题栏，红绿灯手动摆位。
+- **材质要用 `NSVisualEffectView(.underWindowBackground, .behindWindow)`**，不是 SwiftUI 的
+  `.regularMaterial`——后者只在窗口内部混合，铺满整窗时看着就是一块灰纸。
+- **窗口配置要跑两次。** `Settings { }` 场景的 NSWindow 不归我们创建，`viewDidMoveToWindow` 时
+  窗口还在组装、红绿灯会被系统再摆一次，下一轮 runloop 里补一次才稳。
+- **侧边栏条目的深浅色要分开写。** 同一组白色透明度在深色模式下会糊成一团。
+- **顶边和左侧那两道 1px 高光别省**，它们是「玻璃有厚度」的唯一线索，去掉整面就发平。
+
+光晕颜色留给各 App 传自己的身份色（Dam 是青蓝，FreeSwitch 用图标上那两个蓝）。
+
 ## 多语言
 
 界面共 9 种语言：简体中文（源语言）、English、繁體中文、日本語、한국어、Deutsch、Français、Español、Русский。
