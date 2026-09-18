@@ -50,6 +50,29 @@
 - macOS 14.6+
 - Xcode 26+
 
+## 性能
+
+空转时 CPU **0.02%**（60 秒只用掉 0.01 秒）。这个数字来之不易，改坏很容易，所以记一笔：
+
+**写 `@Published` 之前一定要先比较值有没有变。** `SwitchStore.items` 是 `@Published`，
+每赋值一次就发一次 `objectWillChange`，SwiftUI 会把所有观察这个 store 的视图整棵作废重建——
+**包括关着的那个面板**：`MenuBarExtra(.window)` 的内容视图一直活着，不是关了就不算。
+`reconcile()` 每 5 秒调十来个 setter，无条件赋值就等于每 5 秒十几次全量重建，
+24 个磁贴连玻璃材质一起重算。
+
+实测（同一台机器，同样测法：取 `ps -o time=` 的差值）：
+
+| | 空转 CPU | `sample` 里的面板视图求值 |
+|---|---|---|
+| setter 无条件赋值 | 0.73 % | `MenuContentView.grid`、`sectionView`、`SwitchTileView`、`layoutSubtreeIfNeeded` 都在 |
+| setter 加了值比较 | 0.02 % | 一处都没有 |
+
+主线程空等占比也从 16627/16807 变成 17038/17045。
+
+顺带说明：`reconcile()` 本身是廉价的，只做进程内读取（CFPreferences、CoreBrightness、
+CoreAudio），不 fork 子进程；`publish()` 早就有「内容没变就不写盘」的判断。
+贵的从来不是读，是读完无条件写回 `@Published`。
+
 ## 多语言
 
 界面共 9 种语言：简体中文（源语言）、English、繁體中文、日本語、한국어、Deutsch、Français、Español、Русский。

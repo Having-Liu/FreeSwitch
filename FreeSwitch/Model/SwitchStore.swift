@@ -208,7 +208,9 @@ final class SwitchStore: ObservableObject {
     private var idleTasks: [String: Task<Void, Never>] = [:]
 
     private func setPhase(_ id: String, _ phase: String) {
-        if phase == "idle" { phases.removeValue(forKey: id) } else { phases[id] = phase }
+        let wanted: String? = phase == "idle" ? nil : phase
+        guard phases[id] != wanted else { return }
+        if let wanted { phases[id] = wanted } else { phases.removeValue(forKey: id) }
         FreeSwitchTrigger.log.debug("app writes \(id, privacy: .public) = \(phase, privacy: .public)")
         publish(force: true)
     }
@@ -265,8 +267,17 @@ final class SwitchStore: ObservableObject {
 
     private func index(_ id: String) -> Int? { items.firstIndex { $0.id == id } }
 
+    // 下面这几个写入前都要先比一次「值变了没有」。
+    //
+    // items 是 @Published，每赋值一次就发一次 objectWillChange，而 SwiftUI 会把所有观察
+    // 这个 store 的视图整棵作废重建——包括**关着的**那个面板：MenuBarExtra(.window) 的
+    // 内容视图一直活着，不是关了就不算。reconcile() 每 5 秒调十来个 setter，
+    // 于是每 5 秒就有十几次全量重建，24 个磁贴连玻璃材质一起重算。
+    //
+    // 实测：不加这个判断时 App 空转常驻约 0.7% CPU，采样里能看到 MenuContentView.grid、
+    // sectionView、SwitchTileView 在面板关着的情况下反复求值。
     private func setOn(_ id: String, _ on: Bool) {
-        guard let i = index(id) else { return }
+        guard let i = index(id), items[i].isOn != on else { return }
         items[i].isOn = on
     }
 
@@ -300,17 +311,17 @@ final class SwitchStore: ObservableObject {
     }
 
     private func setSupported(_ id: String, _ supported: Bool) {
-        guard let i = index(id) else { return }
+        guard let i = index(id), items[i].isSupported != supported else { return }
         items[i].isSupported = supported
     }
 
     private func setDetail(_ id: String, _ detail: String?) {
-        guard let i = index(id) else { return }
+        guard let i = index(id), items[i].detail != detail else { return }
         items[i].detail = detail
     }
 
     private func setGauge(_ id: String, _ value: Double?) {
-        guard let i = index(id) else { return }
+        guard let i = index(id), items[i].gauge != value else { return }
         items[i].gauge = value
     }
 
