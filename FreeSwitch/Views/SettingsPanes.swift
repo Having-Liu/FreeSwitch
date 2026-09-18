@@ -404,3 +404,82 @@ struct HotkeyRecorderView: View {
         monitor = nil
     }
 }
+
+// MARK: - 语言
+
+/// 系统匹配到的语言未必是用户想要的（比如系统是英文但人想看中文），所以给个显式的开关。
+/// 切换要重启——原因写在 AppLanguage 的注释里。
+struct LanguagePane: View {
+    @State private var selection = AppLanguage.override
+    @State private var pendingRestart = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            PaneHeader(title: L("语言"), subtitle: L("界面语言。切换后需要重新启动才会生效。"))
+            Form {
+                Section {
+                    Picker(L("界面语言"), selection: $selection) {
+                        ForEach(AppLanguage.all, id: \.code) { item in
+                            Text(item.name).tag(item.code)
+                        }
+                    }
+                    .onChange(of: selection) { _, newValue in
+                        AppLanguage.override = newValue
+                        pendingRestart = true
+                    }
+                }
+
+                if pendingRestart {
+                    Section {
+                        HStack(spacing: 10) {
+                            Image(systemName: "arrow.clockwise.circle.fill")
+                                .foregroundStyle(SwitchHue.amber)
+                            Text("重新启动 FreeSwitch 之后生效")
+                                .font(.system(size: 12))
+                            Spacer()
+                            Button(L("立即重启")) { AppLanguage.relaunch() }
+                                .controlSize(.small)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+            .formStyle(.grouped)
+            .scrollContentBackground(.hidden)
+        }
+    }
+}
+
+// MARK: - 更多 App
+
+struct MoreAppsPane: View {
+    private let homepage = "https://home.astrocean.love/"
+
+    var body: some View {
+        VStack(spacing: 0) {
+            PaneHeader(title: L("更多 App"), subtitle: L("我们还做了别的 macOS 小工具"))
+            Form {
+                Section {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("FreeSwitch 出自 Astrocean。同一批人还做了几个别的 macOS 小工具，都在这个页面上。")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button {
+                            if let url = URL(string: homepage) { NSWorkspace.shared.open(url) }
+                        } label: {
+                            HStack(spacing: 5) {
+                                Text(L("前往 home.astrocean.love"))
+                                Image(systemName: "arrow.up.right")
+                                    .font(.system(size: 9, weight: .semibold))
+                            }
+                        }
+                    }
+                    .padding(.vertical, 3)
+                }
+            }
+            .formStyle(.grouped)
+            .scrollContentBackground(.hidden)
+        }
+    }
+}

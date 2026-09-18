@@ -51,12 +51,15 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             SettingsSidebarGroup(title: L("常用")) {
                 item(.switches)
+                item(.language)
             }
             SettingsSidebarGroup(title: L("高级")) {
                 item(.permissions)
                 item(.uninstall)
             }
             Spacer(minLength: 0)
+            // 「更多 App」不属于任何一组设置，摆在最下面、紧挨着身份块，读起来像页脚导航。
+            item(.moreApps)
             identity
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -113,8 +116,10 @@ struct SettingsView: View {
     private var page: some View {
         switch pane {
         case .switches:    SwitchesPane(prefs: prefs)
+        case .language:    LanguagePane()
         case .permissions: PermissionsPane()
         case .uninstall:   UninstallPane()
+        case .moreApps:    MoreAppsPane()
         }
     }
 }
@@ -122,23 +127,27 @@ struct SettingsView: View {
 // MARK: - 分页
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case switches, permissions, uninstall
+    case switches, language, permissions, uninstall, moreApps
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .switches:    return L("开关")
+        case .language:    return L("语言")
         case .permissions: return L("权限")
         case .uninstall:   return L("彻底卸载")
+        case .moreApps:    return L("更多 App")
         }
     }
 
     var symbol: String {
         switch self {
         case .switches:    return "switch.2"
+        case .language:    return "globe"
         case .permissions: return "lock.shield"
         case .uninstall:   return "trash"
+        case .moreApps:    return "square.grid.2x2"
         }
     }
 }

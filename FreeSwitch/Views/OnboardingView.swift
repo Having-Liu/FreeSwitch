@@ -148,10 +148,13 @@ struct OnboardingView: View {
     }
 
     /// 第三页：控制中心。这一步 App 代劳不了，只能讲清楚。
+    ///
+    /// 右边原来有一张控制中心的示意图，去掉了：那张图既不是真的、也代替不了真的，
+    /// 占着半页却什么都没多说。这一页就把话说清楚。
     private var controlCenter: some View {
         Spread(
-            title: L("放进控制中心"),
-            subtitle: L("这是唯一需要你动手的一步——加好之后，不打开 App 也能切。"),
+            title: L("也可以放进 Mac 控制中心"),
+            subtitle: L("你甚至不需要感受到 FreeSwitch 的存在，就像在用系统自带的功能。"),
             bullets: [
                 (symbol: "1.circle", title: L("拉开控制中心"),
                  detail: L("点菜单栏右上角那两个开关样子的图标")),
@@ -161,9 +164,7 @@ struct OnboardingView: View {
                  detail: L("左侧列表里选 FreeSwitch，把想要的控件拖进去")),
                 (symbol: "info.circle", title: L("控件只放系统没有的"),
                  detail: L("深色模式、低电量、锁定屏幕这些系统自己就有，不重复占位")),
-            ],
-            right: AnyView(ControlCenterIllustration()),
-            size: embedSize)
+            ])
     }
 
     /// 第四页：权限。右边嵌的就是真的权限页，用户直接在这儿授权。
@@ -198,8 +199,9 @@ private struct Spread: View {
     let title: String
     let subtitle: String
     let bullets: [(symbol: String, title: String, detail: String)]
-    let right: AnyView
-    let size: CGSize
+    /// 没有右边内容时整块居中、文案栏放宽——与其塞一张凑数的示意图，不如把话说清楚。
+    var right: AnyView? = nil
+    var size: CGSize = .zero
 
     var body: some View {
         HStack(alignment: .center, spacing: 56) {
@@ -216,13 +218,15 @@ private struct Spread: View {
                 }
                 .padding(.top, 4)
             }
-            .frame(width: 400, alignment: .topLeading)
+            .frame(width: right == nil ? 620 : 400, alignment: .topLeading)
 
             // 尺寸加在卡片**外面**：卡片内部会把内容撑满给定的框，
             // 反过来先定尺寸再套卡片，卡片的 maxWidth/.infinity 会和固定尺寸打架。
-            right
-                .settingsContentCard()
-                .frame(width: size.width, height: size.height)
+            if let right {
+                right
+                    .settingsContentCard()
+                    .frame(width: size.width, height: size.height)
+            }
         }
     }
 }
@@ -247,41 +251,5 @@ private struct Bullet: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-    }
-}
-
-/// 控制中心那一步没法嵌真东西（那是系统的界面），画一张意思到位的示意图。
-/// 刻意画成「示意」而不是仿真截图：仿真图会随 macOS 版本过时，而且更容易让人以为点得动。
-private struct ControlCenterIllustration: View {
-    private let tiles: [(String, Color)] = [
-        ("keyboard.fill", SwitchHue.violet), ("bubbles.and.sparkles.fill", SwitchHue.cyan),
-        ("eye.fill", SwitchHue.teal), ("macwindow.on.rectangle", SwitchHue.blue),
-        ("dock.arrow.down.rectangle", SwitchHue.indigo), ("hammer.fill", SwitchHue.coffee),
-    ]
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Text(L("控制中心"))
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.secondary)
-
-            LazyVGrid(columns: Array(repeating: GridItem(.fixed(74), spacing: 12), count: 3),
-                      spacing: 12) {
-                ForEach(tiles, id: \.0) { symbol, hue in
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(hue.opacity(0.16))
-                        .overlay(
-                            Image(systemName: symbol)
-                                .font(.system(size: 20))
-                                .foregroundStyle(hue))
-                        .frame(width: 74, height: 74)
-                }
-            }
-
-            Text(L("加好之后长这样"))
-                .font(.system(size: 11))
-                .foregroundStyle(.tertiary)
-        }
-        .padding(24)
     }
 }
