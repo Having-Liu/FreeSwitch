@@ -184,11 +184,15 @@ struct SettingsGlassShell: View {
 extension View {
     /// 压在侧边栏右缘上的那张卡片：窗口底色的竖向渐变 + 一圈白描边 + 一层大而软的阴影。
     /// 描边是让卡片「从玻璃上浮起来」的那一笔，去掉就糊在背景里了。
-    func settingsContentCard() -> some View {
+    /// `fills` 为真时卡片撑满可用空间（设置窗口里就是这样）；
+    /// 为假时由内容决定大小（引导页里那张小卡片要贴着内容收边）。
+    func settingsContentCard(fills: Bool = true) -> some View {
         let shape = RoundedRectangle(cornerRadius: SettingsSurface.contentCardCornerRadius,
                                      style: .continuous)
         return self
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .frame(maxWidth: fills ? .infinity : nil,
+                   maxHeight: fills ? .infinity : nil,
+                   alignment: .topLeading)
             .background(
                 shape.fill(
                     LinearGradient(

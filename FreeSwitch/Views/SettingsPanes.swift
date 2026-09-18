@@ -7,6 +7,9 @@ import Carbon.HIToolbox
 
 struct SwitchesPane: View {
     @ObservedObject var prefs: Preferences
+    /// 嵌进引导页时为真：藏掉底部那条操作栏。
+    /// 那里有「查看引导」，在引导里再点一次就递归了；「恢复默认分组」在初次上手时也只会添乱。
+    var embedded: Bool = false
     @State private var launchAtLogin = Preferences.shared.launchAtLogin
 
     var body: some View {
@@ -37,6 +40,7 @@ struct SwitchesPane: View {
             .scrollContentBackground(.hidden)   // 让卡片自己的底色透出来
             .environment(\.defaultMinListRowHeight, 30)
 
+            if !embedded {
             Divider().opacity(0.5)
 
             HStack(spacing: 10) {
@@ -50,6 +54,8 @@ struct SwitchesPane: View {
 
                 Spacer()
 
+                // 留个回看入口：不然引导只有装机那一次能看到，改动它也没法自测。
+                Button(L("查看引导")) { OnboardingWindow.present() }
                 Button(L("全部显示")) {
                     for id in SwitchCatalog.defaultIDs { prefs.setVisible(id, true) }
                 }
@@ -58,6 +64,7 @@ struct SwitchesPane: View {
             .controlSize(.small)
             .padding(.horizontal, 16)
             .padding(.vertical, 11)
+            }
         }
     }
 }

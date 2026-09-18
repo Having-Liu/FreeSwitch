@@ -13,7 +13,7 @@ func L(_ key: String) -> String {
     String(localized: String.LocalizationValue(key))
 }
 
-/// 带一个参数的本地化文案。键里用 `%@` 占位。
-func L(_ key: String, _ argument: CVarArg) -> String {
-    String(format: L(key), argument)
+/// 带参数的本地化文案。键里用 `%@`（字符串）或 `%lld`（整数）占位。
+func L(_ key: String, _ arguments: CVarArg...) -> String {
+    String(format: L(key), arguments: arguments)
 }

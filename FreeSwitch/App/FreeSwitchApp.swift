@@ -51,5 +51,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             SwitchStore.shared.activate(id)
         }
         HotkeyManager.shared.reload(from: Preferences.shared.hotkeys)
+
+        // 首次启动弹一次引导。放在最后：前面那些初始化要先跑完，
+        // 引导第二、四页嵌的是真的设置页，它们读的就是这些初始化后的状态。
+        OnboardingWindow.presentIfNeeded()
     }
 }
