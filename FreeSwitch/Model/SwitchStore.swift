@@ -79,6 +79,10 @@ enum SwitchCatalog {
         // 虚线框太抽象；带菜单栏和程序坞的屏幕才是「桌面」。
         SwitchItem(id: "hideDesktop",    title: "隐藏桌面",     symbol: "menubar.dock.rectangle", kind: .toggle, defaultGroup: "files", hue: SwitchHue.blue,    span: 1),
         SwitchItem(id: "showHidden",     title: "显示隐藏文件", symbol: "eye.fill",               kind: .toggle, defaultGroup: "files", hue: SwitchHue.violet,  span: 1),
+        // dock.arrow.down.rectangle 是「程序坞往下收起」，和「隐藏桌面」那个带菜单栏的屏幕分得开。
+        SwitchItem(id: "dockAutohide", title: "自动隐藏程序坞", symbol: "dock.arrow.down.rectangle", kind: .toggle, defaultGroup: "files", hue: SwitchHue.cyan,   span: 1),
+        SwitchItem(id: "hideWindows",  title: "隐藏所有窗口",   symbol: "rectangle.on.rectangle.slash", kind: .toggle, defaultGroup: "files", hue: SwitchHue.indigo, span: 1),
+        SwitchItem(id: "hideWidgets",  title: "隐藏小组件",     symbol: "widget.small",                 kind: .toggle, defaultGroup: "files", hue: SwitchHue.amber,  span: 1),
         // doc.on.clipboard 是系统的「粘贴/复制」图标，会被读成复制；换成剪贴板本身。
         SwitchItem(id: "emptyClipboard", title: "清空剪贴板",   symbol: "clipboard.fill",         kind: .action, defaultGroup: "files", hue: SwitchHue.neutral, span: 1),
         SwitchItem(id: "emptyTrash",     title: "清空废纸篓",   symbol: "trash.fill",             kind: .action, defaultGroup: "files", hue: SwitchHue.neutral, span: 1),
@@ -102,7 +106,8 @@ enum SwitchCatalog {
     static func item(_ id: String) -> SwitchItem? { all.first { $0.id == id } }
 
     /// 处于“开启”时算作激活状态（用于菜单栏图标提示）的开关。
-    static let stickyIDs: Set<String> = ["keepAwake", "lockKeyboard", "muteMic", "hideDesktop", "showHidden", "lowPowerMode"]
+    static let stickyIDs: Set<String> = ["keepAwake", "lockKeyboard", "muteMic", "hideDesktop",
+                                         "showHidden", "lowPowerMode", "hideWindows"]
 }
 
 /// 全部开关的状态与行为中心（单例，供菜单面板与全局热键共用）。
@@ -176,6 +181,9 @@ final class SwitchStore: ObservableObject {
         // 现在它们走 CFPreferences 读，进程内、不 fork，够便宜。
         setFromSystem("showHidden", SystemController.showHiddenFiles())
         setFromSystem("hideDesktop", SystemController.desktopIconsHidden())
+        setFromSystem("dockAutohide", SystemController.dockAutohide())
+        setFromSystem("hideWidgets", SystemController.desktopWidgetsHidden())
+        setOn("hideWindows", WindowController.shared.isHiding)
         setOn("keepAwake", PowerController.shared.keepAwake)
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
         publish()
@@ -323,6 +331,9 @@ final class SwitchStore: ObservableObject {
         setFromSystem("muteMic", AudioController.micMuted())
         setFromSystem("hideDesktop", SystemController.desktopIconsHidden())
         setFromSystem("showHidden", SystemController.showHiddenFiles())
+        setFromSystem("dockAutohide", SystemController.dockAutohide())
+        setFromSystem("hideWidgets", SystemController.desktopWidgetsHidden())
+        setOn("hideWindows", WindowController.shared.isHiding)
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
 
         loadHeadphoneStatus()
@@ -419,6 +430,13 @@ final class SwitchStore: ObservableObject {
             return on
         case "muteMic":      AudioController.setMicMuted(on); return AudioController.micMuted()
         case "hideDesktop":  SystemController.setDesktopIconsHidden(on); return on
+        // 走 Apple 事件，写完不一定立刻反映到偏好里；标记写入在途，由 5 秒核对纠正。
+        case "dockAutohide":
+            beginPendingWrite(id)
+            SystemController.setDockAutohide(on)
+            return on
+        case "hideWindows":  WindowController.shared.setHidden(on); return WindowController.shared.isHiding
+        case "hideWidgets":  SystemController.setDesktopWidgetsHidden(on); return SystemController.desktopWidgetsHidden()
         case "showHidden":   SystemController.setShowHiddenFiles(on); return on
         case "lockKeyboard": InputBlocker.shared.setKeyboardLocked(on); return InputBlocker.shared.isKeyboardLocked
         case "connectHeadphones":

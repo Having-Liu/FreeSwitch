@@ -9,17 +9,50 @@ enum SystemController {
         Shell.run("/usr/bin/killall", ["Finder"])
     }
 
-    /// 读访达的某个偏好项。用 CFPreferences 直接读，不 fork `defaults read`——
+    /// 读别的 App 的某个偏好项。用 CFPreferences 直接读，不 fork `defaults read`——
     /// 只有足够便宜，这些状态才能纳入每 5 秒的核对。
     /// 这很要紧：访达里 Cmd+Shift+. 就能切「显示隐藏文件」，不核对的话控件会一直显示过期值。
     /// 读之前先同步一次，否则拿到的可能是本进程缓存里的旧值，看不见别人刚改的。
-    private static func finderFlag(_ key: String) -> Bool? {
-        let domain = "com.apple.finder" as CFString
-        CFPreferencesAppSynchronize(domain)
-        guard let value = CFPreferencesCopyAppValue(key as CFString, domain) else { return nil }
+    private static func prefFlag(_ key: String, in domain: String) -> Bool? {
+        let appID = domain as CFString
+        CFPreferencesAppSynchronize(appID)
+        guard let value = CFPreferencesCopyAppValue(key as CFString, appID) else { return nil }
         if let number = value as? NSNumber { return number.boolValue }
         if let text = value as? String { return ["1", "true", "yes"].contains(text.lowercased()) }
         return nil
+    }
+
+    private static func setPrefFlag(_ value: Bool, _ key: String, in domain: String) {
+        let appID = domain as CFString
+        CFPreferencesSetAppValue(key as CFString, value ? kCFBooleanTrue : kCFBooleanFalse, appID)
+        CFPreferencesAppSynchronize(appID)
+    }
+
+    private static func finderFlag(_ key: String) -> Bool? { prefFlag(key, in: "com.apple.finder") }
+
+    // MARK: 自动隐藏程序坞
+
+    static func dockAutohide() -> Bool { prefFlag("autohide", in: "com.apple.dock") ?? false }
+
+    /// 用 System Events 设置，而不是 `defaults write` + `killall Dock`：
+    /// 后者会重启程序坞，画面闪一下、动画也断；前者走系统自己的设置通道，立即生效且平滑。
+    /// 脚本字典里这个属性属于 “dock preferences object”（已核对）。
+    static func setDockAutohide(_ on: Bool) {
+        Shell.runAppleScript("tell application \"System Events\" to set autohide of dock preferences to \(on)")
+    }
+
+    // MARK: 桌面小组件
+
+    static func desktopWidgetsHidden() -> Bool {
+        prefFlag("StandardHideWidgets", in: "com.apple.WindowManager") ?? false
+    }
+
+    /// 实测过：写完约 0.1 秒 WindowManager 就会 “refreshing layout controller”，
+    /// 所以不需要 killall WindowManager（那会让窗口和台前调度闪一下）。
+    /// 桌面和台前调度里的小组件一起处理，「隐藏小组件」才是一致的含义。
+    static func setDesktopWidgetsHidden(_ hidden: Bool) {
+        setPrefFlag(hidden, "StandardHideWidgets", in: "com.apple.WindowManager")
+        setPrefFlag(hidden, "StageManagerHideWidgets", in: "com.apple.WindowManager")
     }
 
     static func desktopIconsHidden() -> Bool {
