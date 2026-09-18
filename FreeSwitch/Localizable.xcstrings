@@ -7958,58 +7958,6 @@
         }
       }
     },
-    "FreeSwitch 出自 Astrocean。同一批人还做了几个别的 macOS 小工具，都在这个页面上。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch comes from Astrocean. The same people make a few other small macOS tools — they’re all on this page."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch 出自 Astrocean。同一批人還做了幾個別的 macOS 小工具，都在這個頁面上。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch は Astrocean が作っています。同じメンバーが手がけた macOS の小さなツールが、このページにまとまっています。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch는 Astrocean에서 만들었습니다. 같은 사람들이 만든 다른 macOS 소도구들이 이 페이지에 모여 있습니다."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch kommt von Astrocean. Dieselben Leute bauen noch ein paar kleine macOS-Werkzeuge – alle auf dieser Seite."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch vient d’Astrocean. Les mêmes personnes font quelques autres petits outils macOS, tous sur cette page."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch es de Astrocean. Las mismas personas hacen otras pequeñas herramientas para macOS; están todas en esta página."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch создан в Astrocean. Те же люди делают ещё несколько небольших утилит для macOS — все они на этой странице."
-          }
-        }
-      }
-    },
     "前往 home.astrocean.love": {
       "localizations": {
         "en": {
@@ -8162,6 +8110,58 @@
           "stringUnit": {
             "state": "translated",
             "value": "Вам даже не нужно замечать, что FreeSwitch есть, — всё ощущается как встроенная функция macOS."
+          }
+        }
+      }
+    },
+    "FreeSwitch 出自 Astrocean，我们还做了其他有意思的 app，欢迎探索": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FreeSwitch comes from Astrocean. We make other fun apps too — come and explore."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FreeSwitch 出自 Astrocean，我們還做了其他有意思的 app，歡迎探索"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FreeSwitch は Astrocean が作っています。ほかにも面白い App があるので、のぞいてみてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FreeSwitch는 Astrocean에서 만들었습니다. 재미있는 앱을 더 만들고 있으니 둘러보세요."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FreeSwitch kommt von Astrocean. Wir bauen noch andere spannende Apps – schau dich gern um."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FreeSwitch vient d’Astrocean. Nous faisons d’autres apps sympas, venez explorer."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FreeSwitch es de Astrocean. También hacemos otras apps interesantes: ven a explorarlas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FreeSwitch создан в Astrocean. Мы делаем и другие интересные приложения — загляните."
           }
         }
       }

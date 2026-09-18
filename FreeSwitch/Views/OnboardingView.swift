@@ -9,6 +9,7 @@ import SwiftUI
 struct OnboardingView: View {
     @ObservedObject private var prefs = Preferences.shared
     @State private var page = 0
+    @State private var language = AppLanguage.override
 
     private let pageCount = 4
     /// 嵌进来的那张设置页的尺寸。按真实设置窗口的内容区取，看着才像同一个东西。
@@ -125,6 +126,39 @@ struct OnboardingView: View {
             .padding(26)
             .frame(width: 620)
             .settingsContentCard(fills: false)
+
+            languageSwitcher
+                .padding(.top, 4)
+        }
+    }
+
+    /// 语言切换放在第一页。
+    ///
+    /// **它的读者恰恰是看不懂当前这套界面文字的人**——系统语言匹配错了的那位。
+    /// 所以：用地球图标（不靠文字就能认出这是语言）、菜单里每种语言都用它自己的语言写，
+    /// 并且不加任何说明文字（写了他也读不懂）。
+    ///
+    /// 选完立刻重启：引导还没走完，`hasCompleted` 还是假，重启后会用新语言从第一页重来——
+    /// 正是这个人想要的结果。不像设置里那样先提示「重启后生效」再等他点，
+    /// 那个提示对读不懂的人毫无意义。
+    private var languageSwitcher: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "globe")
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+            Picker("", selection: $language) {
+                ForEach(AppLanguage.all, id: \.code) { item in
+                    Text(item.name).tag(item.code)
+                }
+            }
+            .labelsHidden()
+            .pickerStyle(.menu)
+            .fixedSize()
+        }
+        .onChange(of: language) { _, newValue in
+            guard newValue != AppLanguage.override else { return }
+            AppLanguage.override = newValue
+            AppLanguage.relaunch()
         }
     }
 

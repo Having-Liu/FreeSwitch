@@ -461,7 +461,7 @@ struct MoreAppsPane: View {
             Form {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("FreeSwitch 出自 Astrocean。同一批人还做了几个别的 macOS 小工具，都在这个页面上。")
+                        Text("FreeSwitch 出自 Astrocean，我们还做了其他有意思的 app，欢迎探索")
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
