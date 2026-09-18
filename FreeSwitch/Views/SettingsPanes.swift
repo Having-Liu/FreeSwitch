@@ -192,26 +192,65 @@ struct DevicesPane: View {
 
 // MARK: - 权限
 
+/// 权限页。
+///
+/// 只**显示**状态，不在打开页面时请求任何东西——读状态的那几个 API 都不会弹窗
+/// （见 Permission）。弹窗只在用户自己按下「请求授权」时出现。
 struct PermissionsPane: View {
-    @State private var dndConfigured = false
+    @State private var bluetooth: Permission.State = .notDetermined
+    @State private var systemEvents: Permission.State = .notDetermined
+    @State private var finder: Permission.State = .notDetermined
+    @State private var accessibility: Permission.State = .notDetermined
     @State private var helperInstalled = false
 
     var body: some View {
         VStack(spacing: 0) {
-            PaneHeader(title: L("权限"), subtitle: L("这些都是一次性设置，设好之后不再打扰"))
+            PaneHeader(title: L("权限"), subtitle: L("用到哪项才需要哪项，没用到可以一直空着"))
             Form {
-                Section(L("勿扰 / 专注（需一次性设置）")) {
-                    Text("macOS 不允许第三方 App 直接切换「专注」。请在「快捷指令」新建一个名为 “FreeSwitch DND” 的快捷指令，加入动作「设定专注 → 勿扰 → 切换」。之后点面板里的「勿扰 / 专注」即可一键切换。")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    HStack {
-                        Button(L("打开快捷指令 App")) { FocusController.openShortcutsApp() }
-                        Button(L("重新检测")) { dndConfigured = FocusController.isConfigured() }
-                        Spacer()
-                        StatusChip(ok: dndConfigured,
-                                   okText: L("已就绪"),
-                                   failText: L("未检测到快捷指令"))
-                    }
+                Section {
+                    PermissionRow(
+                        symbol: "wave.3.right",
+                        title: L("蓝牙"),
+                        detail: L("「耳机连接」要用它来连接和断开你选的设备"),
+                        state: bluetooth,
+                        request: {
+                            Permission.requestBluetooth {
+                                bluetooth = $0
+                                // 刚授权完，把之前没挂上的连接通知补上。
+                                if $0.isGranted { SwitchStore.shared.startBluetoothIfAllowed() }
+                            }
+                        },
+                        openSettings: { Permission.openSettings("Privacy_Bluetooth") })
+
+                    PermissionRow(
+                        symbol: "gearshape.2",
+                        title: L("自动化 · 系统事件"),
+                        detail: L("「黑暗模式」「自动隐藏程序坞」要通过系统事件来切换"),
+                        state: systemEvents,
+                        request: { Permission.requestAutomation(of: "com.apple.systemevents") { systemEvents = $0 } },
+                        openSettings: { Permission.openSettings("Privacy_Automation") })
+
+                    PermissionRow(
+                        symbol: "folder",
+                        title: L("自动化 · 访达"),
+                        detail: L("「清空废纸篓」，以及「隐藏所有窗口」时折叠访达的窗口"),
+                        state: finder,
+                        request: { Permission.requestAutomation(of: "com.apple.finder") { finder = $0 } },
+                        openSettings: { Permission.openSettings("Privacy_Automation") })
+
+                    PermissionRow(
+                        symbol: "keyboard",
+                        title: L("辅助功能"),
+                        detail: L("「锁定键盘」要用它来拦截键盘事件"),
+                        state: accessibility,
+                        request: {
+                            Permission.requestAccessibility()
+                            // 授权后系统会重启本 App 的辅助功能信任状态，隔一会儿再回读。
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                MainActor.assumeIsolated { accessibility = Permission.accessibility }
+                            }
+                        },
+                        openSettings: { Permission.openSettings("Privacy_Accessibility") })
                 }
 
                 Section(L("免密授权（可选）")) {
@@ -240,10 +279,54 @@ struct PermissionsPane: View {
             .formStyle(.grouped)
             .scrollContentBackground(.hidden)
         }
-        .onAppear {
-            dndConfigured = FocusController.isConfigured()
-            helperInstalled = HelperClient.shared.isInstalled
+        .onAppear(perform: reload)
+    }
+
+    private func reload() {
+        bluetooth = Permission.bluetooth
+        systemEvents = Permission.automation(of: "com.apple.systemevents")
+        finder = Permission.automation(of: "com.apple.finder")
+        accessibility = Permission.accessibility
+        helperInstalled = HelperClient.shared.isInstalled
+    }
+}
+
+/// 一条权限：名字、用来干什么、当前状态，以及**只在用户点击时**才会动的那个按钮。
+///
+/// 「还没问过」给「请求授权」，「问过被拒」只能给「打开系统设置」——
+/// 被拒之后再调请求 API 系统不会再弹，按钮留着只会让人以为坏了。
+private struct PermissionRow: View {
+    let symbol: String
+    let title: String
+    let detail: String
+    let state: Permission.State
+    let request: () -> Void
+    let openSettings: () -> Void
+
+    var body: some View {
+        HStack(spacing: 11) {
+            Image(systemName: symbol)
+                .font(.system(size: 14))
+                .foregroundStyle(state.isGranted ? SwitchHue.green : Color.secondary)
+                .frame(width: 20)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.system(size: 12.5, weight: .medium))
+                Text(detail).font(.system(size: 11)).foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 10)
+
+            switch state {
+            case .granted:
+                StatusChip(ok: true, okText: L("已授权"), failText: "")
+            case .notDetermined:
+                Button(L("请求授权"), action: request).controlSize(.small)
+            case .denied:
+                Button(L("打开系统设置"), action: openSettings).controlSize(.small)
+            }
         }
+        .padding(.vertical, 3)
     }
 }
 

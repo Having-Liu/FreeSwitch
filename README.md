@@ -5,7 +5,7 @@
 
 > Free & open-source menu-bar toggles for macOS — a clean-room reimplementation of One Switch's feature set, built on public system APIs.
 
-## 功能一览（24 个开关）
+## 功能一览（23 个开关）
 
 | 开关 | 说明 | 实现 |
 |------|------|------|
@@ -30,7 +30,6 @@
 | 清空废纸篓 | 清倒废纸篓 | Finder |
 | 清空剪贴板 | 清空剪贴板 | NSPasteboard |
 | 推出磁盘 | 推出所有外置/可推出卷 | NSWorkspace |
-| 勿扰 / 专注 | 一键切换专注（需一次性设置快捷指令） | Shortcuts `shortcuts run` |
 | Xcode 清理 | 删除 DerivedData | FileManager |
 | 屏幕分辨率 | 切换分辨率，多显示器每块屏单独子菜单 | CoreGraphics |
 
@@ -58,7 +57,7 @@
 每赋值一次就发一次 `objectWillChange`，SwiftUI 会把所有观察这个 store 的视图整棵作废重建——
 **包括关着的那个面板**：`MenuBarExtra(.window)` 的内容视图一直活着，不是关了就不算。
 `reconcile()` 每 5 秒调十来个 setter，无条件赋值就等于每 5 秒十几次全量重建，
-24 个磁贴连玻璃材质一起重算。
+二十多个磁贴连玻璃材质一起重算。
 
 实测（同一台机器，同样测法：取 `ps -o time=` 的差值）：
 
@@ -101,6 +100,26 @@ CoreAudio），不 fork 子进程；`publish()` 早就有「内容没变就不�
 - **顶边和左侧那两道 1px 高光别省**，它们是「玻璃有厚度」的唯一线索，去掉整面就发平。
 
 光晕颜色留给各 App 传自己的身份色（Dam 是青蓝，FreeSwitch 用图标上那两个蓝）。
+
+## 权限：用到了才请求
+
+原则是**没真用到就不要去碰**。只要碰一下 IOBluetooth、发一条 AppleEvent，系统就会把授权弹窗甩到用户脸上——
+而那时候他可能刚装上、一个开关都还没点过。
+
+所以每一项都有一个**不触发弹窗**的读法（`FreeSwitch/Support/Permissions.swift`）：
+
+| 权限 | 只读状态 | 触发弹窗 |
+|---|---|---|
+| 蓝牙 | `CBManager.authorization`（纯查询，不实例化 central） | 实例化一个 `CBCentralManager` |
+| 自动化 | `AEDeterminePermissionToAutomateTarget(…, askUserIfNeeded: false)` | 同一个调用传 `true` |
+| 辅助功能 | `AXIsProcessTrusted()` | `AXIsProcessTrustedWithOptions([prompt: true])` |
+
+几个要点：
+
+- **不要用「试着调一次、看结果对不对」来判断授权。** 试的那一下就把弹窗招出来了。
+- **启动时不挂蓝牙通知。** `BluetoothController.observeConnections` 会碰蓝牙，原来它在 `SwitchStore.init` 里无条件执行，等于每个新用户一启动就被问一次蓝牙——即使他根本不用「耳机连接」。现在只在**已授权**时挂；用户自己点了「耳机连接」或在权限页里授权之后，再由 `startBluetoothIfAllowed()` 补挂。
+- **自动化的返回码要分三态**：`noErr` 已授权 / `errAEEventWouldRequireUserConsent`(-1744) 还没问过 / `errAEEventNotPermitted`(-1743) 问过被拒。被拒之后再调请求 API 系统不会再弹，所以那种情况按钮要换成「打开系统设置」，留着「请求授权」只会让人以为坏了。
+- **辅助功能没有「没问过」和「被拒」的区别**，系统只告诉你信不信任，所以未授权一律按「可以再请求」处理。
 
 ## 多语言
 
@@ -175,7 +194,7 @@ CoreAudio），不 fork 子进程；`publish()` 早就有「内容没变就不�
 除了菜单栏面板，常用开关也可以直接加进 macOS 自带的控制中心（macOS 26+），执行仍然走本 App：
 
 - **带状态的开关**：深色模式、夜览、保持亮屏、低电量、麦克风静音、锁定键盘、显示隐藏文件 —— 控制中心里直接显示开/关，和面板双向同步。
-- **点按动作**：勿扰、锁定屏幕、屏幕清洁、清空废纸篓、Xcode 清理。
+- **点按动作**：锁定屏幕、屏幕清洁、清空废纸篓、Xcode 清理。
 
 添加方式：控制中心 › 编辑控件 › 从控件库里找 FreeSwitch。
 
@@ -190,7 +209,7 @@ CoreAudio），不 fork 子进程；`publish()` 早就有「内容没变就不�
 
 > **改控件时注意**：控制中心里**已经放置**的控件实例，绑定的是它被添加时的那个 intent。若之后改了该 kind 的模板类型（按钮 ↔ 开关）或换了 intent，旧实例会继续发送旧的通知——而那个名字通常已经没人监听了，于是**点击完全没反应，且不报任何错**。重装和重启控制中心都救不了，必须把控件**移除再重新添加**。所以同一个 kind 上不要反复换交互形态；开发期改了就记得重加一次再测。
 
-动作类控件（勿扰、锁定屏幕、屏幕清洁、清空废纸篓、Xcode 清理）点一下即执行，并带执行阶段反馈：常态 →「处理中…」→「已完成」（绿色）→ 五秒后回到常态。阶段存在 `phases.json`（与 `states.json` 同目录，schema 不同故分开）。扩展在发通知**之前**先自己写入 `running`，反馈才能在点下的瞬间出现；同时它会丢弃处理中的重复点击——控制中心本身是允许连点的。
+动作类控件（屏幕清洁、清空废纸篓、Xcode 清理）点一下即执行，并带执行阶段反馈：常态 →「处理中…」→「已完成」（绿色）→ 五秒后回到常态。阶段存在 `phases.json`（与 `states.json` 同目录，schema 不同故分开）。扩展在发通知**之前**先自己写入 `running`，反馈才能在点下的瞬间出现；同时它会丢弃处理中的重复点击——控制中心本身是允许连点的。
 
 > **控制中心的刷新是每 5 秒一次的节流，别把它当 bug 修。** 实测（面板打开、日志时间戳）：刷新请求会被立即响应，但**最多每 5 秒一次**，冷却期内的请求顺延到冷却结束——三次实测分别在 `05.85`、`10.87`、`15.88` 落地，间隔 5.02s / 5.01s。连发多次 `reloadAllControls()` 不会更快。
 >
@@ -232,7 +251,7 @@ NOTARY_PROFILE=freeswitch-notary ./scripts/notarize.sh
 ## 已知限制
 
 - **夜览 / 原彩**依赖私有框架 `CoreBrightness`，仅在支持的机型上可用；不同 macOS 版本行为可能变化。
-- **勿扰 / 专注**：现代 macOS 禁止第三方 App 直接切换「专注」（私有框架 `DoNotDisturb` 需 Apple 专属授权，实测第三方调用被 `donotdisturbd` 以 XPC 拒绝）。官方许可路径是「快捷指令」——在设置里新建名为 `FreeSwitch DND` 的快捷指令（动作：设定专注 → 勿扰 → 切换），即可一键触发。
+- **勿扰 / 专注已经删掉**。现代 macOS 禁止第三方 App 直接切换「专注」（私有框架 `DoNotDisturb` 需 Apple 专属授权，实测第三方调用被 `donotdisturbd` 以 XPC 拒绝）。唯一的官方路径是让用户自己去「快捷指令」建一个名为 `FreeSwitch DND` 的快捷指令，我们再 `shortcuts run` 它——为了一个开关要求用户先手工搭一条快捷指令，价值抵不过这个门槛，所以整条功能连同设置项一起移除了。控制中心里系统本来就有「专注模式」模块。
 - **耳机连接**用 IOBluetooth `openConnection/closeConnection`；需先在设置里选择目标设备，首次访问会请求蓝牙授权。
 - **低电量模式**需要管理员权限，切换时会弹出系统密码框。
 - **隐藏所有窗口**：**访达整个 App 藏不掉**。其它 App 全部隐藏后，系统必须有一个「当前 App」，于是它激活访达，而激活会取消隐藏。单独隐藏访达是成功的，改用 `hideOtherApplications` 也一样——这是 macOS 的行为，不是调用方式的问题。实现上分三轮收，每轮之前先激活 FreeSwitch 自己占住「当前 App」，能从「剩两三个」收敛到「只剩访达」。另外 `NSRunningApplication.hide()` 的**返回值不可信**（实测返回 `false`，一秒后那个 App 却确实隐藏了），所以不按返回值记账，真实状态一律按 `isHidden` 回读。

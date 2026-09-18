@@ -1926,58 +1926,6 @@
         }
       }
     },
-    "勿扰 / 专注": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Do Not Disturb"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "勿擾 / 專注"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "おやすみモード"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "방해금지 모드"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nicht stören"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ne pas déranger"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No molestar"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не беспокоить"
-          }
-        }
-      }
-    },
     "屏幕清洁": {
       "localizations": {
         "en": {
@@ -3326,318 +3274,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Загрузить сопряжённые устройства Bluetooth (нужно разрешение)"
-          }
-        }
-      }
-    },
-    "勿扰 / 专注（需一次性设置）": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Do Not Disturb (one-time setup required)"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "勿擾 / 專注（需一次性設定）"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "おやすみモード（初回のみ設定が必要）"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "방해금지 모드 (최초 1회 설정 필요)"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nicht stören (einmalige Einrichtung nötig)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ne pas déranger (configuration unique requise)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No molestar (requiere configuración inicial)"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не беспокоить (нужна разовая настройка)"
-          }
-        }
-      }
-    },
-    "macOS 不允许第三方 App 直接切换「专注」。请在「快捷指令」新建一个名为 “FreeSwitch DND” 的快捷指令，加入动作「设定专注 → 勿扰 → 切换」。之后点面板里的「勿扰 / 专注」即可一键切换。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS doesn’t let third-party apps toggle Focus directly. In Shortcuts, create a shortcut named “FreeSwitch DND” with the action Set Focus → Do Not Disturb → Toggle. Then use “Do Not Disturb” in the panel to toggle it."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS 不允許第三方 App 直接切換「專注」。請在「捷徑」新增一個名為 “FreeSwitch DND” 的捷徑，加入動作「設定專注 → 勿擾 → 切換」。之後點面板裡的「勿擾 / 專注」即可一鍵切換。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS はサードパーティ App から「集中モード」を直接切り替えることを許可していません。「ショートカット」で “FreeSwitch DND” という名前のショートカットを作り、アクション「集中モードを設定 → おやすみ → 切り替え」を追加してください。あとはパネルの「おやすみモード」でワンタップ切り替えできます。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS는 서드파티 앱이 집중 모드를 직접 전환하도록 허용하지 않습니다. ‘단축어’에서 “FreeSwitch DND”라는 단축어를 만들고 ‘집중 모드 설정 → 방해금지 → 전환’ 동작을 추가하세요. 그러면 패널의 ‘방해금지 모드’로 한 번에 전환할 수 있습니다."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS erlaubt Dritt-Apps nicht, „Fokus“ direkt umzuschalten. Erstelle in „Kurzbefehle“ einen Kurzbefehl namens „FreeSwitch DND“ mit der Aktion „Fokus einstellen → Nicht stören → Umschalten“. Danach schaltest du ihn über „Nicht stören“ im Panel mit einem Klick um."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS n’autorise pas les apps tierces à basculer « Concentration » directement. Dans Raccourcis, créez un raccourci nommé « FreeSwitch DND » avec l’action « Régler Concentration → Ne pas déranger → Basculer ». Ensuite, « Ne pas déranger » dans le panneau le bascule d’un clic."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS no permite que las apps de terceros cambien «Concentración» directamente. En Atajos, crea un atajo llamado «FreeSwitch DND» con la acción «Configurar Concentración → No molestar → Alternar». Después, «No molestar» en el panel lo alterna con un clic."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "macOS не позволяет сторонним приложениям напрямую переключать «Фокусирование». В «Быстрых командах» создайте команду с именем «FreeSwitch DND» и действием «Задать фокусирование → Не беспокоить → Переключить». После этого «Не беспокоить» на панели переключает её одним нажатием."
-          }
-        }
-      }
-    },
-    "打开快捷指令 App": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open Shortcuts"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "打開「捷徑」App"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "「ショートカット」を開く"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "단축어 앱 열기"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kurzbefehle öffnen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ouvrir Raccourcis"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abrir Atajos"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Открыть «Быстрые команды»"
-          }
-        }
-      }
-    },
-    "重新检测": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check again"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重新偵測"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "再確認"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다시 확인"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erneut prüfen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revérifier"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Volver a comprobar"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Проверить снова"
-          }
-        }
-      }
-    },
-    "已就绪": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ready"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已就緒"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "準備完了"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "준비됨"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bereit"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prêt"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Listo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Готово"
-          }
-        }
-      }
-    },
-    "未检测到快捷指令": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shortcut not found"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未偵測到捷徑"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ショートカットが見つかりません"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "단축어를 찾을 수 없음"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kurzbefehl nicht gefunden"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Raccourci introuvable"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Atajo no encontrado"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Быстрая команда не найдена"
           }
         }
       }
@@ -5930,58 +5566,6 @@
         }
       }
     },
-    "这些都是一次性设置，设好之后不再打扰": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "One-time setup — once it’s done, it stays out of your way."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "這些都是一次性設定，設好之後不再打擾。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "いずれも初回だけの設定です。済ませれば以後は邪魔しません。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "모두 최초 1회만 설정하면 되고, 이후에는 방해하지 않습니다."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Einmalige Einrichtung – danach stört nichts mehr."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configuration unique — une fois faite, on ne vous dérange plus."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configuración única: una vez hecha, no vuelve a molestarte."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Разовая настройка — после неё вас больше не побеспокоят."
-          }
-        }
-      }
-    },
     "拖进废纸篓清不干净，这里能一次清完并还原": {
       "localizations": {
         "en": {
@@ -6030,6 +5614,630 @@
           "stringUnit": {
             "state": "translated",
             "value": "Перетаскивания в корзину недостаточно — здесь всё удаляется и восстанавливается."
+          }
+        }
+      }
+    },
+    "用到哪项才需要哪项，没用到可以一直空着": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each one is only needed by the features that use it — leave the rest empty."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用到哪項才需要哪項，沒用到可以一直空著。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使う機能に必要なものだけで構いません。使わないものは空のままで大丈夫です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용하는 기능에 필요한 것만 있으면 됩니다. 쓰지 않는 항목은 비워 두어도 됩니다."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jede wird nur von den Funktionen gebraucht, die sie nutzen – der Rest darf leer bleiben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chacune n’est requise que par les fonctions qui l’utilisent ; laissez le reste vide."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada uno solo hace falta para las funciones que lo usan; el resto puede quedarse vacío."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Каждое нужно только тем функциям, которые его используют — остальные можно не выдавать."
+          }
+        }
+      }
+    },
+    "蓝牙": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "藍牙"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "블루투스"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth"
+          }
+        }
+      }
+    },
+    "「耳机连接」要用它来连接和断开你选的设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Headphones” uses it to connect and disconnect the device you picked."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「耳機連線」要用它來連接和中斷你選的裝置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「ヘッドフォン接続」が選んだデバイスの接続・解除に使います。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘헤드폰 연결’이 선택한 기기를 연결·해제하는 데 사용합니다."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Kopfhörer“ verbindet und trennt damit das gewählte Gerät."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Écouteurs » s’en sert pour connecter et déconnecter l’appareil choisi."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Auriculares» lo usa para conectar y desconectar el dispositivo elegido."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Наушники» использует его для подключения и отключения выбранного устройства."
+          }
+        }
+      }
+    },
+    "自动化 · 系统事件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automation · System Events"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化 · 系統事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オートメーション · システムイベント"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자동화 · 시스템 이벤트"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatisierung · Systemereignisse"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatisation · Événements système"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatización · Eventos del Sistema"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автоматизация · Системные события"
+          }
+        }
+      }
+    },
+    "「黑暗模式」「自动隐藏程序坞」要通过系统事件来切换": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Dark Mode” and “Auto-hide Dock” switch through System Events."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「深色模式」「自動隱藏 Dock」要透過系統事件來切換。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「ダークモード」「Dock を自動的に隠す」はシステムイベント経由で切り替えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘다크 모드’와 ‘Dock 자동 가리기’는 시스템 이벤트를 통해 전환합니다."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Dunkelmodus“ und „Dock automatisch ausblenden“ schalten über Systemereignisse."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Mode sombre » et « Masquer le Dock » passent par les Événements système."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Modo oscuro» y «Ocultar el Dock» se cambian mediante Eventos del Sistema."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Тёмный режим» и «Автоскрытие Dock» переключаются через Системные события."
+          }
+        }
+      }
+    },
+    "自动化 · 访达": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automation · Finder"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化 · Finder"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オートメーション · Finder"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자동화 · Finder"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatisierung · Finder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatisation · Finder"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatización · Finder"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автоматизация · Finder"
+          }
+        }
+      }
+    },
+    "「清空废纸篓」，以及「隐藏所有窗口」时折叠访达的窗口": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Empty Trash”, and collapsing Finder windows for “Hide All Windows”."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「清倒垃圾桶」，以及「隱藏所有視窗」時摺疊 Finder 的視窗。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「ゴミ箱を空にする」と、「すべてのウインドウを隠す」で Finder のウインドウをしまう処理。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘휴지통 비우기’, 그리고 ‘모든 윈도우 가리기’에서 Finder 윈도우를 접을 때."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Papierkorb leeren“ und das Einklappen der Finder-Fenster bei „Alle Fenster ausblenden“."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Vider la corbeille », et la réduction des fenêtres du Finder pour « Masquer toutes les fenêtres »."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Vaciar la papelera» y plegar las ventanas del Finder al «Ocultar todas las ventanas»."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Очистить корзину», а также сворачивание окон Finder при «Скрыть все окна»."
+          }
+        }
+      }
+    },
+    "辅助功能": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輔助使用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクセシビリティ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "손쉬운 사용"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedienungshilfen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibilité"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accesibilidad"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Универсальный доступ"
+          }
+        }
+      }
+    },
+    "「锁定键盘」要用它来拦截键盘事件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Lock Keyboard” uses it to intercept key events."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「鎖定鍵盤」要用它來攔截鍵盤事件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「キーボードをロック」がキー入力の横取りに使います。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘키보드 잠금’이 키 입력을 가로채는 데 사용합니다."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Tastatur sperren“ fängt damit Tastenereignisse ab."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Verrouiller le clavier » s’en sert pour intercepter les touches."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Bloquear teclado» lo usa para interceptar las pulsaciones."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Заблокировать клавиатуру» перехватывает с его помощью нажатия клавиш."
+          }
+        }
+      }
+    },
+    "已授权": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Granted"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已授權"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "許可済み"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "허용됨"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erteilt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accordée"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concedido"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выдано"
+          }
+        }
+      }
+    },
+    "请求授权": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請求授權"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "許可を求める"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "권한 요청"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anfragen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demander"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solicitar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запросить"
+          }
+        }
+      }
+    },
+    "打开系统设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開系統設定"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システム設定を開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템 설정 열기"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systemeinstellungen öffnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir Réglages Système"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes del Sistema"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть Системные настройки"
           }
         }
       }

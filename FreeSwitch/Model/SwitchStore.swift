@@ -13,7 +13,7 @@ struct SwitchItem: Identifiable {
     let title: String
     /// SF Symbols 的符号名。挑选原则：优先用 macOS 在同一功能上自己用的图形
     /// （外观是半圆、专注是月亮、低电量是黄电池），让人一眼认出来而不是去猜；
-    /// 并保证 21 个之间两两不撞——曾经「黑暗模式」和「勿扰」是两个月亮。
+    /// 并保证彼此之间两两不撞——曾经「黑暗模式」和已经删掉的「勿扰」是两个月亮。
     /// 每个名字都在本机 CoreGlyphs 的 name_availability.plist 里核对过确实存在。
     let symbol: String
     let kind: SwitchKind
@@ -98,7 +98,6 @@ enum SwitchCatalog {
 
         // 专注与清洁
         // 系统的专注就是月亮；moon.zzz 更像睡眠。月亮现在只归它一个。
-        SwitchItem(id: "doNotDisturb", title: "勿扰 / 专注", symbol: "moon.fill",                 kind: .action, defaultGroup: "focus", hue: SwitchHue.violet,  span: 1),
         // sparkles 如今常被读成 AI；泡泡加闪光才是「清洁」。
         SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "bubbles.and.sparkles.fill", kind: .action, defaultGroup: "focus", hue: SwitchHue.cyan,    span: 1),
         // SF 里没有「键盘+锁」，叠一个锁角标。
@@ -165,10 +164,11 @@ final class SwitchStore: ObservableObject {
 
         // 耳机连上或断开时，连接状态和电量跟着刷新。
         // 这曾是面板上那个手动「刷新」按钮唯一真正有用的场景——其余状态早已由通知和定时核对覆盖。
-        BluetoothController.observeConnections { [weak self] in
-            self?.loadHeadphoneStatus()
-            self?.publish()
-        }
+        //
+        // **只在蓝牙已经授权时才挂。** 注册 IOBluetooth 的通知会碰蓝牙，
+        // 那一下就会把系统授权弹窗甩到用户脸上——而他可能刚装上、一个开关都还没点过。
+        // 没授权就先不挂；等用户自己去点「耳机连接」或在权限页里请求，再补挂（见 startBluetoothIfAllowed）。
+        startBluetoothIfAllowed()
 
         // 兜底：夜览、原彩这些在系统设置里也能改，却没有好用的通知。
         // 定期只做“进程内、不 fork 子进程”的廉价读取核对一遍。
@@ -355,8 +355,22 @@ final class SwitchStore: ObservableObject {
         setOn("hideWindows", WindowController.shared.isHiding)
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
 
-        loadHeadphoneStatus()
+        // 同理：没授权就别去读耳机状态，读一下就等于替用户按下了那个弹窗。
+        if Permission.bluetooth.isGranted { loadHeadphoneStatus() }
         publish(force: true)
+    }
+
+    private var bluetoothObserving = false
+
+    /// 蓝牙已授权就挂上连接通知；没授权什么都不做，也**不会**触发弹窗。
+    /// 可以重复调用——用户在权限页授权完、或第一次点「耳机连接」之后再调一次就补上了。
+    func startBluetoothIfAllowed() {
+        guard !bluetoothObserving, Permission.bluetooth.isGranted else { return }
+        bluetoothObserving = true
+        BluetoothController.observeConnections { [weak self] in
+            self?.loadHeadphoneStatus()
+            self?.publish()
+        }
     }
 
     /// 有效目标耳机：优先设置里手动选的，否则自动识别一个已配对音频设备。
@@ -459,6 +473,9 @@ final class SwitchStore: ObservableObject {
         case "showHidden":   SystemController.setShowHiddenFiles(on); return on
         case "lockKeyboard": InputBlocker.shared.setKeyboardLocked(on); return InputBlocker.shared.isKeyboardLocked
         case "connectHeadphones":
+            // 用户自己点了这个开关——从这一刻起碰蓝牙是他要求的，弹窗也就不突兀了。
+            // 顺手把连接通知补挂上（首次授权前它一直没挂）。
+            defer { startBluetoothIfAllowed() }
             guard let device = effectiveHeadphone() else {
                 AudioController.connectHeadphones() // 没有已配对音频设备时打开蓝牙设置
                 return false
@@ -491,8 +508,6 @@ final class SwitchStore: ObservableObject {
         case "lockScreen":        PowerController.shared.lockScreen()
         case "screensaver":       PowerController.shared.startScreensaver()
         case "playMusic":         AudioController.playPause()
-        case "doNotDisturb":
-            if FocusController.isConfigured() { FocusController.toggle() } else { FocusController.openShortcutsApp() }
         case "emptyTrash":        SystemController.emptyTrash()
         case "emptyClipboard":    SystemController.emptyClipboard()
         case "ejectDisk":         SystemController.ejectAllRemovableDisks()

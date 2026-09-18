@@ -1,6 +1,6 @@
 import AppKit
 
-/// 系统杂项：隐藏桌面、显示隐藏文件、清空废纸篓、清空剪贴板、推出磁盘、Xcode 清理、勿扰。
+/// 系统杂项：隐藏桌面、显示隐藏文件、清空废纸篓、清空剪贴板、推出磁盘、Xcode 清理。
 enum SystemController {
 
     // MARK: 隐藏桌面图标
@@ -109,11 +109,6 @@ enum SystemController {
             if (try? fileManager.removeItem(atPath: path)) != nil { count += 1 }
         }
         return count
-    }
-
-    // MARK: 勿扰 / 专注（回退入口，真正的开关走 FocusBridge）
-    static func openFocusSettings() {
-        Shell.run("/usr/bin/open", ["x-apple.systempreferences:com.apple.Focus-Settings.extension"])
     }
 
     // MARK: 低电量模式
