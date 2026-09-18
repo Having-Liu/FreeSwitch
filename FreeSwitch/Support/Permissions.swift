@@ -68,38 +68,83 @@ enum Permission {
     ///  - `noErr`                            已授权
     ///  - `errAEEventWouldRequireUserConsent`(-1744) 还没问过
     ///  - `errAEEventNotPermitted`           (-1743) 问过被拒
+    /// **目标没在跑时这个 API 什么也答不了。**
+    ///
+    /// 「系统事件」是个按需启动的后台 agent，平时根本不在进程列表里；这时查询返回
+    /// `procNotFound`(-600)，既读不出授权状态，`askUserIfNeeded: true` 也弹不出授权框——
+    /// 这正是「点了请求授权没反应」的原因（实测：System Events 没在跑 → -600，
+    /// 运行中的访达 → 0）。
+    ///
+    /// 所以 -600 不能当成任何一种结论，而要退回上一次**确定过**的答案。
+    /// 否则同一项会随着目标 App 的起落在「已授权」和「请求授权」之间来回跳。
     static func automation(of bundleID: String) -> State {
         var target = AEAddressDesc()
         let data = Array(bundleID.utf8)
         guard AECreateDesc(typeApplicationBundleID, data, data.count, &target) == noErr else {
-            return .notDetermined
+            return remembered(bundleID) ?? .notDetermined
         }
         defer { AEDisposeDesc(&target) }
 
-        // 注意 -600（procNotFound）：目标 App 没在跑时就是这个码，不能当成「被拒」。
-        // 实测 com.apple.Music 没启动时 wildcard 查询返回 -600，而运行中的访达/系统事件返回 0。
         switch AEDeterminePermissionToAutomateTarget(&target, typeWildCard, typeWildCard, false) {
-        case noErr:                              return .granted
-        case OSStatus(errAEEventNotPermitted):   return .denied
-        default:                                 return .notDetermined
+        case noErr:
+            remember(.granted, for: bundleID)
+            return .granted
+        case OSStatus(errAEEventNotPermitted):
+            remember(.denied, for: bundleID)
+            return .denied
+        case OSStatus(procNotFound):
+            return remembered(bundleID) ?? .notDetermined
+        default:
+            return .notDetermined
         }
     }
 
     /// 触发自动化的系统弹窗。只应该由用户的点击调用。
-    /// 这个调用会阻塞到用户点完，所以扔到后台线程去。
+    ///
+    /// 这里**不能**只调 `AEDeterminePermissionToAutomateTarget(…, askUserIfNeeded: true)`：
+    /// 目标没在跑时它直接返回 -600，按钮按下去毫无反应。
+    /// 改成发一条最无害的 AppleScript——脚本引擎会顺手把目标拉起来，
+    /// TCC 的授权框也就跟着出现了。执行会阻塞到用户点完，所以扔到后台线程。
     static func requestAutomation(of bundleID: String,
                                   _ completion: @escaping @MainActor (State) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
-            var target = AEAddressDesc()
-            let data = Array(bundleID.utf8)
-            if AECreateDesc(typeApplicationBundleID, data, data.count, &target) == noErr {
-                _ = AEDeterminePermissionToAutomateTarget(&target, typeWildCard, typeWildCard, true)
-                AEDisposeDesc(&target)
+            let script = NSAppleScript(source: "tell application id \"\(bundleID)\" to return name")
+            var errorInfo: NSDictionary?
+            let output = script?.executeAndReturnError(&errorInfo)
+
+            // 结论直接从这一次的执行结果得出，**不要**回头再查一次
+            // `AEDeterminePermissionToAutomateTarget`：像系统事件这样的后台 agent
+            // 服务完这条事件就立刻退出了，再查只会拿到 -600，于是刚授权完按钮还是「请求授权」。
+            // 脚本跑通了本身就是「已授权」的铁证。
+            let state: State
+            if let code = (errorInfo?["NSAppleScriptErrorNumber"] as? NSNumber)?.intValue {
+                state = code == AutomationPermission.notAuthorized ? .denied : .notDetermined
+            } else if output != nil {
+                state = .granted
+            } else {
+                state = .notDetermined
             }
+
             DispatchQueue.main.async {
-                MainActor.assumeIsolated { completion(automation(of: bundleID)) }
+                MainActor.assumeIsolated {
+                    if state != .notDetermined { remember(state, for: bundleID) }
+                    completion(state)
+                }
             }
         }
+    }
+
+    // MARK: 记住上一次确定过的答案
+
+    private static func key(_ bundleID: String) -> String { "automationState." + bundleID }
+
+    private static func remember(_ state: State, for bundleID: String) {
+        UserDefaults.standard.set(state == .granted, forKey: key(bundleID))
+    }
+
+    private static func remembered(_ bundleID: String) -> State? {
+        guard let granted = UserDefaults.standard.object(forKey: key(bundleID)) as? Bool else { return nil }
+        return granted ? .granted : .denied
     }
 
     // MARK: 辅助功能（锁定键盘要用）
