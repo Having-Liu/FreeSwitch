@@ -66,6 +66,6 @@ enum ResolutionController {
                 return screen.localizedName
             }
         }
-        return "显示器"
+        return L("显示器")
     }
 }

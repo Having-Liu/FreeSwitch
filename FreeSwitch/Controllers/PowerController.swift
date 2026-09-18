@@ -40,6 +40,7 @@ final class PowerController {
                 let result = IOPMAssertionCreateWithName(
                     kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString,
                     IOPMAssertionLevel(kIOPMAssertionLevelOn),
+                    // 不本地化：这是 `pmset -g assertions` 里显示的诊断标识，不是界面文案。
                     "FreeSwitch 保持亮屏" as CFString,
                     &id
                 )

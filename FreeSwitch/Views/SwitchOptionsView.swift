@@ -53,7 +53,7 @@ struct KeepAwakeOptions: View {
             .controlSize(.small)
 
             if PowerController.shared.keepAwake, let left = PowerController.shared.remainingMinutes {
-                Text("还剩 \(left) 分钟")
+                Text(L("还剩 %lld 分钟", left))
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
             }
@@ -88,10 +88,10 @@ struct HeadphoneOptions: View {
                     .font(.system(size: 21))
                     .foregroundStyle(connected ? SwitchHue.cyan : Color.secondary)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(item?.detail ?? "未选择设备")
+                    Text(item?.detail ?? L("未选择设备"))
                         .font(.system(size: 12, weight: .medium))
                         .lineLimit(1)
-                    Text(connected ? "已连接" : "未连接")
+                    Text(connected ? L("已连接") : L("未连接"))
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
                 }
@@ -104,7 +104,7 @@ struct HeadphoneOptions: View {
 
             Divider()
 
-            Button(connected ? "断开连接" : "连接") {
+            Button(connected ? L("断开连接") : L("连接")) {
                 store.setSwitch("connectHeadphones", on: !connected)
             }
             .controlSize(.small)

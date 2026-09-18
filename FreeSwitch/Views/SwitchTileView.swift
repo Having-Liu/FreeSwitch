@@ -87,7 +87,7 @@ struct SwitchTileView: View {
         }
         .buttonStyle(.plain)
         .disabled(!item.isSupported)
-        .help(item.isSupported ? item.title : "\(item.title)（当前设备不支持）")
+        .help(item.isSupported ? item.localizedTitle : L("%@（当前设备不支持）", item.localizedTitle))
         .animation(.easeInOut(duration: 0.18), value: isOn)
         .animation(.easeInOut(duration: 0.18), value: phase)
     }
@@ -101,9 +101,9 @@ struct SwitchTileView: View {
     }
     private var label: String {
         switch phase {
-        case "running": return "处理中…"
-        case "done":    return "已完成"
-        default:        return item.title
+        case "running": return L("处理中…")
+        case "done":    return L("已完成")
+        default:        return item.localizedTitle
         }
     }
 }
@@ -129,7 +129,7 @@ struct WideTileView: View {
                     SwitchIcon(item: item, isOn: isOn, size: 19)
                         .frame(width: 22)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text(item.title)
+                        Text(item.localizedTitle)
                             .font(.system(size: 10.5))
                             .lineLimit(1)
                         if let detail = item.detail {

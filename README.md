@@ -50,6 +50,37 @@
 - macOS 14.6+
 - Xcode 26+
 
+## 多语言
+
+界面共 9 种语言：简体中文（源语言）、English、繁體中文、日本語、한국어、Deutsch、Français、Español、Русский。
+
+**字符串的键就是中文原文**，源语言是 `zh-Hans`，所以中文那份不用再抄一遍——改中文原文等于改键（也就等于让那条译文失配，记得同步改 `Localizable.xcstrings`）。
+
+两份字符串目录，各归各的 bundle：
+
+| 文件 | 属于 | 装进 |
+|---|---|---|
+| `FreeSwitch/Localizable.xcstrings` | 主 App（自动同步文件夹，无需登记） | `FreeSwitch.app/Contents/Resources/<lang>.lproj` |
+| `Controls/Localizable.xcstrings` | 控制中心扩展（要在 pbxproj 里显式登记到它的 Resources 阶段） | `FreeSwitchControls.appex/Contents/Resources/<lang>.lproj` |
+
+扩展是独立 bundle，查表走的是它自己的 `Bundle.main`，读不到主 App 那份——所以控件名必须在扩展那份目录里再写一遍。
+
+**什么时候需要 `L("…")`**（`FreeSwitch/Support/Localized.swift`）：
+
+- SwiftUI 的 `Text("中文")`、`Label("中文", systemImage:)`、`.help("中文")` 收的是 `LocalizedStringKey`，**字面量会自动查表**，不用套。
+- 以下三种**不会**自动查表，必须显式取词：
+  - AppKit：`NSAlert.messageText` / `informativeText` / `addButton(withTitle:)` 都是普通 `String`；
+  - 文案先存进变量再交给界面：`Text(item.title)` 不查表（所以有 `SwitchItem.localizedTitle`）；
+  - 三元和空合并：`Text(connected ? "已连接" : "未连接")`、`Text(x ?? "未选择设备")` 会落到 `StringProtocol` 重载上。
+
+几个踩过的坑：
+
+- **`LocalizedStringResource(stringLiteral:)` 不查表**，它的语义是「就用这个字面量」。控件的 `.displayName()` 要写成 `LocalizedStringResource(String.LocalizationValue(name))`。
+- **本地化字面量里别写 Swift 插值**。`Text("剩 \(n) 分")` 的键长得跟源码不一样，对不上表；统一改成显式的 `%lld` / `%@` 占位，键就是可见、可核对的一串文字。
+- **别在本地化字面量里用 `\` 行接续**。接续会让「源码里的文本」和「运行时的键」差一截，翻译静默失配。
+- **默认分组名要按「和默认名一模一样」来判断是否本地化**，光判断空字符串不够：分组是建组时把默认名**存进偏好**的，老用户存的就是中文原文，只看空值的话他们永远看不到译文。
+- `IOPMAssertionCreateWithName` 的名字**不本地化**——那是 `pmset -g assertions` 里的诊断标识，不是界面文案。
+
 ## 构建安装
 
 ```bash

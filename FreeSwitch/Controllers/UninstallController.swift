@@ -23,8 +23,8 @@ enum UninstallController {
     static func confirmAndUninstall() {
         let alert = NSAlert()
         alert.alertStyle = .critical
-        alert.messageText = "彻底卸载 FreeSwitch？"
-        alert.informativeText = """
+        alert.messageText = L("彻底卸载 FreeSwitch？")
+        alert.informativeText = L("""
         会删除并还原下面这些东西：
 
         • FreeSwitch.app 本身
@@ -41,9 +41,9 @@ enum UninstallController {
         只要它们还在那儿，系统就会为它们把扩展的容器重新建出来。
 
         这一步不可撤销。卸载开始后 FreeSwitch 会立即退出。
-        """
-        alert.addButton(withTitle: "彻底卸载")
-        alert.addButton(withTitle: "取消")
+        """)
+        alert.addButton(withTitle: L("彻底卸载"))
+        alert.addButton(withTitle: L("取消"))
         alert.buttons.first?.hasDestructiveAction = true
 
         NSApp.setActivationPolicy(.regular)
@@ -67,8 +67,8 @@ enum UninstallController {
         guard launchCleanupScript(verifiedEmpty: verifiedEmpty) else {
             let alert = NSAlert()
             alert.alertStyle = .warning
-            alert.messageText = "没能启动卸载脚本"
-            alert.informativeText = "App 包里缺少 uninstall.sh，文件和设置没有被删除。请在终端运行项目里的 scripts/uninstall.sh 完成卸载。"
+            alert.messageText = L("没能启动卸载脚本")
+            alert.informativeText = L("App 包里缺少 uninstall.sh，文件和设置没有被删除。请在终端运行项目里的 scripts/uninstall.sh 完成卸载。")
             alert.runModal()
             return
         }

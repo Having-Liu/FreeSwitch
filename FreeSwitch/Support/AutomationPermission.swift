@@ -19,17 +19,16 @@ enum AutomationPermission {
         explained = true
 
         let alert = NSAlert()
-        alert.messageText = "这个开关需要「自动化」权限"
-        alert.informativeText = """
-        黑暗模式、自动隐藏程序坞、清空废纸篓这几个开关，要通过「系统事件」或「访达」来执行。\
-        macOS 目前不允许 FreeSwitch 这么做，所以刚才那次点击没有产生任何效果。
+        alert.messageText = L("这个开关需要「自动化」权限")
+        alert.informativeText = L("""
+        黑暗模式、自动隐藏程序坞、清空废纸篓这几个开关，要通过「系统事件」或「访达」来执行。macOS 目前不允许 FreeSwitch 这么做，所以刚才那次点击没有产生任何效果。
 
         打开「系统设置 › 隐私与安全性 › 自动化」，把 FreeSwitch 下面的「系统事件」和「访达」打开即可。
 
         （彻底卸载会重置隐私授权，重装后需要重新授权一次。）
-        """
-        alert.addButton(withTitle: "打开设置")
-        alert.addButton(withTitle: "以后再说")
+        """)
+        alert.addButton(withTitle: L("打开设置"))
+        alert.addButton(withTitle: L("以后再说"))
 
         NSApp.activate(ignoringOtherApps: true)
         guard alert.runModal() == .alertFirstButtonReturn else { return }

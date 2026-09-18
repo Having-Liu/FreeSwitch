@@ -148,6 +148,12 @@ struct FSPhaseProvider: ControlValueProvider {
     }
 }
 
+/// 取一条本地化文案。扩展是独立 bundle，有自己的 Controls/Localizable.xcstrings，
+/// 查表走的是扩展自己的 Bundle.main，和主 App 那份互不相干。
+/// 键就是中文原文（源语言 zh-Hans）。字面量交给 `Label("中文", …)` 会自动查表，
+/// 需要这个函数的是「文案存在变量里」的情况——控件名就是这样从 fsToggle/fsButton 传进来的。
+private func L(_ key: String) -> String { String(localized: String.LocalizationValue(key)) }
+
 /// 动作控件的三种面孔：常态、处理中、已完成。
 private struct FSActionLabel: View {
     let phase: String
@@ -157,7 +163,7 @@ private struct FSActionLabel: View {
         switch phase {
         case "running": Label("处理中…", systemImage: "hourglass")
         case "done":    Label("已完成", systemImage: "checkmark.circle.fill")
-        default:        Label(name, systemImage: symbol)
+        default:        Label(L(name), systemImage: symbol)
         }
     }
 }
@@ -175,16 +181,16 @@ private func fsButton(id: String, name: String, symbol: String) -> some ControlW
         }
         .tint(phase == "done" ? Color.green : nil)
     }
-    .displayName(LocalizedStringResource(stringLiteral: name))
+    .displayName(LocalizedStringResource(String.LocalizationValue(name)))
 }
 
 private func fsToggle(id: String, name: String, symbol: String) -> some ControlWidgetConfiguration {
     StaticControlConfiguration(kind: "com.freeswitch.FreeSwitch.control." + id, provider: FSToggleProvider(id: id)) { isOn in
         ControlWidgetToggle(isOn: isOn, action: SetSwitchIntent(id)) {
-            Label(name, systemImage: symbol)
+            Label(L(name), systemImage: symbol)
         }
     }
-    .displayName(LocalizedStringResource(stringLiteral: name))
+    .displayName(LocalizedStringResource(String.LocalizationValue(name)))
 }
 
 struct FSDarkMode: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "darkMode", name: "深色模式", symbol: "circle.lefthalf.filled") } }

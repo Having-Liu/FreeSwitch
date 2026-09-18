@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		000000000000000161000000 /* FreeSwitchControls.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 000000000000000000000220 /* FreeSwitchControls.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		000000000000000221000000 /* FreeSwitchControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000230 /* FreeSwitchControls.swift */; };
+		000000000000000241000000 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000233 /* Localizable.xcstrings */; };
 		FCF03FFA305D0F80007DAAB4 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = FCF03FF9305D0F80007DAAB4 /* AppIcon.icon */; };
 		FCF03FFB305D0F80007DAAB4 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = FCF03FF9305D0F80007DAAB4 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
@@ -41,6 +42,7 @@
 		000000000000000000000230 /* FreeSwitchControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeSwitchControls.swift; sourceTree = "<group>"; };
 		000000000000000000000231 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		000000000000000000000232 /* FreeSwitchControls.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FreeSwitchControls.entitlements; sourceTree = "<group>"; };
+		000000000000000000000233 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		FCF03FF9305D0F80007DAAB4 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -82,6 +84,7 @@
 				000000000000000000000230 /* FreeSwitchControls.swift */,
 				000000000000000000000231 /* Info.plist */,
 				000000000000000000000232 /* FreeSwitchControls.entitlements */,
+				000000000000000000000233 /* Localizable.xcstrings */,
 			);
 			path = Controls;
 			sourceTree = "<group>";
@@ -152,11 +155,19 @@
 				};
 			};
 			buildConfigurationList = 000000000000000010000000 /* Build configuration list for PBXProject "FreeSwitch" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
+				"zh-Hant",
+				ja,
+				ko,
+				de,
+				fr,
+				es,
+				ru,
 			);
 			mainGroup = 000000000000000000000001;
 			minimizedProjectReferenceProxies = 1;
@@ -182,6 +193,7 @@
 			isa = PBXResourcesBuildPhase;
 			files = (
 				FCF03FFA305D0F80007DAAB4 /* AppIcon.icon in Resources */,
+				000000000000000241000000 /* Localizable.xcstrings in Resources */,
 			);
 		};
 /* End PBXResourcesBuildPhase section */

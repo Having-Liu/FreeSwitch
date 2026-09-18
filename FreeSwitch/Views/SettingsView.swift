@@ -153,7 +153,7 @@ struct SettingsView: View {
             // 和面板用同一个图标组件，两处的图形、颜色、角标保持一致。
             SwitchIcon(item: item, isOn: false, size: 14)
                 .frame(width: 22)
-            Text(item.title)
+            Text(item.localizedTitle)
                 .frame(width: 120, alignment: .leading)
 
             Spacer()
@@ -240,8 +240,8 @@ struct HotkeyRecorderView: View {
     }
 
     private var label: String {
-        if recording { return "按下…" }
-        return prefs.hotkeys[id]?.display ?? "未设置"
+        if recording { return L("按下…") }
+        return prefs.hotkeys[id]?.display ?? L("未设置")
     }
 
     private func toggle() { recording ? stop() : start() }

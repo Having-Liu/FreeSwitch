@@ -33,6 +33,14 @@ struct SwitchItem: Identifiable {
     var isSupported: Bool = true
     var detail: String? = nil   // 宽磁贴上的当前值（剩余时长、电量、分辨率）
     var gauge: Double? = nil    // 0…1，底边量规；只有真有量可报的开关才给
+
+    /// 界面上显示的标题。
+    ///
+    /// `title` 存的是中文原文，它同时也是字符串目录（Localizable.xcstrings）里的键——
+    /// 源语言就是简体中文，所以中文那份不需要再写一遍译文。
+    /// 注意 `Text("中文字面量")` 会自动走本地化（参数是 LocalizedStringKey），
+    /// 但 `Text(someString)` 不会，所以凡是把 title 交给界面的地方都得用这个。
+    var localizedTitle: String { String(localized: String.LocalizationValue(title)) }
 }
 
 /// 全部开关的静态目录。按分区成组——21 个一字排开时谁也扫不出信息。
@@ -319,12 +327,12 @@ final class SwitchStore: ObservableObject {
 
         setOn("keepAwake", PowerController.shared.keepAwake)
         if PowerController.shared.keepAwake {
-            var text = PowerController.shared.remainingMinutes.map { "剩 \($0) 分" } ?? "一直亮屏"
-            if PowerController.shared.clamshell { text += " · 合盖" }
+            var text = PowerController.shared.remainingMinutes.map { L("剩 %lld 分", $0) } ?? L("一直亮屏")
+            if PowerController.shared.clamshell { text += L(" · 合盖") }
             setDetail("keepAwake", text)
             setGauge("keepAwake", PowerController.shared.progress)
         } else {
-            setDetail("keepAwake", "已关闭")
+            setDetail("keepAwake", L("已关闭"))
             setGauge("keepAwake", nil)
         }
         setFromSystem("lowPowerMode", SystemController.lowPowerModeEnabled())
@@ -352,13 +360,13 @@ final class SwitchStore: ObservableObject {
     func loadHeadphoneStatus() {
         guard let device = effectiveHeadphone() else {
             setOn("connectHeadphones", false)
-            setDetail("connectHeadphones", "未选择设备")
+            setDetail("connectHeadphones", L("未选择设备"))
             setGauge("connectHeadphones", nil)
             return
         }
         let connected = BluetoothController.isConnected(device.id)
         setOn("connectHeadphones", connected)
-        setDetail("connectHeadphones", connected ? device.name : "未连接")
+        setDetail("connectHeadphones", connected ? device.name : L("未连接"))
         setGauge("connectHeadphones", nil)
         guard connected else { return }
         let address = device.id
@@ -450,7 +458,7 @@ final class SwitchStore: ObservableObject {
             }
             let address = device.id
             let name = device.name
-            if on { setDetail("connectHeadphones", "连接中…") }
+            if on { setDetail("connectHeadphones", L("连接中…")) }
             // openConnection 会阻塞（设备在盒里时等到超时），放后台执行，避免卡住菜单。
             Task { [weak self] in
                 await Task.detached { BluetoothController.setConnected(address, on) }.value
