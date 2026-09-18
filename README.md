@@ -5,7 +5,7 @@
 
 > Free & open-source menu-bar toggles for macOS — a clean-room reimplementation of One Switch's feature set, built on public system APIs.
 
-## 功能一览（21 个开关）
+## 功能一览（24 个开关）
 
 | 开关 | 说明 | 实现 |
 |------|------|------|
@@ -17,6 +17,9 @@
 | 麦克风静音 | 静音默认输入设备（不支持 mute 的设备回退为输入音量置 0） | CoreAudio |
 | 隐藏桌面 | 隐藏/显示桌面图标 | `defaults` + 重启 Finder |
 | 显示隐藏文件 | 访达显示隐藏文件 | `defaults` + 重启 Finder |
+| 自动隐藏程序坞 | 切换程序坞自动隐藏 | System Events（需“自动化”授权；不重启程序坞） |
+| 隐藏所有窗口 | 一键隐藏所有 App 的窗口，再点一次恢复 | NSRunningApplication hide/unhide（无需任何授权） |
+| 隐藏小组件 | 隐藏桌面与台前调度里的小组件 | `com.apple.WindowManager` 偏好（WindowManager 立即生效，无需重启） |
 | 锁定键盘 | 屏蔽全部键盘输入 | CGEventTap（需“辅助功能”授权） |
 | 屏幕清洁 | 锁定输入 + 每块屏纯黑遮罩，安心擦屏；只能点屏上按钮退出（擦键盘可能误触 Esc） | CGEventTap + 遮罩窗口 |
 | 显示器休眠 | 立即黑屏 | `pmset displaysleepnow` |
@@ -72,6 +75,7 @@
 - **删扩展容器前，先注销扩展、结束其进程、重启 chronod**，否则控制中心会把扩展重新拉起，容器又被建出来。
 - **由 App 发起的删除，对扩展的沙盒容器等会静默失败**（同一个容器，开发用的 shell 却能删）。删不掉的交给访达移到废纸篓；仍有残留会发通知并在访达里标出来，过程记录在 `/tmp/FreeSwitch-uninstall.log`。
 - 后台项登记（`sfltool dumpbtm`）里的旧记录不做处理：注销后它们只是停用的记录，唯一的清除手段 `sfltool resetbtm` 会重置所有 App 的后台项授权。
+- **沙盒容器的根目录由 App 自己删不掉**（同一个目录，终端却删得掉，差别在发起者的身份）。删不掉时会清空里面的数据，只留一个不含任何内容的空壳，并如实报出来。曾试过交给访达移废纸篓——访达同样没权限，还会留下一个一直转的进度窗，已经废弃。
 
 ## 系统控制中心
 
@@ -138,6 +142,8 @@ NOTARY_PROFILE=freeswitch-notary ./scripts/notarize.sh
 - **勿扰 / 专注**：现代 macOS 禁止第三方 App 直接切换「专注」（私有框架 `DoNotDisturb` 需 Apple 专属授权，实测第三方调用被 `donotdisturbd` 以 XPC 拒绝）。官方许可路径是「快捷指令」——在设置里新建名为 `FreeSwitch DND` 的快捷指令（动作：设定专注 → 勿扰 → 切换），即可一键触发。
 - **耳机连接**用 IOBluetooth `openConnection/closeConnection`；需先在设置里选择目标设备，首次访问会请求蓝牙授权。
 - **低电量模式**需要管理员权限，切换时会弹出系统密码框。
+- **隐藏所有窗口**：**访达的窗口藏不掉**。其它 App 全部隐藏后，系统必须有一个「当前 App」，于是它激活访达，而激活会取消隐藏。单独隐藏访达是成功的，改用 `hideOtherApplications` 也一样——这是 macOS 的行为，不是调用方式的问题。实现上分三轮收，每轮之前先激活 FreeSwitch 自己占住「当前 App」，能从「剩两三个」收敛到「只剩访达」。另外 `NSRunningApplication.hide()` 的**返回值不可信**（实测返回 `false`，一秒后那个 App 却确实隐藏了），所以不按返回值记账，真实状态一律按 `isHidden` 回读。
+- **彻底卸载会重置隐私授权**：重装之后「自动化」需要重新授权，否则黑暗模式、自动隐藏程序坞、清空废纸篓会**静默失效**。现在遇到这种情况会弹一次说明，并可直接跳到设置页。
 - **免密授权（可选）**：默认切换「合盖不休眠 / 低电量模式」每次要输一次管理员密码。可在设置里安装一个内置的特权助手（`SMAppService` 后台守护进程，随 App 打包、非单独下载），**一次授权后即免密**；助手只接受签名匹配的 FreeSwitch 调用，随时可在设置里移除。安装前 App 会先弹一段说明再触发系统授权。
 - **合盖也不休眠**用 `pmset -a disablesleep`（需管理员密码，每次开/关时弹一次；改定时不重复弹）。⚠️ 开启后合上盖子电脑**不会休眠**，装在包里会持续发热、耗电——**强烈建议配合定时**（到点自动关）。若 App 崩溃/强退时它还开着，下次启动会自动恢复系统设置。它做的是 Amphetamine「闭屏模式」那件事，但无需额外下载 Enhancer 之类的组件。
 

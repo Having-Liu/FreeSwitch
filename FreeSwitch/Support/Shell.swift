@@ -21,6 +21,9 @@ enum Shell {
     }
 
     /// 执行 AppleScript，失败返回 nil 并记录日志。
+    ///
+    /// 若失败是因为「自动化」权限没给，额外提示用户一次——只写日志的话，
+    /// 用户看到的只是「点了开关毫无反应」，根本无从判断原因。
     @discardableResult
     static func runAppleScript(_ source: String) -> String? {
         var errorInfo: NSDictionary?
@@ -28,6 +31,8 @@ enum Shell {
         let result = script.executeAndReturnError(&errorInfo)
         if let errorInfo {
             NSLog("[FreeSwitch] AppleScript error: \(errorInfo)")
+            let code = (errorInfo["NSAppleScriptErrorNumber"] as? NSNumber)?.intValue
+            if code == AutomationPermission.notAuthorized { AutomationPermission.explainOnce() }
             return nil
         }
         return result.stringValue
