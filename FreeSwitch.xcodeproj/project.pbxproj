@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		000000000000000161000000 /* FreeSwitchControls.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 000000000000000000000220 /* FreeSwitchControls.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		000000000000000221000000 /* FreeSwitchControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000230 /* FreeSwitchControls.swift */; };
+		FCF03FFA305D0F80007DAAB4 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = FCF03FF9305D0F80007DAAB4 /* AppIcon.icon */; };
+		FCF03FFB305D0F80007DAAB4 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = FCF03FF9305D0F80007DAAB4 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +41,7 @@
 		000000000000000000000230 /* FreeSwitchControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeSwitchControls.swift; sourceTree = "<group>"; };
 		000000000000000000000231 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		000000000000000000000232 /* FreeSwitchControls.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FreeSwitchControls.entitlements; sourceTree = "<group>"; };
+		FCF03FF9305D0F80007DAAB4 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -68,6 +71,7 @@
 			children = (
 				000000000000000000000010 /* FreeSwitch */,
 				000000000000000000000011 /* Controls */,
+				FCF03FF9305D0F80007DAAB4 /* AppIcon.icon */,
 				000000000000000000000020 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -171,11 +175,13 @@
 		000000000000000140000000 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				FCF03FFB305D0F80007DAAB4 /* AppIcon.icon in Resources */,
 			);
 		};
 		000000000000000240000000 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				FCF03FFA305D0F80007DAAB4 /* AppIcon.icon in Resources */,
 			);
 		};
 /* End PBXResourcesBuildPhase section */
