@@ -314,58 +314,6 @@
         }
       }
     },
-    "深色模式": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dark Mode"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "深色模式"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ダークモード"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다크 모드"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dunkelmodus"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mode sombre"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modo oscuro"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Тёмный режим"
-          }
-        }
-      }
-    },
     "夜览": {
       "localizations": {
         "en": {
@@ -466,58 +414,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Не засыпать"
-          }
-        }
-      }
-    },
-    "低电量": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Low Power"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "低耗電"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "低電力"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "저전력"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stromsparmodus"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Économie d’énergie"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bajo consumo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Энергосбережение"
           }
         }
       }
@@ -678,106 +574,158 @@
         }
       }
     },
-    "勿扰": {
+    "隐藏所有窗口": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Do Not Disturb"
+            "value": "Hide All Windows"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "勿擾"
+            "value": "隱藏所有視窗"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "おやすみモード"
+            "value": "すべてのウインドウを隠す"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "방해금지 모드"
+            "value": "모든 윈도우 가리기"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nicht stören"
+            "value": "Alle Fenster ausblenden"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ne pas déranger"
+            "value": "Masquer toutes les fenêtres"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No molestar"
+            "value": "Ocultar todas las ventanas"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не беспокоить"
+            "value": "Скрыть все окна"
           }
         }
       }
     },
-    "锁定屏幕": {
+    "自动隐藏程序坞": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lock Screen"
+            "value": "Auto-hide Dock"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "鎖定螢幕"
+            "value": "自動隱藏 Dock"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "画面をロック"
+            "value": "Dock を自動的に隠す"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "화면 잠금"
+            "value": "Dock 자동 가리기"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bildschirm sperren"
+            "value": "Dock automatisch ausblenden"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verrouiller l’écran"
+            "value": "Masquer le Dock"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloquear pantalla"
+            "value": "Ocultar el Dock"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Заблокировать экран"
+            "value": "Автоскрытие Dock"
+          }
+        }
+      }
+    },
+    "隐藏桌面": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Desktop"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隱藏桌面"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デスクトップを隠す"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데스크탑 가리기"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreibtisch ausblenden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer le bureau"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocultar escritorio"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрыть рабочий стол"
           }
         }
       }

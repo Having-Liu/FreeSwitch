@@ -193,17 +193,24 @@ private func fsToggle(id: String, name: String, symbol: String) -> some ControlW
     .displayName(LocalizedStringResource(String.LocalizationValue(name)))
 }
 
-struct FSDarkMode: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "darkMode", name: "深色模式", symbol: "circle.lefthalf.filled") } }
+// 控件库是一个平铺列表，多一个就挤掉别人一格，所以只放**系统自己没有**的。
+// 已经确认属于系统自带、因此不在这里重复的：深色模式、低电量（电池模块）、
+// 勿扰 / 专注（专注模式模块）、锁定屏幕、启动屏幕保护程序、将显示器置于睡眠状态
+// （后三个同属系统的「锁定屏幕」分类）、播放/暂停（正在播放）、原彩显示与夜览（显示器模块）。
+//
+// 删控件要趁发布之前：控件一旦被用户放进控制中心，删掉它只会变成一个占位符，
+// 而占位符会让 chronod 不断把扩展的沙盒容器重建出来（卸载 13 分钟后容器带着
+// 占位快照回来过，见 README 的卸载那节）。
 struct FSNightShift: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "nightShift", name: "夜览", symbol: "sunset.fill") } }
 struct FSKeepAwake: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "keepAwake", name: "保持亮屏", symbol: "cup.and.heat.waves.fill") } }
-struct FSLowPower: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "lowPowerMode", name: "低电量", symbol: "battery.25percent") } }
 struct FSMuteMic: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "muteMic", name: "麦克风静音", symbol: "mic.slash.fill") } }
 // 锁定键盘特别适合放控制中心：键盘被锁住时，这里是纯鼠标可达的解锁入口。
 struct FSLockKeyboard: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "lockKeyboard", name: "锁定键盘", symbol: "keyboard.fill") } }
 struct FSShowHidden: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "showHidden", name: "显示隐藏文件", symbol: "eye.fill") } }
+struct FSHideWindows: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "hideWindows", name: "隐藏所有窗口", symbol: "macwindow.on.rectangle") } }
+struct FSDockAutohide: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "dockAutohide", name: "自动隐藏程序坞", symbol: "dock.arrow.down.rectangle") } }
+struct FSHideDesktop: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "hideDesktop", name: "隐藏桌面", symbol: "rectangle.on.rectangle.slash") } }
 
-struct FSDoNotDisturb: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "doNotDisturb", name: "勿扰", symbol: "moon.fill") } }
-struct FSLockScreen: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "lockScreen", name: "锁定屏幕", symbol: "lock.display") } }
 struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "screenClean", name: "屏幕清洁", symbol: "bubbles.and.sparkles.fill") } }
 struct FSEmptyTrash: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "emptyTrash", name: "清空废纸篓", symbol: "trash.fill") } }
 // 注：这里曾试过用 AppIntents 官方的 requestConfirmation 做二次确认，实测它在
@@ -225,20 +232,19 @@ struct FreeSwitchControls: WidgetBundle {
     /// 有开/关状态的，用 ControlWidgetToggle。
     @WidgetBundleBuilder
     private var toggles: some Widget {
-        FSDarkMode()
         FSNightShift()
         FSKeepAwake()
-        FSLowPower()
         FSMuteMic()
         FSLockKeyboard()
         FSShowHidden()
+        FSHideWindows()
+        FSDockAutohide()
+        FSHideDesktop()
     }
 
     /// 点一下执行一次的，用 ControlWidgetButton。
     @WidgetBundleBuilder
     private var actions: some Widget {
-        FSDoNotDisturb()
-        FSLockScreen()
         FSScreenClean()
         FSEmptyTrash()
         FSXcodeClean()

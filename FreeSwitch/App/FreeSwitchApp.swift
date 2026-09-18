@@ -21,10 +21,14 @@ struct FreeSwitchApp: App {
 }
 
 /// 菜单栏图标：有常驻开关激活时用强调色提示。
+///
+/// 用的是自制符号 `handle`（Assets.xcassets/handle.symbolset，SF Symbols App 导出的模板）。
+/// 自制符号要用 `Image(_:)` 而不是 `Image(systemName:)`——后者只认系统符号库里的名字。
+/// 它和系统符号一样支持字重、缩放和着色，所以 foregroundStyle 照旧生效。
 struct MenuBarLabel: View {
     @ObservedObject var store: SwitchStore
     var body: some View {
-        Image(systemName: "switch.2")
+        Image("handle")
             .foregroundStyle(store.anyStickyActive ? Color.accentColor : Color.primary)
     }
 }

@@ -27,8 +27,15 @@ fi
 
 echo "▸ 替换 $APP…"
 osascript -e 'quit app "FreeSwitch"' 2>/dev/null || true
+# 换包之前必须先停 chronod：它是负责拉起控件扩展的那个进程。
+# 原来只 pkill 扩展、而 killall chronod 放在最后，中间留了个窗口——
+# 扩展刚被杀，chronod 立刻把它拉起来，紧接着 rm -rf 把它的可执行文件抽走。
+# ~/Library/Logs/DiagnosticReports 里那一批 FreeSwitchControls 崩溃报告（存活 3～43 秒不等、
+# 父进程都是 launchd、栈顶是 ExtensionFoundation 启动握手里的断言）多半就是这么来的。
+# 说“多半”是因为没复现成功：单独跑 pluginkit 登记、单独 killall 宿主，都没能再触发。
+killall chronod 2>/dev/null || true
 pkill -f FreeSwitchControls 2>/dev/null || true
-sleep 1
+for _ in $(seq 1 20); do pgrep -f FreeSwitchControls >/dev/null || break; sleep 0.2; done
 rm -rf "$APP"
 cp -R "$BUILT" "$APP"
 

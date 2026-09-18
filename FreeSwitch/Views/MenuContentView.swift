@@ -20,8 +20,6 @@ struct MenuContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            header
-            Divider()
             if !hasVisibleItems {
                 emptyState
             } else if gridHeight > maxGridHeight {
@@ -70,9 +68,30 @@ struct MenuContentView: View {
                 let items = visibleItems(in: group)
                 if !items.isEmpty { sectionView(prefs.displayName(of: group), items) }
             }
+            utilityRow
         }
         .padding(TileMetrics.padding)
         .glassGroup(spacing: TileMetrics.gap)
+    }
+
+    // MARK: 末尾的设置 / 退出
+
+    /// 顶部标题栏去掉了（一行只写个 App 名字，不值一整条），设置和退出挪到列表最后，
+    /// 压到最低存在感：小字号、次要色，鼠标移上去才变亮。
+    /// 它们跟着网格一起滚，不是常驻底栏——常驻底栏会把面板高度撑起来，
+    /// 而这个面板的高度是按内容算的。
+    private var utilityRow: some View {
+        HStack(spacing: 14) {
+            SettingsLink { QuietLabel(symbol: "gearshape", title: L("设置")) }
+                .buttonStyle(.plain)
+            Button { NSApplication.shared.terminate(nil) } label: {
+                QuietLabel(symbol: "power", title: L("退出"))
+            }
+            .buttonStyle(.plain)
+            Spacer(minLength: 0)
+        }
+        .padding(.leading, 3)
+        .padding(.top, 2)
     }
 
     /// 量出网格的自然高度，用来决定要不要滚动。
@@ -140,36 +159,33 @@ struct MenuContentView: View {
         }
     }
 
-    // MARK: 标题栏
-
-    /// 底栏已经去掉，退出放到这里；原来的「刷新」按钮也去掉了（见 onAppear 上的说明）。
-    private var header: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "switch.2")
-                .foregroundStyle(Color.accentColor)
-            Text("FreeSwitch").font(.headline)
-            Spacer()
-            SettingsLink { Image(systemName: "gearshape") }
-                .buttonStyle(.plain)
-                .help("设置")
-            Button { NSApplication.shared.terminate(nil) } label: {
-                Image(systemName: "power")
-            }
-            .buttonStyle(.plain)
-            .help("退出 FreeSwitch")
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-    }
-
     private var emptyState: some View {
         VStack(spacing: 10) {
-            Image(systemName: "switch.2").font(.largeTitle).foregroundStyle(.secondary)
+            Image("handle").font(.largeTitle).foregroundStyle(.secondary)
             Text("还没有显示任何开关").font(.callout)
             SettingsLink { Text("去设置里开启") }
         }
         .frame(maxWidth: .infinity)
         .frame(height: 160)
+    }
+}
+
+/// 列表末尾那两个按钮的样子：默认次要色，悬停才变正文色。
+private struct QuietLabel: View {
+    let symbol: String
+    let title: String
+    @State private var hovering = false
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: symbol)
+            Text(title)
+        }
+        .font(.system(size: 11))
+        .foregroundStyle(hovering ? Color.primary : Color.secondary)
+        .contentShape(.rect)
+        .onHover { hovering = $0 }
+        .animation(.easeOut(duration: 0.12), value: hovering)
     }
 }
 
