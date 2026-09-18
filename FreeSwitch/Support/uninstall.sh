@@ -124,9 +124,28 @@ remove_path() {
     return 1
 }
 
-# 里面除了系统自己的元数据什么都不剩 = 空壳，不含任何用户数据。
-is_empty_shell() {
-    [ -z "$(find "$1" -mindepth 1 -maxdepth 1 ! -name '.com.apple.containermanagerd.metadata.plist' 2>/dev/null)" ]
+# 容器现在是什么状态：empty=只剩系统元数据、hasdata=还有东西、unreadable=看都看不了。
+#
+# 必须把「读不了」和「空的」分开。本脚本由 App 启动时继承的是 App 的身份，
+# 却不带 App 的 entitlement——group 容器会连列目录都不允许。早先的写法把
+# 「列不出东西」当成「里面是空的」，于是谎报成已清空，比不报还糟。
+# 只数真正的文件，不数目录。容器根目录删不掉，而删空之后系统会把 Data/ 下那套标准骨架
+# （Desktop、Documents、Library、Movies…几十个空目录）重新建出来——那是系统的脚手架，
+# 不是我们的数据。按顶层条目判断会把这套骨架当成「还有数据」，白白吓用户一跳。
+container_state() {
+    if ! ls -A "$1" >/dev/null 2>&1; then echo unreadable; return; fi
+    local n
+    n=$(find "$1" -type f ! -name '.com.apple.containermanagerd.metadata.plist' 2>/dev/null | wc -l | tr -d ' ')
+    [ "$n" = 0 ] && echo empty || echo hasdata
+}
+
+# 里面的文件是不是控制中心写的控件占位快照。
+# 实测过一次：卸载把扩展容器删干净了，13 分钟后它又出现，里面只有
+# Data/SystemData/com.apple.chrono/… 下两个 lockKeyboard 的快照——
+# 因为控制中心里还留着 FreeSwitch 的控件，用户一拉开控制中心，chronod 就照着占位重新渲染，
+# 容器跟着被建回来。这种残留删多少次都会回来，得让用户去控制中心把控件撤掉。
+has_chrono_leftover() {
+    find "$1" -type f -path '*com.apple.chrono*' 2>/dev/null | grep -q . 
 }
 
 say "▸ 删除设置与数据…"
@@ -140,14 +159,31 @@ tccutil reset All "$BUNDLE" >/dev/null 2>&1
 tccutil reset All "$EXT_ID" >/dev/null 2>&1
 
 # 核对：分成「还留着数据」和「只剩系统托管的空壳」两类，如实报出来。
+# 三类分开存，数组里只放路径——后面要用它 open -R，混进说明文字就不是路径了。
 LEFT=()
 SHELLS=()
+UNSURE=()
 for t in "$APP" "${TARGETS[@]}"; do
     [ -e "$t" ] || continue
-    if is_empty_shell "$t"; then SHELLS+=("$t"); else LEFT+=("$t"); fi
+    case "$(container_state "$t")" in
+        empty)      SHELLS+=("$t") ;;
+        unreadable) UNSURE+=("$t") ;;
+        *)          LEFT+=("$t") ;;
+    esac
 done
 if defaults read "$BUNDLE" >/dev/null 2>&1; then
     LEFT+=("偏好设置域 $BUNDLE（仍可被读到）")
+fi
+
+if [ ${#UNSURE[@]} -gt 0 ]; then
+    say "⚠ 以下 ${#UNSURE[@]} 项没有权限查看，无法确认是否已清空："
+    for u in "${UNSURE[@]}"; do say "  $u"; done
+    say "  在终端运行 scripts/uninstall.sh 可以彻底清掉它们（终端的权限够）。"
+    if [ "$FROM_APP" = 1 ]; then
+        osascript -e "display notification \"有 ${#UNSURE[@]} 项无法确认，已在访达中标出。\" with title \"FreeSwitch 卸载未完全\"" >/dev/null 2>&1
+        for u in "${UNSURE[@]}"; do open -R "$u"; done
+    fi
+    exit 1
 fi
 
 if [ ${#LEFT[@]} -eq 0 ]; then
@@ -165,7 +201,15 @@ if [ ${#LEFT[@]} -eq 0 ]; then
 fi
 
 say "✗ 以下 ${#LEFT[@]} 项没能清除："
-for l in "${LEFT[@]}"; do say "  $l"; done
+CHRONO=0
+for l in "${LEFT[@]}"; do
+    say "  $l"
+    [ -d "$l" ] && has_chrono_leftover "$l" && CHRONO=1
+done
+if [ "$CHRONO" = 1 ]; then
+    say "  其中有控制中心写的控件占位快照——说明控制中心里还留着 FreeSwitch 的控件。"
+    say "  请拉开控制中心，把 FreeSwitch 的控件长按移除，否则这个容器删掉还会再被建出来。"
+fi
 if [ "$FROM_APP" = 1 ]; then
     osascript -e "display notification \"有 ${#LEFT[@]} 项没能自动清除，已在访达中标出，按 ⌘⌫ 即可删除。\" with title \"FreeSwitch 卸载未完全\"" >/dev/null 2>&1
     for l in "${LEFT[@]}"; do

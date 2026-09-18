@@ -34,8 +34,11 @@ enum UninstallController {
         • 「合盖也不休眠」改过的系统电源设置（还原为默认）
         • 授予过的隐私权限（辅助功能、自动化等）
 
-        少数受系统保护、无法直接删除的数据会由访达移到废纸篓；
+        沙盒容器的根目录归系统管，App 自己删不掉，只能把里面清空；
         如果仍有没清掉的，卸载完会通知你，并在访达里标出来。
+
+        另外请记得拉开控制中心，把 FreeSwitch 的控件长按移除——
+        只要它们还在那儿，系统就会为它们把扩展的容器重新建出来。
 
         这一步不可撤销。卸载开始后 FreeSwitch 会立即退出。
         """
@@ -59,6 +62,8 @@ enum UninstallController {
         HelperClient.shared.uninstall()
         try? SMAppService.mainApp.unregister()
 
+        wipeContainerData()
+
         guard launchCleanupScript() else {
             let alert = NSAlert()
             alert.alertStyle = .warning
@@ -68,6 +73,27 @@ enum UninstallController {
             return
         }
         NSApp.terminate(nil)
+    }
+
+    /// 趁 App 还活着，用 App 自己的身份把容器里的数据清掉。
+    ///
+    /// 这一步不能留给退出后那个脚本：脚本虽然继承了 App 的身份，却不带 App 的 entitlement，
+    /// group 容器连列目录都不允许——实测它因此把「列不出东西」当成「里面是空的」，
+    /// 谎报成已清空。容器根目录仍旧删不掉（归 containermanagerd 管），
+    /// 但至少数据是在这里、由有权限的一方清干净的。
+    private static func wipeContainerData() {
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        let roots = [
+            home.appendingPathComponent("Library/Containers/\(FreeSwitchTrigger.extensionBundleID)/Data"),
+            home.appendingPathComponent("Library/Group Containers/\(FreeSwitchTrigger.suite)"),
+        ]
+        let manager = FileManager.default
+        for root in roots {
+            guard let items = try? manager.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) else { continue }
+            for item in items where item.lastPathComponent != ".com.apple.containermanagerd.metadata.plist" {
+                try? manager.removeItem(at: item)
+            }
+        }
     }
 
     /// 把脚本拷到临时目录再运行：脚本会删掉 App 包，不能让它从即将被删除的包里执行。
