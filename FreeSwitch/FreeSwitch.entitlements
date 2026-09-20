@@ -2,13 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- 加固运行时下，允许向“系统事件/访达/音乐”发送 Apple 事件（深色模式、清空废纸篓等） -->
-	<key>com.apple.security.automation.apple-events</key>
-	<true/>
-	<!-- 与控制中心扩展共享，用于沙盒放行的 Darwin 通知前缀 -->
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>MXHBUQH27V.group.com.freeswitch.FreeSwitch</string>
 	</array>
+	<key>com.apple.security.automation.apple-events</key>
+	<true/>
 </dict>
 </plist>
