@@ -163,10 +163,17 @@ enum SystemController {
     private static func runPrivileged(_ viaHelper: @escaping (@escaping (Bool) -> Void) -> Void,
                                       fallback command: String) {
         // 密码框挂在那儿等用户输入的整段时间，脚本都不返回；这事绝不能占着主线程。
-        func askPassword() {
+        //
+        // `explainBroken` 的提示要**等密码流程走完**再出来。两个对话框同时堆在屏幕上，
+        // 用户只会更糊涂——何况那句提示讲的正是「刚才为什么要你输密码」，
+        // 密码还没输完就说这话，顺序是反的。
+        func askPassword(explainBroken: Bool = false) {
             DispatchQueue.global(qos: .userInitiated).async {
                 Shell.runAppleScript("do shell script \"\(command)\" with administrator privileges")
-                Task { @MainActor in SwitchStore.shared.refresh() }
+                Task { @MainActor in
+                    SwitchStore.shared.refresh()
+                    if explainBroken { HelperClient.shared.explainBrokenHelperOnce() }
+                }
             }
         }
         guard HelperClient.shared.isInstalled else {
@@ -177,10 +184,9 @@ enum SystemController {
             if ok {
                 Task { @MainActor in SwitchStore.shared.refresh() }
             } else {
+                // 「装了助手却还要输密码」这件事本身是个故障，等密码走完说清楚并给条修的路。
                 FreeSwitchTrigger.log.debug("helper call failed, falling back to password prompt")
-                askPassword()
-                // 「装了助手却还要输密码」这件事本身是个故障，说清楚并给条修的路。
-                Task { @MainActor in HelperClient.shared.explainBrokenHelperOnce() }
+                askPassword(explainBroken: true)
             }
         }
     }
