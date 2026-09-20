@@ -85,6 +85,12 @@ enum CtrlShared {
         try? data.write(to: url, options: .atomic)
     }
 
+    /// 不显示执行阶段的动作。
+    ///
+    /// 「屏幕清洁」点一下就整屏盖住，反馈是它自己，再补一句「已完成」纯属多余——
+    /// 而且那块黑幕落下来的时候，控制中心早就收起来了，根本没人看得见。
+    static let unphasedActions: Set<String> = ["screenClean"]
+
     static func post(_ suffix: String) {
         CFNotificationCenterPostNotification(
             CFNotificationCenterGetDarwinNotifyCenter(),
@@ -101,12 +107,14 @@ struct TriggerSwitchIntent: AppIntent {
     init() {}
     init(_ id: String) { self.id = id }
     func perform() async throws -> some IntentResult {
-        // 正在处理就直接返回。控制中心允许连点，不挡住就会把同一个动作叠着跑。
-        guard CtrlShared.phase(id) != "running" else { return .result() }
-        // 先把「处理中」落进共享文件：控制中心在 intent 返回后会立刻回查，
-        // 这时主 App 往往还没收到通知，不先写就要等约一秒才看得到反馈。
         fsLog.debug("intent trigger \(id, privacy: .public)")
-        CtrlShared.setPhase(id, "running")
+        if !CtrlShared.unphasedActions.contains(id) {
+            // 正在处理就直接返回。控制中心允许连点，不挡住就会把同一个动作叠着跑。
+            guard CtrlShared.phase(id) != "running" else { return .result() }
+            // 先把「处理中」落进共享文件：控制中心在 intent 返回后会立刻回查，
+            // 这时主 App 往往还没收到通知，不先写就要等约一秒才看得到反馈。
+            CtrlShared.setPhase(id, "running")
+        }
         CtrlShared.post("trigger." + id)
         return .result()
     }
@@ -184,6 +192,19 @@ private func fsButton(id: String, name: String, symbol: String) -> some ControlW
     .displayName(LocalizedStringResource(String.LocalizationValue(name)))
 }
 
+/// 不显示执行阶段的动作控件：点一下就执行，控件本身不变。
+///
+/// 用于「反馈就是动作本身」的那类动作——见 `CtrlShared.unphasedActions`。
+/// 这种控件不需要 provider，`StaticControlConfiguration` 有个不带 provider 的重载。
+private func fsPlainButton(id: String, name: String, symbol: String) -> some ControlWidgetConfiguration {
+    StaticControlConfiguration(kind: "com.freeswitch.FreeSwitch.control." + id) {
+        ControlWidgetButton(action: TriggerSwitchIntent(id)) {
+            Label(L(name), systemImage: symbol)
+        }
+    }
+    .displayName(LocalizedStringResource(String.LocalizationValue(name)))
+}
+
 private func fsToggle(id: String, name: String, symbol: String) -> some ControlWidgetConfiguration {
     StaticControlConfiguration(kind: "com.freeswitch.FreeSwitch.control." + id, provider: FSToggleProvider(id: id)) { isOn in
         ControlWidgetToggle(isOn: isOn, action: SetSwitchIntent(id)) {
@@ -211,7 +232,8 @@ struct FSHideWindows: ControlWidget { var body: some ControlWidgetConfiguration 
 struct FSDockAutohide: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "dockAutohide", name: "自动隐藏程序坞", symbol: "dock.arrow.down.rectangle") } }
 struct FSHideDesktop: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "hideDesktop", name: "隐藏桌面", symbol: "rectangle.on.rectangle.slash") } }
 
-struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "screenClean", name: "屏幕清洁", symbol: "bubbles.and.sparkles.fill") } }
+// 屏幕清洁不报阶段：它本来就是「一个动作」，黑幕一落用户就知道成了。
+struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsPlainButton(id: "screenClean", name: "屏幕清洁", symbol: "bubbles.and.sparkles.fill") } }
 struct FSEmptyTrash: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "emptyTrash", name: "清空废纸篓", symbol: "trash.fill") } }
 // 注：这里曾试过用 AppIntents 官方的 requestConfirmation 做二次确认，实测它在
 // macOS 控制中心里是静默放行——不渲染界面、不抛错、直接往下走（探针显示 perform()

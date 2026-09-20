@@ -1,890 +1,901 @@
 {
-  "sourceLanguage": "zh-Hans",
-  "version": "1.0",
-  "strings": {
-    "触发 FreeSwitch 开关": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trigger FreeSwitch Switch"
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "Xcode 清理" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xcode aufräumen"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "觸發 FreeSwitch 開關"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Xcode"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch スイッチを実行"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpiar Xcode"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch 스위치 실행"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nettoyer Xcode"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch-Schalter auslösen"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xcode をクリーン"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Déclencher un interrupteur FreeSwitch"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xcode 정리"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Activar interruptor de FreeSwitch"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистка Xcode"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Запустить переключатель FreeSwitch"
-          }
-        }
-      }
-    },
-    "开关": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Switch"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開關"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "スイッチ"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "스위치"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schalter"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interrupteur"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interruptor"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Переключатель"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xcode 清理"
           }
         }
       }
     },
-    "设置 FreeSwitch 开关": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Set FreeSwitch Switch"
+    "保持亮屏" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wach halten"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "設定 FreeSwitch 開關"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep Awake"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch スイッチを設定"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener activo"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch 스위치 설정"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garder allumé"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FreeSwitch-Schalter setzen"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スリープ防止"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Régler un interrupteur FreeSwitch"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "화면 켜두기"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configurar interruptor de FreeSwitch"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не засыпать"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Задать переключатель FreeSwitch"
-          }
-        }
-      }
-    },
-    "开启": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "On"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開啟"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "オン"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "켬"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ein"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Activé"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Activado"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Вкл."
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保持螢幕開啟"
           }
         }
       }
     },
-    "处理中…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Working…"
+    "处理中…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läuft …"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "處理中…"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Working…"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "実行中…"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En curso…"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "처리 중…"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En cours…"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Läuft …"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行中…"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En cours…"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "처리 중…"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En curso…"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выполняется…"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выполняется…"
-          }
-        }
-      }
-    },
-    "已完成": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Done"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已完成"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "完了"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "완료"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fertig"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Terminé"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Listo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Готово"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "處理中…"
           }
         }
       }
     },
-    "夜览": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Night Shift"
+    "夜览" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Night Shift"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "夜覽"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Night Shift"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Night Shift"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Night Shift"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Night Shift"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Night Shift"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Night Shift"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Night Shift"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Night Shift"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Night Shift"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Night Shift"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Night Shift"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Night Shift"
-          }
-        }
-      }
-    },
-    "保持亮屏": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep Awake"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "保持螢幕開啟"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "スリープ防止"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "화면 켜두기"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wach halten"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Garder allumé"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantener activo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Не засыпать"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "夜覽"
           }
         }
       }
     },
-    "麦克风静音": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mute Mic"
+    "屏幕清洁" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildschirm reinigen"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "麥克風靜音"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Clean"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "マイクをミュート"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpiar pantalla"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "마이크 음소거"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nettoyage écran"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mikrofon stumm"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画面クリーニング"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Micro muet"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "화면 청소"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Silenciar micrófono"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистка экрана"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выключить микрофон"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "螢幕清潔"
           }
         }
       }
     },
-    "锁定键盘": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lock Keyboard"
+    "已完成" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "鎖定鍵盤"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "キーボードをロック"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listo"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "키보드 잠금"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminé"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tastatur sperren"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完了"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verrouiller le clavier"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "완료"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bloquear teclado"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Готово"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Заблокировать клавиатуру"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已完成"
           }
         }
       }
     },
-    "显示隐藏文件": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show Hidden Files"
+    "开关" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schalter"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "顯示隱藏檔案"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "隠しファイルを表示"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interruptor"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "숨김 파일 보기"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interrupteur"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Versteckte Dateien"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スイッチ"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fichiers masqués"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스위치"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Archivos ocultos"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переключатель"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Скрытые файлы"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開關"
           }
         }
       }
     },
-    "隐藏所有窗口": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide All Windows"
+    "开启" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "隱藏所有視窗"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "すべてのウインドウを隠す"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activado"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "모든 윈도우 가리기"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activé"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alle Fenster ausblenden"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オン"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Masquer toutes les fenêtres"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "켬"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ocultar todas las ventanas"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вкл."
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Скрыть все окна"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟"
           }
         }
       }
     },
-    "自动隐藏程序坞": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto-hide Dock"
+    "显示隐藏文件" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versteckte Dateien"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自動隱藏 Dock"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Hidden Files"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dock を自動的に隠す"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivos ocultos"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dock 자동 가리기"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fichiers masqués"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dock automatisch ausblenden"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隠しファイルを表示"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Masquer le Dock"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨김 파일 보기"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ocultar el Dock"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрытые файлы"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Автоскрытие Dock"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示隱藏檔案"
           }
         }
       }
     },
-    "隐藏桌面": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide Desktop"
+    "清空废纸篓" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Papierkorb leeren"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "隱藏桌面"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty Trash"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "デスクトップを隠す"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaciar la papelera"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "데스크탑 가리기"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vider la corbeille"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schreibtisch ausblenden"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゴミ箱を空にする"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Masquer le bureau"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴지통 비우기"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ocultar escritorio"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить корзину"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Скрыть рабочий стол"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清倒垃圾桶"
           }
         }
       }
     },
-    "屏幕清洁": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Screen Clean"
+    "自动隐藏程序坞" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock automatisch ausblenden"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "螢幕清潔"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto-hide Dock"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "画面クリーニング"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar el Dock"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "화면 청소"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer le Dock"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bildschirm reinigen"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock を自動的に隠す"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nettoyage écran"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dock 자동 가리기"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Limpiar pantalla"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоскрытие Dock"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Очистка экрана"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動隱藏 Dock"
           }
         }
       }
     },
-    "清空废纸篓": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Empty Trash"
+    "触发 FreeSwitch 开关" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FreeSwitch-Schalter auslösen"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "清倒垃圾桶"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trigger FreeSwitch Switch"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ゴミ箱を空にする"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar interruptor de FreeSwitch"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "휴지통 비우기"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déclencher un interrupteur FreeSwitch"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Papierkorb leeren"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FreeSwitch スイッチを実行"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vider la corbeille"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FreeSwitch 스위치 실행"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vaciar la papelera"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запустить переключатель FreeSwitch"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Очистить корзину"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "觸發 FreeSwitch 開關"
           }
         }
       }
     },
-    "Xcode 清理": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clean Xcode"
+    "设置 FreeSwitch 开关" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FreeSwitch-Schalter setzen"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xcode 清理"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set FreeSwitch Switch"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xcode をクリーン"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar interruptor de FreeSwitch"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xcode 정리"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Régler un interrupteur FreeSwitch"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xcode aufräumen"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FreeSwitch スイッチを設定"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nettoyer Xcode"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FreeSwitch 스위치 설정"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Limpiar Xcode"
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задать переключатель FreeSwitch"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Очистка Xcode"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定 FreeSwitch 開關"
+          }
+        }
+      }
+    },
+    "锁定键盘" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastatur sperren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lock Keyboard"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloquear teclado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verrouiller le clavier"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キーボードをロック"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "키보드 잠금"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заблокировать клавиатуру"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鎖定鍵盤"
+          }
+        }
+      }
+    },
+    "隐藏所有窗口" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Fenster ausblenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide All Windows"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar todas las ventanas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer toutes les fenêtres"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのウインドウを隠す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 윈도우 가리기"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрыть все окна"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隱藏所有視窗"
+          }
+        }
+      }
+    },
+    "隐藏桌面" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schreibtisch ausblenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide Desktop"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar escritorio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer le bureau"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デスクトップを隠す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "데스크탑 가리기"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрыть рабочий стол"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隱藏桌面"
+          }
+        }
+      }
+    },
+    "麦克风静音" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofon stumm"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mute Mic"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Silenciar micrófono"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micro muet"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイクをミュート"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크 음소거"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выключить микрофон"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麥克風靜音"
           }
         }
       }
     }
-  }
+  },
+  "version" : "1.0"
 }
