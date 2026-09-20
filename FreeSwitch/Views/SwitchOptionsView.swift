@@ -4,6 +4,12 @@ import SwiftUI
 //
 // 这里刻意不再把所有选项都画成一样的胶囊：时长是单选、合盖是开关、断开是动作，
 // 三种语义不同的东西用同一种外观呈现，正是磁贴网格当初的毛病，不该在弹层里重演。
+//
+// **弹层的内容高度不能随状态变化。** popover 一弹出就按当时的内容定死尺寸，
+// 之后内容变高不会跟着长，只会被裁掉——这正是「有时候显示不全、有时候又正常」的来历。
+// 所以：条件出现的那一行要常驻（不适用时留空占位），需要异步/延迟才能拿到的数据
+// 要在视图创建时就取好，不能等到 onAppear。
+// 宽度同理用 minWidth 而不是定死：德语、俄语的分段选择器比中文宽得多。
 
 /// 保持亮屏：时长单选 + 合盖开关 + 关闭。
 struct KeepAwakeOptions: View {
@@ -52,13 +58,20 @@ struct KeepAwakeOptions: View {
             .toggleStyle(.switch)
             .controlSize(.small)
 
-            if PowerController.shared.keepAwake, let left = PowerController.shared.remainingMinutes {
-                Text(L("还剩 %lld 分钟", left))
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
-            }
+            // 这一行常驻：不适用时画一个空字符串占住同样的高度。
+            // 条件渲染会让 popover 弹出后内容变高，而 popover 不会跟着长，只会裁。
+            Text(remainingText)
+                .font(.system(size: 10))
+                .foregroundStyle(.secondary)
         }
-        .frame(width: 258)
+        .frame(minWidth: 258, alignment: .leading)
+        .fixedSize()
+    }
+
+    private var remainingText: String {
+        let power = PowerController.shared
+        guard power.keepAwake, let left = power.remainingMinutes else { return " " }
+        return L("还剩 %lld 分钟", left)
     }
 
     private func apply(_ value: Int) {
@@ -74,7 +87,10 @@ struct KeepAwakeOptions: View {
 }
 
 struct ResolutionOptions: View {
-    @State private var displays: [ResolutionController.Display] = []
+    /// 在视图创建时就读，**不要**放到 onAppear 里。
+    /// 放 onAppear 的话，popover 弹出那一刻内容只有「没有检测到可切换的分辨率」一行，
+    /// 尺寸就按这一行定死了；随后列表填进来，多出来的部分直接被裁掉。
+    @State private var displays: [ResolutionController.Display] = ResolutionController.displays()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -113,7 +129,7 @@ struct ResolutionOptions: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .frame(width: 210)
-        .onAppear { displays = ResolutionController.displays() }
+        .frame(minWidth: 210, alignment: .leading)
+        .fixedSize()
     }
 }

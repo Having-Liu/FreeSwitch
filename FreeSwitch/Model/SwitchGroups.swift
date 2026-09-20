@@ -80,6 +80,15 @@ enum GroupLayout {
         return result
     }
 
+    /// 新分组的 id。用「没被占用的最小编号」而不是 UUID：
+    /// 这个函数是纯逻辑、有独立测试，随机 id 会让测试不可复现。
+    static func nextGroupID(taken: [String]) -> String {
+        let used = Set(taken)
+        var n = 1
+        while used.contains("group\(n)") { n += 1 }
+        return "group\(n)"
+    }
+
     static func rows(for groups: [SwitchGroup]) -> [GroupRow] {
         groups.flatMap { [.group($0.id)] + $0.items.map { .item($0) } }
     }
@@ -103,8 +112,13 @@ enum GroupLayout {
                 if result.isEmpty { leading.append(id) } else { result[result.count - 1].items.append(id) }
             }
         }
-        if !leading.isEmpty, !result.isEmpty {
-            result[0].items.insert(contentsOf: leading, at: 0)
+        // 拖到最顶上（第一个分组标题之前）= 新建一个分组。
+        // 原来是把它们塞回第一个分组的开头，那样用户就没有任何办法造出新分组。
+        // 新分组不起名字：空名字的分组在面板上不画标题，只剩分隔作用——
+        // 想要一条纯粹的空白分隔线，这就是入口。
+        if !leading.isEmpty {
+            result.insert(SwitchGroup(id: nextGroupID(taken: result.map(\.id)),
+                                      name: "", items: leading), at: 0)
         }
         return result
     }

@@ -76,16 +76,20 @@ final class Preferences: ObservableObject {
         groups[index].name = name
     }
 
-    /// 分组的显示名。用户把名字清空时退回默认名，面板上不会出现空标题。
+    /// 分组的显示名。**空字符串是有意义的取值**：表示这一组不显示标题，只当分隔。
+    ///
+    /// 所以不能像以前那样「名字空了就退回默认名」——那样用户就没办法要一条纯粹的空白分隔。
+    /// 把默认分组的名字删干净，和新建一个不起名的分组，效果一样。
     ///
     /// 默认名要本地化，用户自己起的名字原样保留。判断依据是「和默认名一模一样」——
-    /// 光判断空字符串不够：分组是建组时把默认名**存下来**的，老用户的偏好里
-    /// 存的就是中文原文，只看空值的话他们永远看不到译文。
+    /// 分组是建组时把默认名**存下来**的，存的是中文原文，
+    /// 所以非中文用户看到的译文来自这一步，而不是空值回退。
     func displayName(of group: SwitchGroup) -> String {
         let trimmed = group.name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return "" }
         let fallback = SwitchCatalog.defaultGroups.first { $0.id == group.id }?.name
-        if trimmed.isEmpty || trimmed == fallback {
-            return fallback.map { String(localized: String.LocalizationValue($0)) } ?? group.id
+        if trimmed == fallback {
+            return fallback.map { String(localized: String.LocalizationValue($0)) } ?? trimmed
         }
         return trimmed
     }

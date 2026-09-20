@@ -15,7 +15,7 @@ struct SwitchesPane: View {
     var body: some View {
         VStack(spacing: 0) {
             PaneHeader(title: L("开关"),
-                       subtitle: L("开关（拖动排序，可以拖进其他分组；分组名点一下就能改）"))
+                       subtitle: L("拖动排序，可以拖进其他分组；拖到最上面新建一组。分组名点一下就能改，清空则只当分隔"))
 
             List {
                 // 分组标题和开关摊平在同一个 ForEach 里：.onMove 只能在一个 ForEach 内挪动，
@@ -86,7 +86,7 @@ private struct GroupHeaderRow: View {
             .textFieldStyle(.plain)
             .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(.secondary)
-            .help(L("点一下就能改名；清空则显示默认名"))
+            .help(L("点一下就能改名；清空则不显示标题，只当分隔"))
 
             Spacer(minLength: 0)
 

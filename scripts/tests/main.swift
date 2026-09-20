@@ -23,8 +23,14 @@ check(ids(base) == [["a1", "a2"], ["b1"]], "默认分组", "\(ids(base))")
 // 摊平后：0 甲  1 a1  2 a2  3 乙  4 b1
 let crossed = GroupLayout.applyingMove(to: base, from: [1], to: 4)
 check(ids(crossed) == [["a2"], ["a1", "b1"]], "a1 拖过「乙」标题 → 进入乙组", "\(ids(crossed))")
+// 拖到所有标题之前 = 新建一组。这是用户造出新分组的唯一入口，
+// 所以既要断言分组结构，也要断言「新组没有名字」——空名字在面板上不画标题，只当分隔。
 let toTop = GroupLayout.applyingMove(to: base, from: [4], to: 0)
-check(ids(toTop) == [["b1", "a1", "a2"], []], "拖到所有标题之前 → 归入第一组开头", "\(ids(toTop))")
+check(ids(toTop) == [["b1"], ["a1", "a2"], []], "拖到所有标题之前 → 新建一组", "\(ids(toTop))")
+check(toTop.first?.name == "", "新建的分组没有名字", "\(toTop.first?.name ?? "nil")")
+check(toTop.first?.id == "group1", "新分组用没被占用的最小编号", "\(toTop.first?.id ?? "nil")")
+check(GroupLayout.nextGroupID(taken: ["group1", "group3"]) == "group2",
+      "编号跳过已占用的", GroupLayout.nextGroupID(taken: ["group1", "group3"]))
 let toEnd = GroupLayout.applyingMove(to: base, from: [1], to: 5)
 check(ids(toEnd) == [["a2"], ["b1", "a1"]], "拖到列表末尾 → 进入最后一组末尾", "\(ids(toEnd))")
 let headerMoved = GroupLayout.applyingMove(to: base, from: [3], to: 0)

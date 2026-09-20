@@ -105,13 +105,17 @@ struct MenuContentView: View {
             .onPreferenceChange(GridHeightKey.self) { gridHeight = $0 }
     }
 
+    /// 分组标题是空字符串时**整个不画**，只留组与组之间的间距当分隔。
+    /// 不要退而求其次画一个空 Text：那仍然占着一行字高，间距会比有标题时还怪。
     private func sectionView(_ section: String, _ items: [SwitchItem]) -> some View {
         VStack(alignment: .leading, spacing: TileMetrics.gap) {
-            Text(section)
-                .font(.system(size: 10, weight: .semibold))
-                .kerning(0.8)
-                .foregroundStyle(.secondary)
-                .padding(.leading, 3)
+            if !section.isEmpty {
+                Text(section)
+                    .font(.system(size: 10, weight: .semibold))
+                    .kerning(0.8)
+                    .foregroundStyle(.secondary)
+                    .padding(.leading, 3)
+            }
 
             ForEach(Array(rows(items).enumerated()), id: \.offset) { _, row in
                 HStack(spacing: TileMetrics.gap) {
@@ -140,6 +144,7 @@ struct MenuContentView: View {
             )) {
                 options(for: item.id)
                     .padding(13)
+                    .fixedSize()          // 让 popover 按内容的理想尺寸开，而不是先给个框再塞
                     .environmentObject(store)
             }
         } else {
