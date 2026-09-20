@@ -55,16 +55,48 @@ enum Permission {
         }
     }
 
+    /// 每个目标的「探针脚本」：一条**确实会发出 Apple 事件**的只读属性查询。
+    ///
+    /// 这个选择是整件事的关键，详见 `requestAutomation`。
+    /// 两条都是纯读，不改任何东西；`autohide of dock preferences` 正好也是
+    /// 「自动隐藏程序坞」那个开关读写的属性。
+    private static func probeScript(for bundleID: String) -> String? {
+        switch bundleID {
+        case "com.apple.finder":
+            return "tell application id \"com.apple.finder\" to get name of startup disk"
+        case "com.apple.systemevents":
+            return "tell application id \"com.apple.systemevents\" to get autohide of dock preferences"
+        default:
+            return nil
+        }
+    }
+
     /// 触发自动化的系统弹窗。只应该由用户的点击调用。
     ///
-    /// 这里**不能**只调 `AEDeterminePermissionToAutomateTarget(…, askUserIfNeeded: true)`：
-    /// 目标没在跑时它直接返回 -600，按钮按下去毫无反应。
-    /// 改成发一条最无害的 AppleScript——脚本引擎会顺手把目标拉起来，
-    /// TCC 的授权框也就跟着出现了。执行会阻塞到用户点完，所以扔到后台线程。
+    /// 有两个坑叠在一起，得一起绕开：
+    ///
+    /// 1. 不能只调 `AEDeterminePermissionToAutomateTarget(…, askUserIfNeeded: true)`：
+    ///    目标没在跑时它直接返回 -600，按钮按下去毫无反应
+    ///    （「系统事件」就是这么一个按需启动、办完事就退的 agent）。
+    ///
+    /// 2. **也不能随便发条脚本了事。** 这里原本发的是 `tell application id "…" to return name`，
+    ///    实测它**一个 Apple 事件都不发**——`name` 由 AppleScript 直接从 LaunchServices 答掉了。
+    ///    （对着目标进程数 TCC 请求：`return name` 对访达和系统事件都是 0，
+    ///    而 `get name of startup disk`、`get autohide of dock preferences` 都是 1。）
+    ///    于是 TCC 压根没被问到，脚本却「成功」返回，我们据此记下「已授权」。
+    ///    用户在引导页看到一排绿色的已授权，直到第一次真做事授权框才姗姗来迟——
+    ///    「引导页都授权了，操作的时候还会有二次确认」就是这么来的。
+    ///
+    /// 所以探针必须是真会发事件的那种，见 `probeScript`。执行会阻塞到用户点完弹窗，
+    /// 所以扔到后台线程。
     static func requestAutomation(of bundleID: String,
                                   _ completion: @escaping @MainActor (State) -> Void) {
+        guard let source = probeScript(for: bundleID) else {
+            Task { @MainActor in completion(automation(of: bundleID)) }
+            return
+        }
         DispatchQueue.global(qos: .userInitiated).async {
-            let script = NSAppleScript(source: "tell application id \"\(bundleID)\" to return name")
+            let script = NSAppleScript(source: source)
             var errorInfo: NSDictionary?
             let output = script?.executeAndReturnError(&errorInfo)
 
@@ -92,7 +124,8 @@ enum Permission {
 
     // MARK: 记住上一次确定过的答案
 
-    private static func key(_ bundleID: String) -> String { "automationState." + bundleID }
+    /// 键名带版本号：v1 时期的值是上面那条假探针留下的，一律作废重来。
+    private static func key(_ bundleID: String) -> String { "automationState.v2." + bundleID }
 
     private static func remember(_ state: State, for bundleID: String) {
         UserDefaults.standard.set(state == .granted, forKey: key(bundleID))
