@@ -9,7 +9,8 @@ import AppKit
 @MainActor
 enum AutomationPermission {
     /// macOS 拒绝发送 Apple 事件时的错误码。
-    static let notAuthorized = -1743
+    /// `nonisolated`：判断错误码的地方在后台线程（见 `Shell.runAppleScript`）。
+    nonisolated static let notAuthorized = -1743
 
     private static var explained = false
 

@@ -24,15 +24,21 @@ enum Shell {
     ///
     /// 若失败是因为「自动化」权限没给，额外提示用户一次——只写日志的话，
     /// 用户看到的只是「点了开关毫无反应」，根本无从判断原因。
+    ///
+    /// 标 `nonisolated` 是因为**有些脚本会一直阻塞到用户回答一个系统对话框**：
+    /// 访达的「确定要清空废纸篓吗」、`with administrator privileges` 的密码框。
+    /// 那种时候留在主线程上就是转彩虹。需要的调用方自己丢到后台队列去跑。
     @discardableResult
-    static func runAppleScript(_ source: String) -> String? {
+    nonisolated static func runAppleScript(_ source: String) -> String? {
         var errorInfo: NSDictionary?
         guard let script = NSAppleScript(source: source) else { return nil }
         let result = script.executeAndReturnError(&errorInfo)
         if let errorInfo {
             NSLog("[FreeSwitch] AppleScript error: \(errorInfo)")
             let code = (errorInfo["NSAppleScriptErrorNumber"] as? NSNumber)?.intValue
-            if code == AutomationPermission.notAuthorized { AutomationPermission.explainOnce() }
+            if code == AutomationPermission.notAuthorized {
+                Task { @MainActor in AutomationPermission.explainOnce() }
+            }
             return nil
         }
         return result.stringValue

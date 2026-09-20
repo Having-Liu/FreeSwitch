@@ -72,7 +72,8 @@ enum SystemController {
     }
 
     // MARK: 清空废纸篓（会弹出访达的确认）
-    static func emptyTrash() {
+    /// 访达会弹确认框，脚本一直等到用户回答为止——所以务必在主线程之外调用。
+    nonisolated static func emptyTrash() {
         Shell.runAppleScript("tell application \"Finder\" to empty the trash")
     }
 
@@ -82,7 +83,13 @@ enum SystemController {
     }
 
     // MARK: 推出所有可推出/外置磁盘
-    static func ejectAllRemovableDisks() {
+    /// 务必在主线程之外调用。
+    ///
+    /// `unmountAndEjectDevice` 是同步的：它要等写缓冲刷干净、等占用文件的进程让开，
+    /// 一块机械盘或者刚拷完东西的 U 盘要好几秒。挂在主线程上就是光标转彩虹
+    /// （实测：点「推出磁盘」后转了几秒；盘是空闲的那次就没转）。
+    /// 枚举卷本身也可能慢——`mountedVolumeURLs` 会去 stat 网络卷，对面不在就得等超时。
+    nonisolated static func ejectAllRemovableDisks() {
         let workspace = NSWorkspace.shared
         let keys: [URLResourceKey] = [.volumeIsRemovableKey, .volumeIsEjectableKey, .volumeIsInternalKey]
         let volumes = FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: keys, options: []) ?? []

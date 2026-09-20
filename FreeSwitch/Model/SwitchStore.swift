@@ -219,19 +219,35 @@ final class SwitchStore: ObservableObject {
     }
 
     /// 执行一个动作：先把「处理中」发出去，做完显示「已完成」，两秒后回到常态。
+    /// 会把调用线程卡住的动作，一律丢到后台。
+    ///
+    /// 三个各有各的卡法：清 DerivedData 要删好几个 G；推出磁盘要等缓冲刷干净、
+    /// 等占用文件的进程让开；清空废纸篓则是访达弹了确认框，脚本一直等到用户回答。
+    /// 留在主线程上的后果是光标转彩虹——「推出磁盘转了几秒」就是这么来的——
+    /// 而且「处理中」那一帧根本没机会被画出来。
+    private static let blockingActions: Set<String> = ["xcodeClean", "ejectDisk", "emptyTrash"]
+
     private func beginAction(_ id: String) {
         setPhase(id, "running")
         flash(id)
-        // 慢动作必须离开主线程。清 DerivedData 可能要删好几个 G，
-        // 同步跑在主线程上不只是界面冻住——「处理中」根本没机会被画出来。
-        if id == "xcodeClean" {
+        if Self.blockingActions.contains(id) {
             Task { [weak self] in
-                await Task.detached { _ = SystemController.cleanXcodeCaches() }.value
+                await Task.detached { Self.performBlockingAction(id) }.value
                 self?.finishAction(id)
             }
         } else {
             performAction(id)
             finishAction(id)
+        }
+    }
+
+    /// `blockingActions` 里那几个的实现。都不碰界面，所以放后台是安全的。
+    private nonisolated static func performBlockingAction(_ id: String) {
+        switch id {
+        case "xcodeClean": _ = SystemController.cleanXcodeCaches()
+        case "ejectDisk":  SystemController.ejectAllRemovableDisks()
+        case "emptyTrash": SystemController.emptyTrash()
+        default:           break
         }
     }
 
@@ -429,10 +445,9 @@ final class SwitchStore: ObservableObject {
         case "lockScreen":        PowerController.shared.lockScreen()
         case "screensaver":       PowerController.shared.startScreensaver()
         case "playMusic":         AudioController.playPause()
-        case "emptyTrash":        SystemController.emptyTrash()
         case "emptyClipboard":    SystemController.emptyClipboard()
-        case "ejectDisk":         SystemController.ejectAllRemovableDisks()
-        case "xcodeClean":        SystemController.cleanXcodeCaches()
+        // emptyTrash / ejectDisk / xcodeClean 不在这儿——它们会阻塞，
+        // 由 beginAction 走 performBlockingAction 丢到后台。
         default: break
         }
     }
