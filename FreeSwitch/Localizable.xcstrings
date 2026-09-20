@@ -8529,6 +8529,167 @@
           }
         }
       }
+    },
+    "": {},
+    "FreeSwitch": {},
+    "免密助手失效了，这次用密码完成的": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Helfer für passwortloses Umschalten funktioniert nicht mehr – diese Änderung lief über dein Passwort"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The passwordless helper stopped working — this change used your password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El asistente sin contraseña dejó de funcionar; este cambio se hizo con tu contraseña"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’assistant sans mot de passe ne fonctionne plus — ce changement est passé par votre mot de passe"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワード不要ヘルパーが機能しなくなりました。今回はパスワードで実行しました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비밀번호 없이 처리하는 도우미가 작동하지 않아 이번에는 비밀번호로 처리했습니다"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Помощник для работы без пароля перестал запускаться — это изменение выполнено с вводом пароля"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免密助手失效了，這次是用密碼完成的"
+          }
+        }
+      }
+    },
+    "系统里还登记着 FreeSwitch 的免密助手，但它已经启动不起来了——通常是因为 App 换了一个版本（重新签名，或者删掉重装），系统为它记下的那份代码要求对不上新的程序了。\n\n刚才那次改动已经通过输密码完成，功能没有受影响。\n\n想恢复免密，需要把助手重装一遍：先注销旧的登记，再走一次和第一次安装相同的批准流程。": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der passwortlose Helfer von FreeSwitch ist im System noch eingetragen, lässt sich aber nicht mehr starten – meist weil die App durch einen anderen Build ersetzt wurde (neu signiert oder gelöscht und neu installiert), sodass die vom System hinterlegte Code-Anforderung nicht mehr zum neuen Programm passt.\n\nDie eben vorgenommene Änderung wurde per Passwort ausgeführt, an der Funktion ändert sich nichts.\n\nUm wieder ohne Passwort zu schalten, muss der Helfer neu installiert werden: Zuerst wird die alte Registrierung entfernt, dann läuft einmal derselbe Genehmigungsablauf wie bei der Erstinstallation."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system still has FreeSwitch’s passwordless helper on file, but it can no longer be launched — usually because the app was replaced by a different build (re-signed, or deleted and reinstalled), so the code requirement the system recorded no longer matches the new program.\n\nThe change you just made went through with your password, so nothing is broken.\n\nTo get passwordless switching back, the helper has to be installed again: the old registration is removed first, then the same approval flow as the first install runs once more."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El sistema todavía tiene registrado el asistente sin contraseña de FreeSwitch, pero ya no puede arrancar; normalmente es porque la app se sustituyó por otra versión (refirmada, o borrada y reinstalada) y el requisito de código que el sistema guardó ya no coincide con el nuevo programa.\n\nEl cambio que acabas de hacer se completó con tu contraseña, así que la función sigue intacta.\n\nPara recuperar el modo sin contraseña hay que instalar el asistente de nuevo: primero se elimina el registro antiguo y luego se repite el mismo proceso de aprobación que la primera vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’assistant sans mot de passe de FreeSwitch est toujours enregistré dans le système, mais il ne démarre plus — en général parce que l’app a été remplacée par une autre version (resignée, ou supprimée puis réinstallée) : l’exigence de code enregistrée par le système ne correspond plus au nouveau programme.\n\nLe changement que vous venez de faire est passé par votre mot de passe, la fonction elle-même n’est pas affectée.\n\nPour retrouver le mode sans mot de passe, il faut réinstaller l’assistant : l’ancien enregistrement est d’abord supprimé, puis la même procédure d’autorisation que lors de la première installation se déroule une fois."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システムには FreeSwitch のパスワード不要ヘルパーがまだ登録されていますが、起動できなくなっています。たいていはアプリが別のビルドに入れ替わった（再署名、または削除して再インストール）ためで、システムが記録したコード要件が新しいプログラムと一致しなくなっています。\n\n先ほどの変更はパスワードの入力で完了しているので、機能そのものに影響はありません。\n\nパスワード不要に戻すには、ヘルパーを入れ直す必要があります。古い登録を解除してから、初回と同じ承認手順をもう一度行います。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템에는 FreeSwitch의 비밀번호 없는 도우미가 아직 등록되어 있지만 더 이상 실행되지 않습니다. 보통 앱이 다른 빌드로 교체되어(다시 서명했거나, 삭제 후 재설치) 시스템이 기록해 둔 코드 요구 사항이 새 프로그램과 맞지 않기 때문입니다.\n\n방금 한 변경은 비밀번호 입력으로 완료되었으므로 기능에는 문제가 없습니다.\n\n비밀번호 없이 쓰려면 도우미를 다시 설치해야 합니다. 기존 등록을 해제한 뒤 처음 설치할 때와 같은 승인 절차를 한 번 더 진행합니다."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Помощник FreeSwitch для работы без пароля всё ещё зарегистрирован в системе, но больше не запускается — обычно потому, что приложение заменили другой сборкой (пересобрали с другой подписью или удалили и установили заново), и записанное системой требование к коду больше не совпадает с новой программой.\n\nИзменение, которое вы только что сделали, прошло через ввод пароля, так что сама функция работает.\n\nЧтобы вернуть работу без пароля, помощника нужно установить заново: сначала снимается старая регистрация, затем один раз проходит та же процедура подтверждения, что и при первой установке."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系統裡還登記著 FreeSwitch 的免密助手，但它已經啟動不起來了——通常是因為 App 換了一個版本（重新簽名，或者刪掉重裝），系統為它記下的那份程式碼要求對不上新的程式了。\n\n剛才那次改動已經透過輸入密碼完成，功能沒有受影響。\n\n想恢復免密，需要把助手重裝一遍：先登出舊的登記，再走一次和第一次安裝相同的核准流程。"
+          }
+        }
+      }
+    },
+    "重新安装助手…": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Helfer neu installieren …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstall Helper…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstalar el asistente…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinstaller l’assistant…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ヘルパーを再インストール…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "도우미 다시 설치…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переустановить помощника…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新安裝助手…"
+          }
+        }
+      }
     }
   }
 }

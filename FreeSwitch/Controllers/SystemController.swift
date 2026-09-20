@@ -1,4 +1,5 @@
 import AppKit
+import OSLog
 
 /// 系统杂项：隐藏桌面、显示隐藏文件、清空废纸篓、清空剪贴板、推出磁盘、Xcode 清理。
 enum SystemController {
@@ -121,13 +122,8 @@ enum SystemController {
 
     /// 切换低电量模式。装了特权助手就免密走 XPC，否则回退到 AppleScript 管理员授权（弹密码）。
     static func setLowPowerMode(_ on: Bool) {
-        if HelperClient.shared.isInstalled {
-            HelperClient.shared.setLowPowerMode(on) { _ in
-                Task { @MainActor in SwitchStore.shared.refresh() }
-            }
-        } else {
-            Shell.runAppleScript("do shell script \"/usr/bin/pmset -a lowpowermode \(on ? "1" : "0")\" with administrator privileges")
-        }
+        runPrivileged({ HelperClient.shared.setLowPowerMode(on, completion: $0) },
+                      fallback: "/usr/bin/pmset -a lowpowermode \(on ? "1" : "0")")
     }
 
     // MARK: 合盖休眠（clamshell）
@@ -141,12 +137,44 @@ enum SystemController {
 
     /// 禁用/恢复“合盖即休眠”。装了特权助手就免密走 XPC，否则回退到 AppleScript 管理员授权（弹密码）。
     static func setLidCloseSleepDisabled(_ disabled: Bool) {
-        if HelperClient.shared.isInstalled {
-            HelperClient.shared.setDisableSleep(disabled) { _ in
+        runPrivileged({ HelperClient.shared.setDisableSleep(disabled, completion: $0) },
+                      fallback: "/usr/bin/pmset -a disablesleep \(disabled ? "1" : "0")")
+    }
+
+    /// 走特权助手；**助手没能把事办成就退回输密码那条路**。
+    ///
+    /// 不能只看 `HelperClient.isInstalled`（它读的是 `SMAppService.status == .enabled`）：
+    /// **「注册了」不等于「起得来」**。App 换一次签名（比如从 Apple Development 换成
+    /// Developer ID 出包），launchd 记录的轻量代码要求（LWCR）就对不上新二进制，
+    /// spawn 会以 EX_CONFIG 失败，可 `status` 照样报 `.enabled`。
+    /// 实测日志：
+    ///   launchd: Could not find and/or execute program specified by service:
+    ///            3: No such process: Contents/MacOS/FreeSwitchHelper
+    ///   last exit code = 78: EX_CONFIG   properties = ... needs LWCR update
+    /// 那次「低电量模式开关点了没反应」就是这么来的——XPC 调用失败，返回值被 `_` 丢掉，
+    /// 于是静默失效。现在失败就回退，最差也只是多输一次密码。
+    private static func runPrivileged(_ viaHelper: @escaping (@escaping (Bool) -> Void) -> Void,
+                                      fallback command: String) {
+        // 密码框挂在那儿等用户输入的整段时间，脚本都不返回；这事绝不能占着主线程。
+        func askPassword() {
+            DispatchQueue.global(qos: .userInitiated).async {
+                Shell.runAppleScript("do shell script \"\(command)\" with administrator privileges")
                 Task { @MainActor in SwitchStore.shared.refresh() }
             }
-        } else {
-            Shell.runAppleScript("do shell script \"/usr/bin/pmset -a disablesleep \(disabled ? "1" : "0")\" with administrator privileges")
+        }
+        guard HelperClient.shared.isInstalled else {
+            askPassword()
+            return
+        }
+        viaHelper { ok in
+            if ok {
+                Task { @MainActor in SwitchStore.shared.refresh() }
+            } else {
+                FreeSwitchTrigger.log.debug("helper call failed, falling back to password prompt")
+                askPassword()
+                // 「装了助手却还要输密码」这件事本身是个故障，说清楚并给条修的路。
+                Task { @MainActor in HelperClient.shared.explainBrokenHelperOnce() }
+            }
         }
     }
 }
