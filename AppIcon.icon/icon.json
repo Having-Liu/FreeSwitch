@@ -18,8 +18,26 @@
         {
           "glass" : false,
           "hidden" : false,
-          "image-name" : "image 1-已压缩.png",
-          "name" : "image 1-已压缩",
+          "image-name" : "image 4.png",
+          "name" : "image 4",
+          "opacity-specializations" : [
+            {
+              "value" : 1
+            },
+            {
+              "appearance" : "dark",
+              "value" : 1
+            },
+            {
+              "appearance" : "tinted",
+              "value" : 1
+            }
+          ]
+        },
+        {
+          "hidden" : false,
+          "image-name" : "Frame 7.png",
+          "name" : "Frame 7",
           "opacity-specializations" : [
             {
               "appearance" : "dark",
@@ -33,29 +51,17 @@
         },
         {
           "hidden" : false,
-          "image-name" : "21312312312321-已压缩 2.png",
-          "name" : "21312312312321-已压缩 2",
+          "image-name" : "Frame 8.png",
+          "name" : "Frame 8",
           "opacity-specializations" : [
             {
-              "appearance" : "dark",
               "value" : 0
             },
             {
-              "appearance" : "tinted",
-              "value" : 0
+              "appearance" : "dark",
+              "value" : 1
             }
           ]
-        },
-        {
-          "glass" : false,
-          "hidden" : false,
-          "image-name" : "image 2-已压缩.png",
-          "name" : "image 2-已压缩"
-        },
-        {
-          "hidden" : false,
-          "image-name" : "Frame 5-已压缩.png",
-          "name" : "Frame 5-已压缩"
         }
       ],
       "shadow" : {
