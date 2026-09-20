@@ -214,16 +214,19 @@ if [ ${#SHELLS[@]} -gt 0 ]; then
 fi
 
 if [ "$FAILED" = 0 ]; then
+    # 成功时通知**只说一句话**，不提那几个空壳。
+    #
+    # 空壳是 0 个文件的系统托管目录：App 自己的身份删不掉（要 Full Disk Access，
+    # 为一个卸载器去要这个权限不成比例），留着不占地方、不影响任何东西，
+    # 而且系统自己还会把它重建出来。这种「用户既做不了、也不用做」的事写进通知，
+    # 只会让人以为卸载没干完——通知偏偏又是最打扰人的那个渠道。
+    # 想深究的人，日志里什么都有：/tmp/FreeSwitch-uninstall.log。
     if [ ${#SHELLS[@]} -eq 0 ]; then
         say "✓ 已彻底卸载，没有任何残留。"
-        NOTE="所有数据都已清除，没有残留。"
     else
-        # 通知里不写「去访达手动删」：空壳是 0 个文件的系统托管目录，留着不影响任何东西，
-        # 把它说成待办事项只会让用户以为卸载没做完。想连壳一起删的办法写在日志里就够了。
-        NOTE="数据已全部清除。剩下 ${#SHELLS[@]} 个系统托管的空目录，里面什么都没有。"
         say "✓ 数据已全部清除。那 ${#SHELLS[@]} 个空壳留着无妨；一定要连壳删就在访达里移到废纸篓，或在终端运行 scripts/uninstall.sh。"
     fi
-    [ "$FROM_APP" = 1 ] && osascript -e "display notification \"$NOTE\" with title \"FreeSwitch 已彻底卸载\"" >/dev/null 2>&1
+    [ "$FROM_APP" = 1 ] && osascript -e "display notification \"所有数据都已清除。\" with title \"FreeSwitch 已彻底卸载\"" >/dev/null 2>&1
     exit 0
 fi
 
