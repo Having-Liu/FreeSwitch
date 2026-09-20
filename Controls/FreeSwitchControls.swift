@@ -2,6 +2,7 @@ import WidgetKit
 import SwiftUI
 import AppIntents
 import Foundation
+import AppKit
 import OSLog
 
 // 诊断用：记录控制中心每次回查 provider 的时刻。已降到 debug 级，平时不写日志库。
@@ -85,11 +86,92 @@ enum CtrlShared {
         try? data.write(to: url, options: .atomic)
     }
 
-    /// 不显示执行阶段的动作。
+    // MARK: 把请求送到主 App
+
+    /// 不由本扩展显示执行阶段的动作。
     ///
     /// 「屏幕清洁」点一下就整屏盖住，反馈是它自己，再补一句「已完成」纯属多余——
     /// 而且那块黑幕落下来的时候，控制中心早就收起来了，根本没人看得见。
     static let unphasedActions: Set<String> = ["screenClean"]
+
+    static let mainAppID = "com.freeswitch.FreeSwitch"
+
+    /// 待办目录：主 App 没在跑时，请求先落在这儿。
+    ///
+    /// 达尔文通知是「广播给此刻正在听的人」，没人听就直接消失。
+    /// 先拉起 App 再发也来不及——App 要几百毫秒才开始监听，那一下就白点了。
+    /// 所以顺序反过来：**先落盘，再拉起**，App 启动时自己来取。
+    ///
+    /// 一个请求一个文件，不共用一份列表：写入方是本扩展、消费方是主 App，
+    /// 两个进程各写各的文件、各删各的，天然不打架，不用加锁。
+    /// 文件名带毫秒时间戳，既定了执行顺序，也用来判断过期。
+    private static var pendingDir: URL? {
+        FileManager.default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("FreeSwitch/pending", isDirectory: true)
+    }
+
+    /// 把请求送出去：App 在跑就直接广播（快），不在就落盘再把 App 拉起来。
+    static func deliver(_ payload: String) async {
+        if isMainAppRunning {
+            post(payload)
+            return
+        }
+        fsLog.debug("main app not running, queueing \(payload, privacy: .public)")
+        enqueue(payload)
+        await launchMainApp()
+    }
+
+    private static var isMainAppRunning: Bool {
+        !NSRunningApplication.runningApplications(withBundleIdentifier: mainAppID).isEmpty
+    }
+
+    private static func enqueue(_ payload: String) {
+        guard let dir = pendingDir, let data = payload.data(using: .utf8) else { return }
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let name = String(format: "%013.0f-%@", Date().timeIntervalSince1970 * 1000, UUID().uuidString.prefix(8) as CVarArg)
+        try? data.write(to: dir.appendingPathComponent(name), options: .atomic)
+    }
+
+    /// 宿主 App 的位置。
+    ///
+    /// 从本扩展自己的 bundle 往上找第一个 `.app`，不要写死层数——
+    /// 插件在 bundle 里的位置换过（PlugIns / Extensions），写死迟早对不上。
+    /// 万一找不到（比如被单独搬走了），再退回 LaunchServices 按 bundle id 查。
+    private static var hostAppURL: URL? {
+        var url = Bundle.main.bundleURL
+        for _ in 0..<6 {
+            url = url.deletingLastPathComponent()
+            if url.pathExtension == "app" { return url }
+            if url.path == "/" { break }
+        }
+        return NSWorkspace.shared.urlForApplication(withBundleIdentifier: mainAppID)
+    }
+
+    /// 拉起主 App，**不抢焦点**。
+    ///
+    /// 实测过：带 App Sandbox 的进程调 `NSWorkspace.openApplication` 是允许的——
+    /// 真正 spawn 的是 launchd，沙盒管的是本进程能干什么，不是它能请谁干什么。
+    /// `activates = false` 是关键：主 App 是 LSUIElement，拉起来只多一个菜单栏图标，
+    /// 用户正在用的那个窗口不会被抢走。
+    ///
+    /// 这里 await 到启动完成再返回，让本扩展进程多活一会儿；
+    /// 请求已经落盘了，所以就算这一步失败，App 下次启动照样能收到。
+    private static func launchMainApp() async {
+        guard let appURL = hostAppURL else {
+            fsLog.error("cannot locate host app")
+            return
+        }
+        let config = NSWorkspace.OpenConfiguration()
+        config.activates = false
+        config.addsToRecentItems = false
+        do {
+            let app = try await NSWorkspace.shared.openApplication(at: appURL, configuration: config)
+            fsLog.debug("launched main app pid=\(app.processIdentifier, privacy: .public)")
+        } catch {
+            fsLog.error("launch failed: \(error.localizedDescription, privacy: .public)")
+        }
+    }
 
     static func post(_ suffix: String) {
         CFNotificationCenterPostNotification(
@@ -115,7 +197,7 @@ struct TriggerSwitchIntent: AppIntent {
             // 这时主 App 往往还没收到通知，不先写就要等约一秒才看得到反馈。
             CtrlShared.setPhase(id, "running")
         }
-        CtrlShared.post("trigger." + id)
+        await CtrlShared.deliver("trigger." + id)
         return .result()
     }
 }
@@ -131,7 +213,7 @@ struct SetSwitchIntent: SetValueIntent {
         // 顺序要紧：先落乐观值，再发通知。
         // 反过来的话，主 App 可能抢在我们写文件之前就完成并回写，随后又被这里的旧值覆盖。
         CtrlShared.setOptimistic(id, value)
-        CtrlShared.post("set." + id + "." + (value ? "1" : "0"))
+        await CtrlShared.deliver("set." + id + "." + (value ? "1" : "0"))
         return .result()
     }
 }

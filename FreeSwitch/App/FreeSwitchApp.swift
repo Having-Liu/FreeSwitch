@@ -46,6 +46,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 启动即读一次真实状态并写入共享区，让控制中心控件一开始就显示正确开/关。
         SwitchStore.shared.refresh()
 
+        // 取走控件在本 App 没运行时留下的请求。
+        // 这一步要在 refresh() 之后：refresh 发布的是「此刻系统的真实状态」，
+        // 放在它前面执行的话，刚做完的改动会被紧随其后的 refresh 覆盖回去。
+        let servedControl = FreeSwitchTrigger.drainPending() > 0
+
         // 全局热键 → 触发对应开关。
         HotkeyManager.shared.onTrigger = { id in
             SwitchStore.shared.activate(id)
@@ -54,6 +59,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 首次启动弹一次引导。放在最后：前面那些初始化要先跑完，
         // 引导第二、四页嵌的是真的设置页，它们读的就是这些初始化后的状态。
-        OnboardingWindow.presentIfNeeded()
+        //
+        // 但被控制中心拉起来的这一次不弹：用户那一下点的是某个控件，
+        // 回应他的应该是那个动作本身，而不是一扇糊住整屏的引导窗。引导留到下次手动打开。
+        if !servedControl { OnboardingWindow.presentIfNeeded() }
     }
 }

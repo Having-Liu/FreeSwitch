@@ -16,15 +16,8 @@ private let fsPrefix = "MXHBUQH27V.group.com.freeswitch.FreeSwitch."
 private let fsCallback: CFNotificationCallback = { _, _, cfName, _, _ in
     guard let raw = cfName?.rawValue as String?, raw.hasPrefix(fsPrefix) else { return }
     let rest = String(raw.dropFirst(fsPrefix.count))       // "trigger.darkMode" / "set.muteMic.1"
-    let parts = rest.split(separator: ".").map(String.init)
     DispatchQueue.main.async {
-        MainActor.assumeIsolated {
-            if parts.count >= 2, parts[0] == "trigger" {
-                SwitchStore.shared.activate(parts[1])
-            } else if parts.count >= 3, parts[0] == "set" {
-                SwitchStore.shared.setSwitch(parts[1], on: parts[2] == "1")
-            }
-        }
+        MainActor.assumeIsolated { FreeSwitchTrigger.apply(rest) }
     }
 }
 
@@ -47,6 +40,59 @@ enum FreeSwitchTrigger {
 
     private static func add(_ center: CFNotificationCenter?, _ name: String) {
         CFNotificationCenterAddObserver(center, nil, fsCallback, name as CFString, nil, .deliverImmediately)
+    }
+
+    // MARK: 冷启动时的待办请求
+
+    /// 控件在主 App 没运行时留下的请求（一个请求一个文件，见扩展里的 `CtrlShared.enqueue`）。
+    static var pendingDir: URL {
+        statesURL.deletingLastPathComponent().appendingPathComponent("pending", isDirectory: true)
+    }
+
+    /// 超过这个时间还没被取走的请求就丢掉。
+    ///
+    /// 拉起 App 失败、或者用户把刚起来的 App 又退了，请求就会一直躺在那儿。
+    /// 不设期限的话，它会在几小时后某次手动启动时突然执行——那已经不是用户要的了。
+    private static let pendingTTL: TimeInterval = 60
+
+    /// 取走并执行所有待办请求，返回执行了几条。
+    ///
+    /// 按文件名排序就是按时间排序（名字以毫秒时间戳开头且定长补零）。
+    /// 先删后执行：执行途中崩了也不会在下次启动时重放一遍。
+    @MainActor
+    @discardableResult
+    static func drainPending() -> Int {
+        let fm = FileManager.default
+        guard let names = try? fm.contentsOfDirectory(atPath: pendingDir.path) else { return 0 }
+        var done = 0
+        for name in names.sorted() where !name.hasPrefix(".") {
+            let url = pendingDir.appendingPathComponent(name)
+            let payload = (try? String(contentsOf: url, encoding: .utf8))?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let age = Date().timeIntervalSince(
+                (try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast)
+            try? fm.removeItem(at: url)
+            guard let payload, age <= pendingTTL else {
+                log.debug("dropping stale pending \(payload ?? name, privacy: .public)")
+                continue
+            }
+            log.debug("draining pending \(payload, privacy: .public)")
+            apply(payload)
+            done += 1
+        }
+        return done
+    }
+
+    /// 执行一条请求。`trigger.<id>` 或 `set.<id>.<1|0>`——和达尔文通知的后缀是同一套写法，
+    /// 所以两条路（热路径的广播、冷启动的待办）解析逻辑共用这一份。
+    @MainActor
+    static func apply(_ payload: String) {
+        let parts = payload.split(separator: ".").map(String.init)
+        if parts.count >= 2, parts[0] == "trigger" {
+            SwitchStore.shared.activate(parts[1])
+        } else if parts.count >= 3, parts[0] == "set" {
+            SwitchStore.shared.setSwitch(parts[1], on: parts[2] == "1")
+        }
     }
 
     /// 状态写进**控件扩展自己的沙盒容器**，而不是 App Group 容器。
