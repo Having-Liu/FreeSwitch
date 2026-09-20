@@ -1,14 +1,15 @@
 import SwiftUI
 import Carbon.HIToolbox
 
-// 设置窗口的四页内容。骨架和外壳在 SettingsView.swift。
+// 设置窗口各页的内容。骨架和外壳在 SettingsView.swift。
 
 // MARK: - 开关
 
 struct SwitchesPane: View {
     @ObservedObject var prefs: Preferences
     /// 嵌进引导页时为真：藏掉底部那条操作栏。
-    /// 那里有「查看引导」，在引导里再点一次就递归了；「恢复默认分组」在初次上手时也只会添乱。
+    /// 「恢复默认分组」「全部显示」在初次上手时只会添乱——那时用户还没排过任何东西，
+    /// 给一个「恢复」按钮既无处可恢复，又容易被当成必经步骤点下去。
     var embedded: Bool = false
 
     var body: some View {
