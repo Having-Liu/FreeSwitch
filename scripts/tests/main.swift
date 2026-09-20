@@ -20,33 +20,27 @@ check(GroupLayout.moved(letters, fromOffsets: [1, 2], toOffset: 4) == ["A", "D",
 print("【跨分组拖动】")
 let base = GroupLayout.defaultGroups(defaults: defaults, catalog: catalog)
 check(ids(base) == [["a1", "a2"], ["b1"]], "默认分组", "\(ids(base))")
-// 摊平后：0「拖到这里新建分组」 1 甲  2 a1  3 a2  4 乙  5 b1
-// 第 0 行是那条落区提示，它也算一行——所有下标都比「只有标题和开关」时多 1。
-let crossed = GroupLayout.applyingMove(to: base, from: [2], to: 5)
+// 摊平后：0 甲  1 a1  2 a2  3 乙  4 b1
+let crossed = GroupLayout.applyingMove(to: base, from: [1], to: 4)
 check(ids(crossed) == [["a2"], ["a1", "b1"]], "a1 拖过「乙」标题 → 进入乙组", "\(ids(crossed))")
 
-// 拖到最顶上 = 新建一组。落到落区之前（0）和落区之后、第一个标题之前（1）都算，
-// 这样即便 SwiftUI 不肯给出 0，功能照样成立。
-for destination in [0, 1] {
-    let toTop = GroupLayout.applyingMove(to: base, from: [5], to: destination)
-    check(ids(toTop) == [["b1"], ["a1", "a2"], []], "落点 \(destination) → 新建一组", "\(ids(toTop))")
-    check(toTop.first?.name == "", "新建的分组没有名字", "\(toTop.first?.name ?? "nil")")
-    check(toTop.first?.id == "group1", "新分组用没被占用的最小编号", "\(toTop.first?.id ?? "nil")")
-}
+// 拖到第一个分组标题之前 = 新建一组。稳的入口是设置里的「新建分组」按钮，
+// 这条路成不成立要看 SwiftUI 肯不肯给出 destination 0，逻辑本身先保证对。
+let toTop = GroupLayout.applyingMove(to: base, from: [4], to: 0)
+check(ids(toTop) == [["b1"], ["a1", "a2"], []], "拖到所有标题之前 → 新建一组", "\(ids(toTop))")
+check(toTop.first?.name == "", "新建的分组没有名字", "\(toTop.first?.name ?? "nil")")
+check(toTop.first?.id == "group1", "新分组用没被占用的最小编号", "\(toTop.first?.id ?? "nil")")
 check(GroupLayout.nextGroupID(taken: ["group1", "group3"]) == "group2",
       "编号跳过已占用的", GroupLayout.nextGroupID(taken: ["group1", "group3"]))
 
-let toEnd = GroupLayout.applyingMove(to: base, from: [2], to: 6)
+let toEnd = GroupLayout.applyingMove(to: base, from: [1], to: 5)
 check(ids(toEnd) == [["a2"], ["b1", "a1"]], "拖到列表末尾 → 进入最后一组末尾", "\(ids(toEnd))")
 
-// 拖分组标题 = 整组搬家（以前这里是作废）。把「乙」拖到最上面。
-let groupMoved = GroupLayout.applyingMove(to: base, from: [4], to: 1)
+// 拖分组标题 = 整组搬家。把「乙」拖到最上面。
+let groupMoved = GroupLayout.applyingMove(to: base, from: [3], to: 0)
 check(groupMoved.map(\.id) == ["b", "a"], "拖分组标题 → 整组搬到前面", "\(groupMoved.map(\.id))")
 check(ids(groupMoved) == [["b1"], ["a1", "a2"]], "整组搬家不打散组内开关", "\(ids(groupMoved))")
 
-// 落区那一行不许被拖走。
-let zoneMoved = GroupLayout.applyingMove(to: base, from: [0], to: 4)
-check(zoneMoved == base, "拖「新建分组」落区 → 作废，分组原样不变")
 check(crossed.map(\.name) == ["甲", "乙"], "拖动不影响分组名")
 
 print("【分组上移 / 下移】")

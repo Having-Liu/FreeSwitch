@@ -20,19 +20,11 @@ struct SwitchGroup: Codable, Equatable, Identifiable {
 /// 只能在同一个 ForEach 内部挪动，分成多个 Section 就拖不过去。摊平之后，
 /// 开关拖过哪个分组标题，就落进哪个分组。
 enum GroupRow: Hashable, Identifiable {
-    /// 列表最上面那条「拖到这里新建分组」。
-    ///
-    /// 它必须是**列表里的一行**，不能画在 List 外面：`.onMove` 只在同一个 ForEach 内部
-    /// 报告落点，画在外面的视图接不到这次拖动。
-    /// 它存在的另一个理由是保险：万一 SwiftUI 不肯把 destination 给成 0，
-    /// 「这一行和第一个分组标题之间」这个落点（destination = 1）同样被当作「新建分组」。
-    case dropZone
     case group(String)
     case item(String)
 
     var id: String {
         switch self {
-        case .dropZone:      return "dropZone"
         case .group(let id): return "group." + id
         case .item(let id):  return "item." + id
         }
@@ -98,7 +90,7 @@ enum GroupLayout {
     }
 
     static func rows(for groups: [SwitchGroup]) -> [GroupRow] {
-        [.dropZone] + groups.flatMap { [.group($0.id)] + $0.items.map { .item($0) } }
+        groups.flatMap { [.group($0.id)] + $0.items.map { .item($0) } }
     }
 
     /// 在摊平的列表里移动开关，再按分组标题重新切分。
@@ -114,16 +106,14 @@ enum GroupLayout {
            case .group(let movingID) = original[index] {
             return movingGroup(groups, id: movingID, toRowDestination: destination, rows: original)
         }
-        // 剩下的：拖到多个标题、或把「拖到这里新建分组」那一行拖走，都作废。
-        if source.contains(where: { original.indices.contains($0) && !isItem(original[$0]) }) {
+        // 一次拖多行、且其中含分组标题：语义不清，作废。
+        if source.contains(where: { original.indices.contains($0) && isGroup(original[$0]) }) {
             return groups
         }
         var result: [SwitchGroup] = []
         var leading: [String] = []
         for row in moved(original, fromOffsets: source, toOffset: destination) {
             switch row {
-            case .dropZone:
-                continue
             case .group(let id):
                 guard let group = groups.first(where: { $0.id == id }) else { continue }
                 result.append(SwitchGroup(id: id, name: group.name, items: []))
@@ -132,9 +122,8 @@ enum GroupLayout {
             }
         }
         // 拖到最顶上（第一个分组标题之前）= 新建一个分组。
-        // 原来是把它们塞回第一个分组的开头，那样用户就没有任何办法造出新分组。
-        // 新分组不起名字：空名字的分组在面板上不画标题，只剩分隔作用——
-        // 想要一条纯粹的空白分隔线，这就是入口。
+        // 这条路能不能走通取决于 SwiftUI 肯不肯把 destination 给成 0，不保证；
+        // 稳的入口是设置底部那个「新建分组」按钮。逻辑留着，成立时就是白赚的。
         if !leading.isEmpty {
             result.insert(SwitchGroup(id: nextGroupID(taken: result.map(\.id)),
                                       name: "", items: leading), at: 0)
@@ -206,11 +195,6 @@ enum GroupLayout {
         let moving = result.remove(at: from)
         result.insert(moving, at: min(max(target - (target > from ? 1 : 0), 0), result.count))
         return result
-    }
-
-    private static func isItem(_ row: GroupRow) -> Bool {
-        if case .item = row { return true }
-        return false
     }
 
     private static func isGroup(_ row: GroupRow) -> Bool {

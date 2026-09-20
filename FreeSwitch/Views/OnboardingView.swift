@@ -171,7 +171,7 @@ struct OnboardingView: View {
                 (symbol: "arrow.up.arrow.down", title: L("拖动排序"),
                  detail: L("按住任意一行上下拖；拖过分组标题就换到那个分组")),
                 (symbol: "pencil", title: L("分组随你安排"),
-                 detail: L("拖到最上面能新建一组；分组名点一下就能改，分组名称可以为空")),
+                 detail: L("底部「新建分组」可以加一组；分组名点一下就能改，分组名称可以为空")),
                 (symbol: "command", title: L("绑全局快捷键"),
                  detail: L("鼠标移到某一行，右边会浮出「设置快捷键」，按下组合键即可")),
                 (symbol: "eye.slash", title: L("用不上的就关掉"),

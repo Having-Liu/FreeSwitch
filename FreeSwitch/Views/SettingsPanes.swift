@@ -14,20 +14,13 @@ struct SwitchesPane: View {
     var body: some View {
         VStack(spacing: 0) {
             PaneHeader(title: L("开关"),
-                       subtitle: L("拖动排序，可以拖进其他分组；拖到最上面新建一组。分组名点一下就能改，分组名称可以为空"))
+                       subtitle: L("拖动排序，可以拖进其他分组；分组名点一下就能改，分组名称可以为空"))
 
             List {
                 // 分组标题和开关摊平在同一个 ForEach 里：.onMove 只能在一个 ForEach 内挪动，
                 // 分成多个 Section 就拖不过去了。开关拖过哪个分组标题，就落进哪个分组。
                 ForEach(prefs.groupRows) { entry in
                     switch entry {
-                    case .dropZone:
-                        // 这里**不能**加 .moveDisabled(true)。
-                        // SwiftUI 的 List 不会在「不可移动的行」旁边提供插入点，
-                        // 加上它，这一行上下两个落点就一起消失了——「拖到最上面新建分组」
-                        // 之所以完全拖不上去，就是这个原因。
-                        // 拖动落区本身的情况由 GroupLayout.applyingMove 拒绝，不需要在这里防。
-                        NewGroupDropZone()
                     case .group(let id):
                         if let group = prefs.groups.first(where: { $0.id == id }) {
                             GroupHeaderRow(prefs: prefs, group: group)
@@ -539,25 +532,3 @@ struct GeneralPane: View {
     }
 }
 
-/// 列表最上面那条「拖到这里新建分组」。
-///
-/// 刻意画成**一条缝**而不是一个方框。`.onMove` 是插入点模型：
-/// 用户看到方框会以为要「丢进框里」，而 SwiftUI 实际认的是「这一行的上边缘那条缝」。
-/// 画成一条带 ⊕ 的细横带，和这个模型对得上，误解也少。
-private struct NewGroupDropZone: View {
-    var body: some View {
-        HStack(spacing: 7) {
-            Image(systemName: "plus.circle")
-                .font(.system(size: 11))
-            Text("拖到这里新建分组")
-                .font(.system(size: 10.5))
-                .fixedSize()
-            Rectangle()
-                .frame(height: 1)
-                .opacity(0.35)
-        }
-        .foregroundStyle(.tertiary)
-        .frame(height: 22)
-        .padding(.trailing, 2)
-    }
-}
