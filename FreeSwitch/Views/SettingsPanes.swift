@@ -22,7 +22,12 @@ struct SwitchesPane: View {
                 ForEach(prefs.groupRows) { entry in
                     switch entry {
                     case .dropZone:
-                        NewGroupDropZone().moveDisabled(true)
+                        // 这里**不能**加 .moveDisabled(true)。
+                        // SwiftUI 的 List 不会在「不可移动的行」旁边提供插入点，
+                        // 加上它，这一行上下两个落点就一起消失了——「拖到最上面新建分组」
+                        // 之所以完全拖不上去，就是这个原因。
+                        // 拖动落区本身的情况由 GroupLayout.applyingMove 拒绝，不需要在这里防。
+                        NewGroupDropZone()
                     case .group(let id):
                         if let group = prefs.groups.first(where: { $0.id == id }) {
                             GroupHeaderRow(prefs: prefs, group: group)
@@ -536,27 +541,23 @@ struct GeneralPane: View {
 
 /// 列表最上面那条「拖到这里新建分组」。
 ///
-/// 为什么要有它：「把开关拖到最顶上就新建一组」这件事，不画出来没人找得到，
-/// 而且实测拖到那儿松手也没反应——多半是因为列表第一行原本被标成不可移动，
-/// SwiftUI 就不肯给出这个落点。摆一条真实的、够高的行在那里，
-/// 既是提示，也给拖动一个明确的落脚处。
+/// 刻意画成**一条缝**而不是一个方框。`.onMove` 是插入点模型：
+/// 用户看到方框会以为要「丢进框里」，而 SwiftUI 实际认的是「这一行的上边缘那条缝」。
+/// 画成一条带 ⊕ 的细横带，和这个模型对得上，误解也少。
 private struct NewGroupDropZone: View {
     var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "plus.rectangle.on.rectangle")
+        HStack(spacing: 7) {
+            Image(systemName: "plus.circle")
                 .font(.system(size: 11))
             Text("拖到这里新建分组")
-                .font(.system(size: 11))
-            Spacer(minLength: 0)
+                .font(.system(size: 10.5))
+                .fixedSize()
+            Rectangle()
+                .frame(height: 1)
+                .opacity(0.35)
         }
         .foregroundStyle(.tertiary)
-        .frame(maxWidth: .infinity, minHeight: 30)
-        .padding(.horizontal, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
-                .foregroundStyle(.quaternary)
-        )
-        .padding(.vertical, 2)
+        .frame(height: 22)
+        .padding(.trailing, 2)
     }
 }
