@@ -10,7 +10,6 @@ struct SwitchesPane: View {
     /// 嵌进引导页时为真：藏掉底部那条操作栏。
     /// 那里有「查看引导」，在引导里再点一次就递归了；「恢复默认分组」在初次上手时也只会添乱。
     var embedded: Bool = false
-    @State private var launchAtLogin = Preferences.shared.launchAtLogin
 
     var body: some View {
         VStack(spacing: 0) {
@@ -24,7 +23,13 @@ struct SwitchesPane: View {
                     switch entry {
                     case .group(let id):
                         if let group = prefs.groups.first(where: { $0.id == id }) {
-                            GroupHeaderRow(prefs: prefs, group: group).moveDisabled(true)
+                            GroupHeaderRow(prefs: prefs, group: group)
+                                // 这里原本有 .moveDisabled(true)。去掉它是为了验证一个假设：
+                                // 「拖到最顶上」松手后毫无反应，可能是因为列表第一行被标成不可移动，
+                                // SwiftUI 就不肯把 destination 给成 0。实测过拖拽指示器**确实**会出现在
+                                // 第一行之上，但松手后分组结构原样不变。
+                                // 代价：分组标题现在能被拿起来，但放下没有效果——applyingMove 会拒绝
+                                // 含分组标题的挪动。假设若不成立，这一行应该加回去。
                         }
                     case .item(let id):
                         if let item = SwitchCatalog.item(id) {
@@ -44,18 +49,8 @@ struct SwitchesPane: View {
             Divider().opacity(0.5)
 
             HStack(spacing: 10) {
-                Toggle(isOn: Binding(
-                    get: { launchAtLogin },
-                    set: { prefs.launchAtLogin = $0; launchAtLogin = prefs.launchAtLogin }
-                )) {
-                    Text("开机自动启动").font(.system(size: 12))
-                }
-                .toggleStyle(.checkbox)
-
+                Button(L("新建分组")) { prefs.addGroup() }
                 Spacer()
-
-                // 留个回看入口：不然引导只有装机那一次能看到，改动它也没法自测。
-                Button(L("查看引导")) { OnboardingWindow.present() }
                 Button(L("全部显示")) {
                     for id in SwitchCatalog.defaultIDs { prefs.setVisible(id, true) }
                 }
@@ -476,6 +471,53 @@ struct MoreAppsPane: View {
                         }
                     }
                     .padding(.vertical, 3)
+                }
+            }
+            .formStyle(.grouped)
+            .scrollContentBackground(.hidden)
+        }
+    }
+}
+
+// MARK: - 通用
+
+struct GeneralPane: View {
+    @ObservedObject var prefs: Preferences
+    @State private var launchAtLogin = Preferences.shared.launchAtLogin
+
+    var body: some View {
+        VStack(spacing: 0) {
+            PaneHeader(title: L("通用"), subtitle: L("App 本身的行为"))
+            Form {
+                Section {
+                    Toggle(isOn: Binding(
+                        get: { launchAtLogin },
+                        set: { prefs.launchAtLogin = $0; launchAtLogin = prefs.launchAtLogin }
+                    )) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("开机自动启动").font(.system(size: 12.5))
+                            Text("登录时自动把 FreeSwitch 放进菜单栏")
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+                }
+
+                Section {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("首次启动引导").font(.system(size: 12.5))
+                            Text("四页速览：面板、分组与快捷键、控制中心、权限")
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Button(L("查看引导")) { OnboardingWindow.present() }
+                            .controlSize(.small)
+                    }
+                    .padding(.vertical, 2)
                 }
             }
             .formStyle(.grouped)

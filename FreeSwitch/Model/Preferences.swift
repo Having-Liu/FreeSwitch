@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 import ServiceManagement
+import OSLog
 
 /// 用户偏好：开关的分组与顺序、显示项、全局快捷键、开机自启。持久化到 UserDefaults。
 @MainActor
@@ -64,11 +65,24 @@ final class Preferences: ObservableObject {
     var groupRows: [GroupRow] { GroupLayout.rows(for: groups) }
 
     func moveRows(fromOffsets source: IndexSet, toOffset destination: Int) {
+        // 诊断用：拖到最顶上时 SwiftUI 给的 destination 到底是不是 0。
+        // debug 级，平时不落盘；要看就 `log stream --predicate 'subsystem == "com.freeswitch.FreeSwitch"' --debug`
+        FreeSwitchTrigger.log.debug("moveRows source=\(Array(source).description, privacy: .public) destination=\(destination, privacy: .public)")
         groups = GroupLayout.applyingMove(to: groups, from: source, to: destination)
     }
 
     func moveGroup(_ id: String, by offset: Int) {
         groups = GroupLayout.movingGroup(groups, id: id, by: offset)
+    }
+
+    /// 在最前面加一个空分组。
+    ///
+    /// 「把开关拖到最顶上」那条路要靠 SwiftUI 把 destination 给成 0，而列表第一行是
+    /// `moveDisabled` 的分组标题，实测拖不出这个落点。所以另给一个明确的按钮——
+    /// 何况一个藏在拖拽手势里的功能，本来也没人找得到。
+    func addGroup() {
+        groups.insert(SwitchGroup(id: GroupLayout.nextGroupID(taken: groups.map(\.id)),
+                                  name: "", items: []), at: 0)
     }
 
     func renameGroup(_ id: String, to name: String) {

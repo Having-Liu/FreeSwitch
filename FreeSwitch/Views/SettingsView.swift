@@ -51,6 +51,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             SettingsSidebarGroup(title: L("常用")) {
                 item(.switches)
+                item(.general)
                 item(.language)
             }
             SettingsSidebarGroup(title: L("高级")) {
@@ -116,6 +117,7 @@ struct SettingsView: View {
     private var page: some View {
         switch pane {
         case .switches:    SwitchesPane(prefs: prefs)
+        case .general:     GeneralPane(prefs: prefs)
         case .language:    LanguagePane()
         case .permissions: PermissionsPane()
         case .uninstall:   UninstallPane()
@@ -127,13 +129,14 @@ struct SettingsView: View {
 // MARK: - 分页
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case switches, language, permissions, uninstall, moreApps
+    case switches, general, language, permissions, uninstall, moreApps
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .switches:    return L("开关")
+        case .general:     return L("通用")
         case .language:    return L("语言")
         case .permissions: return L("权限")
         case .uninstall:   return L("彻底卸载")
@@ -144,6 +147,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
     var symbol: String {
         switch self {
         case .switches:    return "switch.2"
+        case .general:     return "gearshape"
         case .language:    return "globe"
         case .permissions: return "lock.shield"
         case .uninstall:   return "trash"
