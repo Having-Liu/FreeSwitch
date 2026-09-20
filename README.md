@@ -1,16 +1,17 @@
 # FreeSwitch
 
+## ⬇︎ [下载 FreeSwitch](https://home.astrocean.love/apps/freeswitch)
+
+macOS 14.6 或更新版本 · 免费 · 无需注册 · 没有内购 · 也可以[自己编译](#构建安装)
+
+---
+
 一个**免费、开源**的 macOS 菜单栏工具：把散落在系统设置、菜单栏和终端命令里的
 22 个系统开关收进一个面板，一次点击就能切换。常用的十来个还能直接放进 macOS 控制中心，
 主 App 没运行也能用。不联网、不收集任何数据。献给大家 ❤️
 
 > Free & open-source menu-bar toggles for macOS — 22 system switches one click away,
 > built on public system APIs. No network access, no data collection.
-
-### ⬇︎ [下载 FreeSwitch](https://home.astrocean.love/apps/freeswitch)
-
-macOS 14.6 或更新版本 · 免费 · 无需注册 · 没有内购
-不想下现成的也可以自己编译，见下文[构建安装](#构建安装)。
 
 ## 功能一览（22 个开关）
 
