@@ -1,5 +1,7 @@
 # FreeSwitch
 
+**简体中文** · [English](README.en.md)
+
 ## ⬇︎ [下载 FreeSwitch](https://home.astrocean.love/apps/freeswitch)
 
 macOS 14.6 或更新版本 · 免费 · 无需注册 · 没有内购 · 也可以[自己编译](#构建安装)
@@ -12,6 +14,7 @@ macOS 14.6 或更新版本 · 免费 · 无需注册 · 没有内购 · 也可�
 
 > Free & open-source menu-bar toggles for macOS — 22 system switches one click away,
 > built on public system APIs. No network access, no data collection.
+> Full English documentation: [README.en.md](README.en.md).
 
 ![菜单栏面板：22 个开关按分组铺在一张液态玻璃面板上，设置和退出在列表最后](docs/screenshots/panel.webp)
 
