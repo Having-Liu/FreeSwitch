@@ -13,9 +13,28 @@ APP=/Applications/FreeSwitch.app
 APPEX_REL=Contents/PlugIns/FreeSwitchControls.appex
 LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 
-echo "▸ 构建 Release…"
+# 可选：用 Developer ID 签名装。
+#
+# 为什么值得给这个开关：TCC 的授权（自动化、辅助功能）是**认签名**的，
+# 换一种签名身份装上去，之前给过的授权就全部作废，要重新授一遍。
+# 所以在一台已经授过权的机器上做验证时，得和用户手里那份包用同一个身份，
+# 否则「二次确认」这类和授权有关的毛病，验出来的现象全是假的。
+#   SIGN_ID="Developer ID Application" ./scripts/install.sh
+SIGN_ID="${SIGN_ID:-}"
+SIGN_ARGS=()
+if [ -n "$SIGN_ID" ]; then
+    SIGN_ARGS=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="$SIGN_ID"
+               DEVELOPMENT_TEAM="${TEAM_ID:-MXHBUQH27V}"
+               ENABLE_HARDENED_RUNTIME=YES
+               OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime")
+    echo "▸ 构建 Release（签名身份：$SIGN_ID）…"
+else
+    echo "▸ 构建 Release…"
+fi
+# bash 3.2 + set -u：展开空数组会报 unbound variable，所以补一个 +x 的兜底写法。
 xcodebuild -project FreeSwitch.xcodeproj -scheme FreeSwitch \
-    -configuration Release -derivedDataPath build build >/dev/null
+    -configuration Release -derivedDataPath build \
+    ${SIGN_ARGS[@]+"${SIGN_ARGS[@]}"} build >/dev/null
 
 BUILT=build/Build/Products/Release/FreeSwitch.app
 
