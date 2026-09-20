@@ -85,6 +85,18 @@ final class Preferences: ObservableObject {
                                   name: "", items: []), at: 0)
     }
 
+    /// 删掉一个**空**分组。
+    ///
+    /// 只允许删空的：非空分组里还有开关，删掉就得决定那些开关去哪儿——
+    /// 与其替用户做这个决定，不如让他先把开关拖走。
+    /// 也保底留一个分组，全删光之后界面上就没有落脚点了。
+    func removeGroup(_ id: String) {
+        guard groups.count > 1,
+              let index = groups.firstIndex(where: { $0.id == id }),
+              groups[index].items.isEmpty else { return }
+        groups.remove(at: index)
+    }
+
     func renameGroup(_ id: String, to name: String) {
         guard let index = groups.firstIndex(where: { $0.id == id }) else { return }
         groups[index].name = name

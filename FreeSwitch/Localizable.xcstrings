@@ -8010,162 +8010,6 @@
         }
       }
     },
-    "拖到最上面能新建一组；分组名点一下就能改，清空则只当分隔": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drag to the very top to start a new group. Click a group name to rename it, or clear it to leave a plain divider."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "拖到最上面能新建一組；分組名點一下就能改，清空則只當分隔。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "いちばん上までドラッグすると新しいグループができます。グループ名はクリックで変更、空にすると区切りだけになります。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "맨 위로 끌면 새 그룹이 생깁니다. 그룹 이름은 클릭해 바꾸고, 비우면 구분선 역할만 합니다."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ganz nach oben ziehen legt eine neue Gruppe an. Gruppennamen zum Umbenennen anklicken, leer lassen ergibt nur einen Trenner."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Glissez tout en haut pour créer un groupe. Cliquez sur un nom pour le renommer, videz-le pour n’avoir qu’un séparateur."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrastra hasta arriba del todo para crear un grupo. Haz clic en el nombre para renombrarlo, o déjalo vacío para un simple separador."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Перетащите в самый верх, чтобы создать группу. Нажмите на имя, чтобы переименовать, или очистите его — останется просто разделитель."
-          }
-        }
-      }
-    },
-    "拖动排序，可以拖进其他分组；拖到最上面新建一组。分组名点一下就能改，清空则只当分隔": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drag to reorder or move between groups; drag to the very top to start a new one. Click a group name to rename it, or clear it to leave a plain divider."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "拖曳排序，可以拖進其他分組；拖到最上面新建一組。分組名點一下就能改，清空則只當分隔。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ドラッグで並べ替え・グループ間の移動ができます。いちばん上まで運ぶと新しいグループに。グループ名はクリックで変更、空にすると区切りだけになります。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "드래그해 순서를 바꾸거나 그룹을 옮기고, 맨 위로 끌면 새 그룹이 생깁니다. 그룹 이름은 클릭해 바꾸고, 비우면 구분선 역할만 합니다."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zum Sortieren ziehen, auch zwischen Gruppen; ganz nach oben ziehen legt eine neue an. Gruppennamen zum Umbenennen anklicken, leer lassen ergibt nur einen Trenner."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Glissez pour réorganiser ou changer de groupe ; tout en haut pour en créer un. Cliquez sur un nom pour le renommer, videz-le pour n’avoir qu’un séparateur."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrastra para reordenar o cambiar de grupo; hasta arriba del todo para crear uno nuevo. Haz clic en el nombre para renombrarlo, o déjalo vacío para un simple separador."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Перетаскивайте, чтобы менять порядок или группу; в самый верх — чтобы создать новую. Нажмите на имя, чтобы переименовать, или очистите его — останется просто разделитель."
-          }
-        }
-      }
-    },
-    "点一下就能改名；清空则不显示标题，只当分隔": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Click to rename; clear it and the group shows no title, just a divider."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "點一下就能改名；清空則不顯示標題，只當分隔。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "クリックで名前を変更。空にすると見出しが消え、区切りだけになります。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "클릭해 이름 변경. 비우면 제목 없이 구분선 역할만 합니다."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zum Umbenennen klicken; leer lassen blendet den Titel aus und lässt nur einen Trenner."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cliquez pour renommer ; videz le champ et le groupe n’affiche plus de titre, juste un séparateur."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Haz clic para renombrar; si lo dejas vacío, el grupo no muestra título, solo un separador."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Нажмите, чтобы переименовать; очистите — заголовок исчезнет, останется только разделитель."
-          }
-        }
-      }
-    },
     "新建分组": {
       "localizations": {
         "en": {
@@ -8474,6 +8318,266 @@
           "stringUnit": {
             "state": "translated",
             "value": "Четыре страницы: панель, группы и сочетания, Пункт управления, разрешения."
+          }
+        }
+      }
+    },
+    "拖到这里新建分组": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop here to create a group"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拖到這裡新增分組"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ここにドロップすると新しいグループ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여기에 놓으면 새 그룹"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hierhin ziehen für eine neue Gruppe"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déposez ici pour créer un groupe"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suelta aquí para crear un grupo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перетащите сюда, чтобы создать группу"
+          }
+        }
+      }
+    },
+    "删除这个空分组": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this empty group"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除這個空分組"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この空のグループを削除"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 빈 그룹 삭제"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese leere Gruppe löschen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer ce groupe vide"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar este grupo vacío"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить эту пустую группу"
+          }
+        }
+      }
+    },
+    "点一下就能改名；分组名称可以为空": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to rename. A group name can be left blank."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下就能改名；分組名稱可以留空。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クリックで名前を変更。グループ名は空のままでも構いません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "클릭해 이름을 바꿉니다. 그룹 이름은 비워 두어도 됩니다."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Umbenennen klicken. Ein Gruppenname darf leer bleiben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez pour renommer. Un nom de groupe peut rester vide."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic para renombrar. El nombre de un grupo puede quedar vacío."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите, чтобы переименовать. Имя группы может быть пустым."
+          }
+        }
+      }
+    },
+    "拖动排序，可以拖进其他分组；拖到最上面新建一组。分组名点一下就能改，分组名称可以为空": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to reorder or move between groups; drag to the very top to start a new one. Click a group name to rename it — a group name can be left blank."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拖曳排序，可以拖進其他分組；拖到最上面新增一組。分組名點一下就能改，分組名稱可以留空。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドラッグで並べ替え・グループ間の移動ができます。いちばん上まで運ぶと新しいグループに。グループ名はクリックで変更でき、空のままでも構いません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "드래그해 순서를 바꾸거나 그룹을 옮기고, 맨 위로 끌면 새 그룹이 생깁니다. 그룹 이름은 클릭해 바꾸며 비워 두어도 됩니다."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Sortieren ziehen, auch zwischen Gruppen; ganz nach oben ziehen legt eine neue an. Gruppennamen zum Umbenennen anklicken – er darf leer bleiben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glissez pour réorganiser ou changer de groupe ; tout en haut pour en créer un. Cliquez sur un nom de groupe pour le renommer — il peut rester vide."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra para reordenar o cambiar de grupo; hasta arriba del todo para crear uno nuevo. Haz clic en el nombre para renombrarlo; puede quedar vacío."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перетаскивайте, чтобы менять порядок или группу; в самый верх — чтобы создать новую. Нажмите на имя группы, чтобы переименовать; оно может быть пустым."
+          }
+        }
+      }
+    },
+    "拖到最上面能新建一组；分组名点一下就能改，分组名称可以为空": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to the very top to start a new group. Click a group name to rename it — it can be left blank."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拖到最上面能新增一組；分組名點一下就能改，分組名稱可以留空。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いちばん上までドラッグすると新しいグループができます。グループ名はクリックで変更でき、空のままでも構いません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "맨 위로 끌면 새 그룹이 생깁니다. 그룹 이름은 클릭해 바꾸며 비워 두어도 됩니다."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganz nach oben ziehen legt eine neue Gruppe an. Gruppennamen zum Umbenennen anklicken – er darf leer bleiben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glissez tout en haut pour créer un groupe. Cliquez sur un nom pour le renommer — il peut rester vide."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra hasta arriba del todo para crear un grupo. Haz clic en el nombre para renombrarlo; puede quedar vacío."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перетащите в самый верх, чтобы создать группу. Нажмите на имя, чтобы переименовать; оно может быть пустым."
           }
         }
       }

@@ -20,11 +20,19 @@ struct SwitchGroup: Codable, Equatable, Identifiable {
 /// 只能在同一个 ForEach 内部挪动，分成多个 Section 就拖不过去。摊平之后，
 /// 开关拖过哪个分组标题，就落进哪个分组。
 enum GroupRow: Hashable, Identifiable {
+    /// 列表最上面那条「拖到这里新建分组」。
+    ///
+    /// 它必须是**列表里的一行**，不能画在 List 外面：`.onMove` 只在同一个 ForEach 内部
+    /// 报告落点，画在外面的视图接不到这次拖动。
+    /// 它存在的另一个理由是保险：万一 SwiftUI 不肯把 destination 给成 0，
+    /// 「这一行和第一个分组标题之间」这个落点（destination = 1）同样被当作「新建分组」。
+    case dropZone
     case group(String)
     case item(String)
 
     var id: String {
         switch self {
+        case .dropZone:      return "dropZone"
         case .group(let id): return "group." + id
         case .item(let id):  return "item." + id
         }
@@ -90,7 +98,7 @@ enum GroupLayout {
     }
 
     static func rows(for groups: [SwitchGroup]) -> [GroupRow] {
-        groups.flatMap { [.group($0.id)] + $0.items.map { .item($0) } }
+        [.dropZone] + groups.flatMap { [.group($0.id)] + $0.items.map { .item($0) } }
     }
 
     /// 在摊平的列表里移动开关，再按分组标题重新切分。
@@ -98,13 +106,24 @@ enum GroupLayout {
     ///  - 分组标题本身不参与拖动：挪动里只要含有标题，整次挪动作废，分组原样返回。
     static func applyingMove(to groups: [SwitchGroup], from source: IndexSet, to destination: Int) -> [SwitchGroup] {
         let original = rows(for: groups)
-        if source.contains(where: { original.indices.contains($0) && isGroup(original[$0]) }) {
+
+        // 拖的是分组标题 → 整组搬家。
+        // 以前这里直接作废，于是标题只能用上下箭头挪；而标题一旦标成不可移动，
+        // 又会让「拖到最顶上」那个落点也一起消失。让它真的能拖，两个问题一起解决。
+        if source.count == 1, let index = source.first, original.indices.contains(index),
+           case .group(let movingID) = original[index] {
+            return movingGroup(groups, id: movingID, toRowDestination: destination, rows: original)
+        }
+        // 剩下的：拖到多个标题、或把「拖到这里新建分组」那一行拖走，都作废。
+        if source.contains(where: { original.indices.contains($0) && !isItem(original[$0]) }) {
             return groups
         }
         var result: [SwitchGroup] = []
         var leading: [String] = []
         for row in moved(original, fromOffsets: source, toOffset: destination) {
             switch row {
+            case .dropZone:
+                continue
             case .group(let id):
                 guard let group = groups.first(where: { $0.id == id }) else { continue }
                 result.append(SwitchGroup(id: id, name: group.name, items: []))
@@ -172,6 +191,26 @@ enum GroupLayout {
         let insertAt = min(max(destination - valid.filter { $0 < destination }.count, 0), remaining.count)
         remaining.insert(contentsOf: moving, at: insertAt)
         return remaining
+    }
+
+    /// 把某个分组整体挪到「摊平后的第几行」那个位置。
+    /// 目标组序号 = 这一行之前出现过几个分组标题。
+    static func movingGroup(_ groups: [SwitchGroup], id: String,
+                            toRowDestination destination: Int, rows: [GroupRow]) -> [SwitchGroup] {
+        guard let from = groups.firstIndex(where: { $0.id == id }) else { return groups }
+        let target = rows.prefix(max(0, min(destination, rows.count)))
+            .filter { if case .group = $0 { return true } else { return false } }.count
+        // 手写而不是用 Array.move(fromOffsets:toOffset:)：那个方法来自 SwiftUI，
+        // 而本文件刻意只依赖 Foundation，好让核心逻辑能脱离 App 单独编译测试。
+        var result = groups
+        let moving = result.remove(at: from)
+        result.insert(moving, at: min(max(target - (target > from ? 1 : 0), 0), result.count))
+        return result
+    }
+
+    private static func isItem(_ row: GroupRow) -> Bool {
+        if case .item = row { return true }
+        return false
     }
 
     private static func isGroup(_ row: GroupRow) -> Bool {

@@ -14,13 +14,15 @@ struct SwitchesPane: View {
     var body: some View {
         VStack(spacing: 0) {
             PaneHeader(title: L("开关"),
-                       subtitle: L("拖动排序，可以拖进其他分组；拖到最上面新建一组。分组名点一下就能改，清空则只当分隔"))
+                       subtitle: L("拖动排序，可以拖进其他分组；拖到最上面新建一组。分组名点一下就能改，分组名称可以为空"))
 
             List {
                 // 分组标题和开关摊平在同一个 ForEach 里：.onMove 只能在一个 ForEach 内挪动，
                 // 分成多个 Section 就拖不过去了。开关拖过哪个分组标题，就落进哪个分组。
                 ForEach(prefs.groupRows) { entry in
                     switch entry {
+                    case .dropZone:
+                        NewGroupDropZone().moveDisabled(true)
                     case .group(let id):
                         if let group = prefs.groups.first(where: { $0.id == id }) {
                             GroupHeaderRow(prefs: prefs, group: group)
@@ -81,11 +83,17 @@ private struct GroupHeaderRow: View {
             .textFieldStyle(.plain)
             .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(.secondary)
-            .help(L("点一下就能改名；清空则不显示标题，只当分隔"))
+            .help(L("点一下就能改名；分组名称可以为空"))
 
             Spacer(minLength: 0)
 
             if hovering {
+                // 删除只给空分组：非空的删掉就得决定里面的开关去哪儿，
+                // 与其替用户做这个决定，不如让他先把开关拖走。
+                if group.items.isEmpty, prefs.groups.count > 1 {
+                    Button { prefs.removeGroup(group.id) } label: { Image(systemName: "trash") }
+                        .help(L("删除这个空分组"))
+                }
                 Button { prefs.moveGroup(group.id, by: -1) } label: { Image(systemName: "chevron.up") }
                     .disabled(index == 0)
                     .help(L("分组上移"))
@@ -523,5 +531,32 @@ struct GeneralPane: View {
             .formStyle(.grouped)
             .scrollContentBackground(.hidden)
         }
+    }
+}
+
+/// 列表最上面那条「拖到这里新建分组」。
+///
+/// 为什么要有它：「把开关拖到最顶上就新建一组」这件事，不画出来没人找得到，
+/// 而且实测拖到那儿松手也没反应——多半是因为列表第一行原本被标成不可移动，
+/// SwiftUI 就不肯给出这个落点。摆一条真实的、够高的行在那里，
+/// 既是提示，也给拖动一个明确的落脚处。
+private struct NewGroupDropZone: View {
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "plus.rectangle.on.rectangle")
+                .font(.system(size: 11))
+            Text("拖到这里新建分组")
+                .font(.system(size: 11))
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.tertiary)
+        .frame(maxWidth: .infinity, minHeight: 30)
+        .padding(.horizontal, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                .foregroundStyle(.quaternary)
+        )
+        .padding(.vertical, 2)
     }
 }
