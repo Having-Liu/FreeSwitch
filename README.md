@@ -7,6 +7,11 @@
 > Free & open-source menu-bar toggles for macOS — 22 system switches one click away,
 > built on public system APIs. No network access, no data collection.
 
+### ⬇︎ [下载 FreeSwitch](https://home.astrocean.love/apps/freeswitch)
+
+macOS 14.6 或更新版本 · 免费 · 无需注册 · 没有内购
+不想下现成的也可以自己编译，见下文[构建安装](#构建安装)。
+
 ## 功能一览（22 个开关）
 
 | 开关 | 说明 | 实现 |
@@ -535,3 +540,8 @@ NOTARY_PROFILE=freeswitch-notary ./scripts/notarize.sh
 ## 许可证
 
 [MIT](LICENSE) — 免费使用、修改、分发。
+
+---
+
+[下载 FreeSwitch](https://home.astrocean.love/apps/freeswitch) ·
+FreeSwitch 出自 [Astrocean](https://home.astrocean.love/)，我们还做了其他有意思的 app，欢迎探索。
