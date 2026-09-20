@@ -46,12 +46,23 @@ struct SwitchItem: Identifiable {
 /// 全部开关的静态目录。按分区成组——21 个一字排开时谁也扫不出信息。
 enum SwitchCatalog {
     /// 默认分组：id 稳定（存储和归属都靠它，改名不影响），名字是默认名，用户可以改。
+    /// 默认分组。按**使用场景**分，不按「属于系统哪个模块」分——
+    /// 用户打开面板想的是「我要离开电脑了」「我要把屏幕弄干净」，
+    /// 不是「这算显示设置还是文件设置」。
+    ///
+    /// 各组的**格子数**（宽磁贴算 2 格）也是排过的：面板一行 5 列，
+    /// 每组独立换行，所以组的格子数最好是 5 的倍数，否则行尾就留洞。
+    /// 现在是 5 / 5 / 5 / 5 / 4 = 5 行 1 个空位，正好是 24 格在 5 列下的理论下限。
+    /// 改动归属之前先按这个算一遍，别把某一组变成「一整行只填两格」。
+    ///
+    /// 最后那组老实叫「其他」：它本来就是零散但常用的那一格抽屉，
+    /// 硬编一个「声音与锁定」之类的假类别反而更难找东西。
     static let defaultGroups: [(id: String, name: String)] = [
-        ("display", "外观与显示"),
-        ("power",   "电源"),
-        ("audio",   "声音与输入"),
-        ("files",   "桌面与文件"),
-        ("focus",   "专注与清洁"),
+        ("display",   "屏幕"),
+        ("power",     "电源"),
+        ("declutter", "清屏"),
+        ("files",     "文件与清理"),
+        ("other",     "其他"),
     ]
 
     /// 给分组逻辑（SwitchGroups.swift）用的精简视图：每个开关和它的默认分组。
@@ -76,20 +87,20 @@ enum SwitchCatalog {
         SwitchItem(id: "lowPowerMode", title: "低电量模式", symbol: "battery.25percent",       kind: .toggle, defaultGroup: "power", hue: SwitchHue.yellow,  span: 1),
         // powersleep 名字看着对，画出来却是一轮月亮，会和「专注」撞；改用显示器叠 zzz 角标。
         SwitchItem(id: "displaySleep", title: "显示器休眠", symbol: "display",                 kind: .action, defaultGroup: "power", hue: SwitchHue.indigo,  span: 1, badge: "zzz"),
-        SwitchItem(id: "lockScreen",   title: "锁定屏幕",   symbol: "lock.display",            kind: .action, defaultGroup: "power", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "lockScreen",   title: "锁定屏幕",   symbol: "lock.display",            kind: .action, defaultGroup: "other", hue: SwitchHue.neutral, span: 1),
 
         // 声音与输入
-        SwitchItem(id: "muteMic",           title: "麦克风静音",  symbol: "mic.slash.fill", kind: .toggle, defaultGroup: "audio", hue: SwitchHue.red,     span: 1, accentsPrimaryLayer: true),
-        SwitchItem(id: "playMusic",         title: "播放 / 暂停", symbol: "playpause.fill", kind: .action, defaultGroup: "audio", hue: SwitchHue.neutral, span: 1),
+        SwitchItem(id: "muteMic",           title: "麦克风静音",  symbol: "mic.slash.fill", kind: .toggle, defaultGroup: "other", hue: SwitchHue.red,     span: 1, accentsPrimaryLayer: true),
+        SwitchItem(id: "playMusic",         title: "播放 / 暂停", symbol: "playpause.fill", kind: .action, defaultGroup: "other", hue: SwitchHue.neutral, span: 1),
 
         // 桌面与文件
         // 虚线框太抽象；带菜单栏和程序坞的屏幕才是「桌面」。
-        SwitchItem(id: "hideDesktop",    title: "隐藏桌面",     symbol: "menubar.dock.rectangle", kind: .toggle, defaultGroup: "files", hue: SwitchHue.blue,    span: 1),
+        SwitchItem(id: "hideDesktop",    title: "隐藏桌面",     symbol: "menubar.dock.rectangle", kind: .toggle, defaultGroup: "declutter", hue: SwitchHue.blue,    span: 1),
         SwitchItem(id: "showHidden",     title: "显示隐藏文件", symbol: "eye.fill",               kind: .toggle, defaultGroup: "files", hue: SwitchHue.violet,  span: 1),
         // dock.arrow.down.rectangle 是「程序坞往下收起」，和「隐藏桌面」那个带菜单栏的屏幕分得开。
-        SwitchItem(id: "dockAutohide", title: "自动隐藏程序坞", symbol: "dock.arrow.down.rectangle", kind: .toggle, defaultGroup: "files", hue: SwitchHue.cyan,   span: 1),
-        SwitchItem(id: "hideWindows",  title: "隐藏所有窗口",   symbol: "rectangle.on.rectangle.slash", kind: .toggle, defaultGroup: "files", hue: SwitchHue.indigo, span: 1),
-        SwitchItem(id: "hideWidgets",  title: "隐藏小组件",     symbol: "widget.small",                 kind: .toggle, defaultGroup: "files", hue: SwitchHue.amber,  span: 1),
+        SwitchItem(id: "dockAutohide", title: "自动隐藏程序坞", symbol: "dock.arrow.down.rectangle", kind: .toggle, defaultGroup: "declutter", hue: SwitchHue.cyan,   span: 1),
+        SwitchItem(id: "hideWindows",  title: "隐藏所有窗口",   symbol: "rectangle.on.rectangle.slash", kind: .toggle, defaultGroup: "declutter", hue: SwitchHue.indigo, span: 1),
+        SwitchItem(id: "hideWidgets",  title: "隐藏小组件",     symbol: "widget.small",                 kind: .toggle, defaultGroup: "declutter", hue: SwitchHue.amber,  span: 1),
         // doc.on.clipboard 是系统的「粘贴/复制」图标，会被读成复制；换成剪贴板本身。
         SwitchItem(id: "emptyClipboard", title: "清空剪贴板",   symbol: "clipboard.fill",         kind: .action, defaultGroup: "files", hue: SwitchHue.neutral, span: 1),
         SwitchItem(id: "emptyTrash",     title: "清空废纸篓",   symbol: "trash.fill",             kind: .action, defaultGroup: "files", hue: SwitchHue.neutral, span: 1),
@@ -98,13 +109,13 @@ enum SwitchCatalog {
         // 专注与清洁
         // 系统的专注就是月亮；moon.zzz 更像睡眠。月亮现在只归它一个。
         // sparkles 如今常被读成 AI；泡泡加闪光才是「清洁」。
-        SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "bubbles.and.sparkles.fill", kind: .action, defaultGroup: "focus", hue: SwitchHue.cyan,    span: 1),
+        SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "bubbles.and.sparkles.fill", kind: .action, defaultGroup: "declutter", hue: SwitchHue.cyan,    span: 1),
         // SF 里没有「键盘+锁」，叠一个锁角标。
-        SwitchItem(id: "lockKeyboard", title: "锁定键盘",    symbol: "keyboard.fill",             kind: .toggle, defaultGroup: "focus", hue: SwitchHue.neutral, span: 1, badge: "lock.fill"),
+        SwitchItem(id: "lockKeyboard", title: "锁定键盘",    symbol: "keyboard.fill",             kind: .toggle, defaultGroup: "other", hue: SwitchHue.neutral, span: 1, badge: "lock.fill"),
         // play.display 的三角会和「播放 / 暂停」撞；photo.tv 是屏幕里有画面。
-        SwitchItem(id: "screensaver",  title: "屏幕保护",    symbol: "photo.tv",                  kind: .action, defaultGroup: "focus", hue: SwitchHue.teal,    span: 1),
+        SwitchItem(id: "screensaver",  title: "屏幕保护",    symbol: "photo.tv",                  kind: .action, defaultGroup: "power", hue: SwitchHue.teal,    span: 1),
         // Xcode 自己的图标就是锤子。
-        SwitchItem(id: "xcodeClean",   title: "Xcode 清理",  symbol: "hammer.fill",               kind: .action, defaultGroup: "focus", hue: SwitchHue.blue,    span: 1),
+        SwitchItem(id: "xcodeClean",   title: "Xcode 清理",  symbol: "hammer.fill",               kind: .action, defaultGroup: "files", hue: SwitchHue.blue,    span: 1),
     ]
 
     static let defaultIDs: [String] = all.map(\.id)
