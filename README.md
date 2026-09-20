@@ -13,6 +13,8 @@ macOS 14.6 或更新版本 · 免费 · 无需注册 · 没有内购 · 也可�
 > Free & open-source menu-bar toggles for macOS — 22 system switches one click away,
 > built on public system APIs. No network access, no data collection.
 
+![菜单栏面板：22 个开关按分组铺在一张液态玻璃面板上，设置和退出在列表最后](docs/screenshots/panel.webp)
+
 ## 功能一览（22 个开关）
 
 | 开关 | 说明 | 实现 |
@@ -63,6 +65,8 @@ otool -L /Applications/FreeSwitch.app/Contents/MacOS/FreeSwitch | grep -icE 'CFN
 引导页第一页写的也是同一套话，措辞刻意是「以上都可以自己查」而不是「我们保证」。
 
 ## 可配置性
+
+![设置窗口的「开关」页：左边六页侧边栏，右边是可拖动排序的开关列表和分组](docs/screenshots/settings.webp)
 
 设置入口在**面板列表的最末尾**（「设置」和「退出」两行）。顶部原来有一条标题栏，去掉了——
 一整条横栏只写个 App 名字，不值那个高度；而设置和退出都是「用完就走」的次要动作，
@@ -399,6 +403,8 @@ SIGN_ID="Developer ID Application" ./scripts/install.sh
 - **点按动作**（3 个）：屏幕清洁、清空废纸篓、Xcode 清理。
 
 添加方式：控制中心 › 编辑控件 › 从控件库里找 FreeSwitch。
+
+![控制中心的控件库里选中 FreeSwitch，右边列出 11 个可添加的控件](docs/screenshots/control-center.webp)
 
 **控件库是一个平铺列表，多一个就挤掉别人一格，所以只放系统自己没有的。**
 已确认属于系统自带、因此不在这里重复的：深色模式、低电量（电池模块）、锁定屏幕、
