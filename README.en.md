@@ -8,7 +8,7 @@ macOS 14.6 or later · Free · No account · No in-app purchases · Or [build it
 
 ---
 
-A **free and open-source** macOS menu-bar utility: it collects the 22 system switches that are
+A **free and open-source** macOS menu-bar utility: it collects the 23 system switches that are
 otherwise scattered across System Settings, menu extras and `defaults` commands into one panel,
 one click each. A dozen of them can go straight into macOS Control Center, and they work
 **even when the app isn't running**. No network access, no data collection. Made as a gift ❤️
@@ -16,9 +16,9 @@ one click each. A dozen of them can go straight into macOS Control Center, and t
 > 一个**免费、开源**的 macOS 菜单栏工具，把散落在系统各处的开关收进一个面板。
 > 中文版说明见 [README.md](README.md)。
 
-![The menu-bar panel: 22 switches laid out by group on a single pane of liquid glass, with Settings and Quit at the end of the list](docs/screenshots/panel.webp)
+![The menu-bar panel: switches laid out by group on a single pane of liquid glass, with Settings and Quit at the end of the list](docs/screenshots/panel.webp)
 
-## What's in it (22 switches)
+## What's in it (23 switches)
 
 | Switch | What it does | How |
 |------|------|------|
@@ -30,6 +30,7 @@ one click each. A dozen of them can go straight into macOS Control Center, and t
 | Mute Microphone | Mute the default input device (devices without a mute property fall back to input volume 0) | CoreAudio |
 | Hide Desktop | Hide/show desktop icons | `defaults` + restart Finder |
 | Show Hidden Files | Show hidden files in Finder | `defaults` + restart Finder |
+| Auto-hide Menu Bar | Auto-hide the menu bar on the desktop too; whether it hides in full screen still follows your System Settings choice | NSGlobalDomain `_HIHideMenuBar` (the menu bar watches this key itself, so it applies instantly, **no permission needed**) |
 | Auto-hide Dock | Toggle Dock auto-hide | System Events (needs Automation permission; no Dock restart) |
 | Hide All Windows | Hide every app's windows, click again to restore | NSRunningApplication hide/unhide (no permission needed) |
 | Hide Widgets | Hide desktop and Stage Manager widgets | `com.apple.WindowManager` preferences (WindowManager picks it up immediately, no restart) |
@@ -183,7 +184,7 @@ Each app passes its own halo colors (Dam uses teal-blue; FreeSwitch uses the two
 
 The panel is 5 columns wide and **each group wraps independently**, so a group's cell count (a wide
 tile counts as 2) wants to land on a multiple of 5, or the end of a row is left with holes.
-22 switches + 2 wide tiles = 24 cells, so the theoretical floor is **5 rows with 1 empty cell**.
+23 switches + 2 wide tiles = 25 cells, so the theoretical floor is **5 rows with 0 empty cells** — a perfect fit.
 
 The current grouping hits that floor exactly:
 
@@ -191,9 +192,11 @@ The current grouping hits that floor exactly:
 |---|---|---|
 | Display | Dark Mode, Night Shift, True Tone, Screen Resolution(2) | 4 / **5** |
 | Power | Keep Awake(2), Low Power Mode, Sleep Display, Screen Saver | 4 / **5** |
-| Declutter | Hide Desktop, Auto-hide Dock, Hide All Windows, Hide Widgets, Screen Clean | 5 / **5** |
+| Declutter | Hide Desktop, Auto-hide Menu Bar, Auto-hide Dock, Hide All Windows, Hide Widgets | 5 / **5** |
 | Files & Cleanup | Show Hidden Files, Clear Clipboard, Empty Trash, Eject Disks, Xcode Clean | 5 / **5** |
-| Other | Lock Screen, Mute Microphone, Play / Pause, Lock Keyboard | 4 / **4** |
+| Other | Lock Screen, Mute Microphone, Play / Pause, Screen Clean, Lock Keyboard | 5 / **5** |
+
+Adding "Auto-hide Menu Bar" is also when "Screen Clean" moved from Declutter to Other: a sixth item in Declutter would wrap onto a new row and leave 4 holes, while Screen Clean was always a pair with Lock Keyboard (both lock input while you wipe something). After the move, all five left in Declutter are "hide something", which reads cleaner. The order inside Declutter is deliberate too: hide the desktop, the menu bar slides up, the Dock slides down — top to bottom of the screen.
 
 Do this arithmetic before you move a switch to another group. The previous split was 6 rows with 6
 empty cells; the worst offender was a "Sound & Input" group with only 2 members — a whole row
@@ -679,7 +682,7 @@ on the Settings → Permissions page (see "Permissions: never ask until it's act
 | **Automation · Finder** | Empty Trash, and collapsing Finder windows for "Hide All Windows" | Privacy & Security › Automation |
 | **Accessibility** | Lock Keyboard, Screen Clean | Privacy & Security › Accessibility |
 
-No other switch needs anything. "Lock Screen" uses the private `login.framework` and needs no
+No other switch needs anything — including "Auto-hide Menu Bar", which writes the global preference directly. "Lock Screen" uses the private `login.framework` and needs no
 permission; only if `dlopen` fails does it fall back to sending a keystroke via System Events, and
 only then is Automation involved. A switch without permission says why
 (`AutomationPermission.explainOnce`) instead of failing silently — **uninstalling completely resets
