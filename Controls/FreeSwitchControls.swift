@@ -296,10 +296,9 @@ private func fsToggle(id: String, name: String, symbol: String) -> some ControlW
     .displayName(LocalizedStringResource(String.LocalizationValue(name)))
 }
 
-// 控件库是一个平铺列表，多一个就挤掉别人一格，所以只放**系统自己没有**的。
-// 已经确认属于系统自带、因此不在这里重复的：深色模式、低电量（电池模块）、
-// 锁定屏幕、启动屏幕保护程序、将显示器置于睡眠状态
-// （后三个同属系统的「锁定屏幕」分类）、播放/暂停（正在播放）、原彩显示与夜览（显示器模块）。
+// 原则是只放**系统自己没有**的。已经确认属于系统自带、因此不在这里重复的：深色模式、
+// 低电量（电池模块）、锁定屏幕、启动屏幕保护程序、将显示器置于睡眠状态
+// （后三个同属系统的「锁定屏幕」分类）、播放/暂停（正在播放）、原彩显示。
 //
 // macOS 27.0 上又核对了一次（直接读 chronod 数据库里各扩展的控件描述，即控件库里真有的东西）：
 // 系统自带的控件多了很多，其中和这里重叠的有——夜览（com.apple.controls.display.night-shift，
@@ -307,6 +306,7 @@ private func fsToggle(id: String, name: String, symbol: String) -> some ControlW
 // （DesktopSettingsEntity.ShowItemsOnDesktopToggle），以及自动隐藏菜单栏
 // （AutoHideMenuBarOptionEntity.AutoHideMenuBarOptionPicker）。26 上有没有这些，没有核对过。
 // 自动隐藏菜单栏仍然放了：系统那个是四选一的选择器，要点开再选；这里是点一下就切。
+// 27 的控件库按 App 分页（左边选中 FreeSwitch 才看得到这些），多放几个不挤占别人。
 //
 // 删控件要趁发布之前：控件一旦被用户放进控制中心，删掉它只会变成一个占位符，
 // 而占位符会让 chronod 不断把扩展的沙盒容器重建出来（卸载 13 分钟后容器带着
