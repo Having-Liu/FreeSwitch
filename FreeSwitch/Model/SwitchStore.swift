@@ -52,7 +52,10 @@ enum SwitchCatalog {
     ///
     /// 各组的**格子数**（宽磁贴算 2 格）也是排过的：面板一行 5 列，
     /// 每组独立换行，所以组的格子数最好是 5 的倍数，否则行尾就留洞。
-    /// 现在是 5 / 5 / 5 / 5 / 4 = 5 行 1 个空位，正好是 24 格在 5 列下的理论下限。
+    /// 现在是 5 / 5 / 5 / 5 / 5 = 5 行 0 个空位：23 个开关 + 2 个宽磁贴 = 25 格，正好铺满。
+    /// 加「自动隐藏菜单栏」时顺手把「屏幕清洁」挪进了「其他」：清屏组要放第 6 个就得换行、
+    /// 留 4 个洞，而屏幕清洁本来就和锁定键盘是一对（都是擦东西时锁住输入），
+    /// 挪过去之后「清屏」剩下的五个全是「把什么藏起来」，反而更齐。
     /// 改动归属之前先按这个算一遍，别把某一组变成「一整行只填两格」。
     ///
     /// 最后那组老实叫「其他」：它本来就是零散但常用的那一格抽屉，
@@ -97,6 +100,9 @@ enum SwitchCatalog {
         // 虚线框太抽象；带菜单栏和程序坞的屏幕才是「桌面」。
         SwitchItem(id: "hideDesktop",    title: "隐藏桌面",     symbol: "menubar.dock.rectangle", kind: .toggle, defaultGroup: "declutter", hue: SwitchHue.blue,    span: 1),
         SwitchItem(id: "showHidden",     title: "显示隐藏文件", symbol: "eye.fill",               kind: .toggle, defaultGroup: "files", hue: SwitchHue.violet,  span: 1),
+        // menubar.arrow.up.rectangle 是「菜单栏往上收起」，和下面程序坞那个往下收的正好一上一下；
+        // 排在程序坞前面，读起来就是屏幕从上到下。色相避开左右两个邻居（隐藏桌面的蓝、程序坞的青）。
+        SwitchItem(id: "autohideMenuBar", title: "自动隐藏菜单栏", symbol: "menubar.arrow.up.rectangle", kind: .toggle, defaultGroup: "declutter", hue: SwitchHue.violet, span: 1),
         // dock.arrow.down.rectangle 是「程序坞往下收起」，和「隐藏桌面」那个带菜单栏的屏幕分得开。
         SwitchItem(id: "dockAutohide", title: "自动隐藏程序坞", symbol: "dock.arrow.down.rectangle", kind: .toggle, defaultGroup: "declutter", hue: SwitchHue.cyan,   span: 1),
         SwitchItem(id: "hideWindows",  title: "隐藏所有窗口",   symbol: "rectangle.on.rectangle.slash", kind: .toggle, defaultGroup: "declutter", hue: SwitchHue.indigo, span: 1),
@@ -113,7 +119,7 @@ enum SwitchCatalog {
         // 早于本 App 的最低版本 14.6，所以不需要按系统版本分支。
         // 它的闪光是从屏幕里**镂空**出来的，靠的是单色渲染；实测改成只给一种颜色的 palette，
         // 闪光会被涂成和屏幕同色，整个糊成一台空电视。
-        SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "sparkles.tv.fill",          kind: .action, defaultGroup: "declutter", hue: SwitchHue.cyan,    span: 1),
+        SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "sparkles.tv.fill",          kind: .action, defaultGroup: "other", hue: SwitchHue.cyan,    span: 1),
         // SF 里没有「键盘+锁」，叠一个锁角标。
         SwitchItem(id: "lockKeyboard", title: "锁定键盘",    symbol: "keyboard.fill",             kind: .toggle, defaultGroup: "other", hue: SwitchHue.neutral, span: 1, badge: "lock.fill"),
         // play.display 的三角会和「播放 / 暂停」撞；photo.tv 是屏幕里有画面。
@@ -197,6 +203,8 @@ final class SwitchStore: ObservableObject {
         setFromSystem("showHidden", SystemController.showHiddenFiles())
         setFromSystem("hideDesktop", SystemController.desktopIconsHidden())
         setFromSystem("dockAutohide", SystemController.dockAutohide())
+        // 系统设置里改了它，面板也要跟上；CFPreferences 进程内读，够便宜。
+        setFromSystem("autohideMenuBar", SystemController.menuBarAutohide())
         setFromSystem("hideWidgets", SystemController.desktopWidgetsHidden())
         setOn("hideWindows", WindowController.shared.isHiding)
         setOn("keepAwake", PowerController.shared.keepAwake)
@@ -374,6 +382,8 @@ final class SwitchStore: ObservableObject {
         setFromSystem("hideDesktop", SystemController.desktopIconsHidden())
         setFromSystem("showHidden", SystemController.showHiddenFiles())
         setFromSystem("dockAutohide", SystemController.dockAutohide())
+        // 系统设置里改了它，面板也要跟上；CFPreferences 进程内读，够便宜。
+        setFromSystem("autohideMenuBar", SystemController.menuBarAutohide())
         setFromSystem("hideWidgets", SystemController.desktopWidgetsHidden())
         setOn("hideWindows", WindowController.shared.isHiding)
         setOn("lockKeyboard", InputBlocker.shared.isKeyboardLocked)
@@ -433,6 +443,8 @@ final class SwitchStore: ObservableObject {
             beginPendingWrite(id)
             SystemController.setDockAutohide(on)
             return on
+        // 直接写全局偏好，写完当场读得回来，所以按回读值返回，不必标记写入在途。
+        case "autohideMenuBar": SystemController.setMenuBarAutohide(on); return SystemController.menuBarAutohide()
         case "hideWindows":  WindowController.shared.setHidden(on); return WindowController.shared.isHiding
         case "hideWidgets":  SystemController.setDesktopWidgetsHidden(on); return SystemController.desktopWidgetsHidden()
         case "showHidden":   SystemController.setShowHiddenFiles(on); return on

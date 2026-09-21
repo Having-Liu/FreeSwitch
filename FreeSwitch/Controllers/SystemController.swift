@@ -1,7 +1,7 @@
 import AppKit
 import OSLog
 
-/// 系统杂项：隐藏桌面、显示隐藏文件、清空废纸篓、清空剪贴板、推出磁盘、Xcode 清理。
+/// 系统杂项：隐藏桌面、显示隐藏文件、自动隐藏程序坞与菜单栏、清空废纸篓、清空剪贴板、推出磁盘、Xcode 清理。
 enum SystemController {
 
     // MARK: 隐藏桌面图标
@@ -15,7 +15,11 @@ enum SystemController {
     /// 这很要紧：访达里 Cmd+Shift+. 就能切「显示隐藏文件」，不核对的话控件会一直显示过期值。
     /// 读之前先同步一次，否则拿到的可能是本进程缓存里的旧值，看不见别人刚改的。
     private static func prefFlag(_ key: String, in domain: String) -> Bool? {
-        let appID = domain as CFString
+        prefFlag(key, appID: domain as CFString)
+    }
+
+    /// `appID` 传 `kCFPreferencesAnyApplication`，读的就是 NSGlobalDomain（`defaults read -g`）。
+    private static func prefFlag(_ key: String, appID: CFString) -> Bool? {
         CFPreferencesAppSynchronize(appID)
         guard let value = CFPreferencesCopyAppValue(key as CFString, appID) else { return nil }
         if let number = value as? NSNumber { return number.boolValue }
@@ -24,7 +28,10 @@ enum SystemController {
     }
 
     private static func setPrefFlag(_ value: Bool, _ key: String, in domain: String) {
-        let appID = domain as CFString
+        setPrefFlag(value, key, appID: domain as CFString)
+    }
+
+    private static func setPrefFlag(_ value: Bool, _ key: String, appID: CFString) {
         CFPreferencesSetAppValue(key as CFString, value ? kCFBooleanTrue : kCFBooleanFalse, appID)
         CFPreferencesAppSynchronize(appID)
     }
@@ -52,6 +59,31 @@ enum SystemController {
         DispatchQueue.global(qos: .userInitiated).async {
             Shell.runAppleScript("tell application \"System Events\" to set \(property) of dock preferences to \(value)")
         }
+    }
+
+    // MARK: 自动隐藏菜单栏
+
+    /// 为真表示**桌面上**也自动隐藏菜单栏（NSGlobalDomain 的 `_HIHideMenuBar`）。
+    ///
+    /// 全屏时藏不藏是另一个键 `AppleMenuBarVisibleInFullscreen`，这个开关不碰它。
+    /// 系统设置里那四档（始终 / 仅在桌面上 / 仅在全屏幕下 / 永不）正是这两个键的组合，
+    /// 所以在默认的「仅在全屏幕下」上打开 = 「始终」，关掉 = 回到「仅在全屏幕下」；
+    /// 用户若原本选的是「永不」，打开 = 「仅在桌面上」。全屏那一半始终是用户自己的选择。
+    static func menuBarAutohide() -> Bool {
+        prefFlag("_HIHideMenuBar", appID: kCFPreferencesAnyApplication) ?? false
+    }
+
+    /// 直接写 NSGlobalDomain，**不需要任何授权**——菜单栏自己在监听这个键。
+    ///
+    /// 实测（写完之后每 0.1 秒开一个新进程，看屏幕顶部为菜单栏预留的高度）：
+    /// 关掉后 0.68 秒内从 0pt 变成 30pt，打开后 0.09 秒内回到 0pt，
+    /// 不用注销，也不用重启任何进程；全屏那个键原样不动。
+    ///
+    /// System Events 的 `autohide menu bar of dock preferences` 也能做到同一件事（同样实测过），
+    /// 但它要「自动化」授权，还得先等 System Events 起来（实测 0.41 秒），没有理由绕那一圈。
+    /// 程序坞那边走 System Events 是为了不重启程序坞（见 `setDockAutohide`），这里没有这个顾虑。
+    static func setMenuBarAutohide(_ on: Bool) {
+        setPrefFlag(on, "_HIHideMenuBar", appID: kCFPreferencesAnyApplication)
     }
 
     // MARK: 桌面小组件
