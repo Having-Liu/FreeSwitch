@@ -170,6 +170,7 @@ struct PermissionsPane: View {
     @State private var systemEvents: Permission.State = .notDetermined
     @State private var finder: Permission.State = .notDetermined
     @State private var accessibility: Permission.State = .notDetermined
+    @State private var notifications: Permission.State = .notDetermined
     @State private var helperInstalled = false
 
     var body: some View {
@@ -206,6 +207,14 @@ struct PermissionsPane: View {
                             }
                         },
                         openSettings: { Permission.openSettings("Privacy_Accessibility") })
+
+                    PermissionRow(
+                        symbol: "bell.badge",
+                        title: L("通知"),
+                        detail: L("「麦克风静音」用它告诉你：自动静音了哪个麦克风、谁解除了静音、哪个静不了"),
+                        state: notifications,
+                        request: { Notifier.requestAuthorization { notifications = $0 } },
+                        openSettings: { Notifier.openSettings() })
                 }
 
                 Section(L("免密授权（可选）")) {
@@ -241,6 +250,7 @@ struct PermissionsPane: View {
         systemEvents = Permission.automation(of: "com.apple.systemevents")
         finder = Permission.automation(of: "com.apple.finder")
         accessibility = Permission.accessibility
+        Notifier.authorization { notifications = $0 }
         helperInstalled = HelperClient.shared.isInstalled
     }
 }

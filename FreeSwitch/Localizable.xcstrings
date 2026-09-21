@@ -57,6 +57,377 @@
         }
       }
     },
+    "「%@」不支持静音" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ unterstützt keine Stummschaltung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” doesn’t support muting"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» no admite silenciarse"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » ne peut pas être coupé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」はミュートに対応していません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’은(는) 음소거를 지원하지 않습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» не поддерживает отключение"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」不支援靜音"
+          }
+        }
+      }
+    },
+    "「%@」不支持静音，已把输入音量降到 0，但不保证完全无声。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ unterstützt keine Stummschaltung, daher wurde die Eingangslautstärke auf 0 gesetzt – völlige Stille ist damit nicht garantiert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” doesn’t support muting, so its input volume was set to 0 — that isn’t guaranteed to be completely silent."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» no admite silenciarse, así que se bajó su volumen de entrada a 0; no se garantiza silencio total."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » ne peut pas être coupé : son volume d’entrée a été mis à 0, sans garantie d’un silence complet."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」はミュートに対応していないため入力音量を 0 にしましたが、完全に無音になるとは限りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’은(는) 음소거를 지원하지 않아 입력 음량을 0으로 낮췄지만, 완전히 무음이 된다는 보장은 없습니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» не поддерживает отключение, поэтому громкость входа снижена до 0 — полная тишина не гарантируется."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」不支援靜音，已把輸入音量降到 0，但不保證完全無聲。"
+          }
+        }
+      }
+    },
+    "「%@」不支持静音，用它的 App 仍然能收到声音。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ unterstützt keine Stummschaltung. Apps, die es verwenden, hören dich weiterhin."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” doesn’t support muting. Apps using it can still hear you."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» no admite silenciarse. Las apps que lo usan todavía te oyen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » ne peut pas être coupé. Les apps qui l’utilisent vous entendent toujours."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」はミュートに対応していません。このマイクを使う App には音声が届きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’은(는) 음소거를 지원하지 않습니다. 이 마이크를 쓰는 앱에는 여전히 소리가 들어갑니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» не поддерживает отключение. Приложения, которые его используют, по-прежнему вас слышат."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」不支援靜音，使用它的 App 仍然能收到聲音。"
+          }
+        }
+      }
+    },
+    "「%@」只能调低音量，不保证完全无声" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ lässt sich nur leiser stellen, Stille ist nicht garantiert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” can only be turned down — not guaranteed silent"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» solo se puede bajar, sin garantía de silencio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » ne peut qu’être baissé, silence non garanti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」は音量を下げることしかできず、完全に無音とは限りません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’은(는) 음량만 낮출 수 있어 완전한 무음은 보장되지 않습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» можно только приглушить, тишина не гарантируется"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」只能調低音量，不保證完全無聲"
+          }
+        }
+      }
+    },
+    "「%@」在 10 秒内被反复解除静音，可能有 App 在控制它。FreeSwitch 已停止抢回，请检查正在用麦克风的 App。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Stummschaltung von „%@“ wurde innerhalb von 10 Sekunden immer wieder aufgehoben – womöglich steuert eine App das Mikrofon. FreeSwitch holt es nicht mehr zurück; prüfe, welche Apps das Mikrofon verwenden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” was unmuted again and again within 10 seconds — an app may be controlling it. FreeSwitch has stopped taking it back; check which apps are using the microphone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se quitó el silencio de «%@» una y otra vez en 10 segundos; puede que una app lo esté controlando. FreeSwitch ha dejado de recuperarlo: revisa qué apps usan el micrófono."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » a été réactivé à plusieurs reprises en 10 secondes : une app le contrôle peut-être. FreeSwitch a cessé de le reprendre ; vérifiez quelles apps utilisent le micro."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」のミュートが 10 秒以内に何度も解除されました。どこかの App が制御している可能性があります。FreeSwitch は取り戻すのをやめました。マイクを使っている App を確認してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’의 음소거가 10초 안에 여러 번 해제되었습니다. 어떤 앱이 이 마이크를 제어하고 있을 수 있습니다. FreeSwitch는 되돌리기를 멈췄으니 마이크를 사용 중인 앱을 확인하세요."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "С «%@» снова и снова снимали отключение в течение 10 секунд — возможно, им управляет какое-то приложение. FreeSwitch перестал его возвращать; проверьте, какие приложения используют микрофон."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」在 10 秒內被反覆解除靜音，可能有 App 在控制它。FreeSwitch 已停止搶回，請檢查正在使用麥克風的 App。"
+          }
+        }
+      }
+    },
+    "「%@」被解除了静音，FreeSwitch 已把它恢复成静音。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Stummschaltung von „%@“ wurde aufgehoben. FreeSwitch hat es wieder stummgeschaltet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” was unmuted. FreeSwitch has muted it again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se quitó el silencio de «%@». FreeSwitch lo ha vuelto a silenciar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » a été réactivé. FreeSwitch l’a coupé de nouveau."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」のミュートが解除されたため、FreeSwitch が再びミュートしました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’의 음소거가 해제되어 FreeSwitch가 다시 음소거했습니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "С «%@» сняли отключение. FreeSwitch снова его отключил."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」被解除了靜音，FreeSwitch 已把它恢復成靜音。"
+          }
+        }
+      }
+    },
+    "「%@」静音失败" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ konnte nicht stummgeschaltet werden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” couldn’t be muted"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo silenciar «%@»"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de couper « %@ »"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」をミュートできませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’ 음소거 실패"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось отключить «%@»"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」靜音失敗"
+          }
+        }
+      }
+    },
     "「合盖也不休眠 / 低电量模式」要改系统电源设置，默认每次都得输密码。装上这个小助手后就再也不用输了。\n\n点“继续”后会发生什么：\n1) macOS 弹出授权框，输入一次你的登录密码；\n2) 系统会打开『登录项与扩展』设置页；\n3) 在那页的「后台 App 活动」里，把 FreeSwitch 的开关打开（变蓝）。\n\n全程只需一次，之后就不再打扰你。随时可在 FreeSwitch 设置里“移除助手”。" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -212,6 +583,59 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "「鎖定鍵盤」要用它來攔截鍵盤事件。"
+          }
+        }
+      }
+    },
+    "「麦克风静音」用它告诉你：自动静音了哪个麦克风、谁解除了静音、哪个静不了" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Mikrofon stumm“ meldet darüber, welches Mikrofon automatisch stummgeschaltet wurde, wann eines wieder eingeschaltet wurde und welches sich nicht stummschalten lässt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Mute Mic” uses it to tell you which microphone it muted automatically, when one gets unmuted, and which can’t be muted"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Silenciar micrófono» lo usa para avisarte de qué micrófono silenció automáticamente, cuándo se quitó el silencio a alguno y cuál no se puede silenciar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Micro muet » s’en sert pour vous dire quel micro a été coupé automatiquement, quand l’un d’eux est réactivé et lequel ne peut pas l’être"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「マイクをミュート」がこれで知らせます：自動でミュートしたマイク、ミュートが解除されたとき、ミュートできないマイク"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘마이크 음소거’가 이것으로 알려 줍니다: 자동으로 음소거한 마이크, 음소거가 해제됐을 때, 음소거할 수 없는 마이크"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Выключить микрофон» сообщает через них, какой микрофон отключён автоматически, когда с какого-то сняли отключение и какой отключить нельзя"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「麥克風靜音」用它告訴你：自動靜音了哪個麥克風、誰解除了靜音、哪個靜不了"
           }
         }
       }
@@ -1745,6 +2169,165 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "其他"
+          }
+        }
+      }
+    },
+    "其余麦克风都已静音。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle anderen Mikrofone sind stummgeschaltet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All other microphones are muted."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los demás micrófonos están silenciados."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tous les autres micros sont coupés."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "その他のマイクはすべてミュートしました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나머지 마이크는 모두 음소거했습니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все остальные микрофоны отключены."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "其餘麥克風都已靜音。"
+          }
+        }
+      }
+    },
+    "已重新静音" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wieder stummgeschaltet"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muted again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Silenciado de nuevo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micro de nouveau coupé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再びミュートしました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 음소거했습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Снова отключён"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已重新靜音"
+          }
+        }
+      }
+    },
+    "新接入的「%@」已被静音。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das neu verbundene „%@“ wurde stummgeschaltet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The newly connected “%@” has been muted."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se ha silenciado «%@», que se acaba de conectar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ », qui vient d’être connecté, a été coupé."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しく接続された「%@」をミュートしました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새로 연결된 ‘%@’을(를) 음소거했습니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только что подключённый «%@» отключён."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新接入的「%@」已被靜音。"
           }
         }
       }
@@ -5397,6 +5980,112 @@
         }
       }
     },
+    "有一个麦克风无法静音" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Mikrofon lässt sich nicht stummschalten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A microphone can’t be muted"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hay un micrófono que no se puede silenciar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un micro ne peut pas être coupé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ミュートできないマイクがあります"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음소거할 수 없는 마이크가 있습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Один микрофон нельзя отключить"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有一個麥克風無法靜音"
+          }
+        }
+      }
+    },
+    "有些麦克风没能完全静音" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einige Mikrofone ließen sich nicht vollständig stummschalten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some microphones couldn’t be fully muted"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algunos micrófonos no se pudieron silenciar del todo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certains micros n’ont pas pu être complètement coupés"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完全にミュートできなかったマイクがあります"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일부 마이크를 완전히 음소거하지 못했습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Некоторые микрофоны не удалось полностью отключить"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有些麥克風沒能完全靜音"
+          }
+        }
+      }
+    },
     "未安装（用密码）" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5446,6 +6135,59 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "未安裝（用密碼）"
+          }
+        }
+      }
+    },
+    "未知麦克风" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unbekanntes Mikrofon"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown microphone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micrófono desconocido"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micro inconnu"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不明なマイク"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알 수 없는 마이크"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неизвестный микрофон"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未知麥克風"
           }
         }
       }
@@ -5763,6 +6505,59 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "沒能啟動解除安裝指令稿"
+          }
+        }
+      }
+    },
+    "没能把「%@」静音，用它的 App 仍然能收到声音。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ konnte nicht stummgeschaltet werden. Apps, die es verwenden, hören dich weiterhin."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” couldn’t be muted. Apps using it can still hear you."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo silenciar «%@». Las apps que lo usan todavía te oyen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de couper « %@ ». Les apps qui l’utilisent vous entendent toujours."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」をミュートできませんでした。このマイクを使う App には音声が届きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’을(를) 음소거하지 못했습니다. 이 마이크를 쓰는 앱에는 여전히 소리가 들어갑니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось отключить «%@». Приложения, которые его используют, по-прежнему вас слышат."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒能把「%@」靜音，使用它的 App 仍然能收到聲音。"
           }
         }
       }
@@ -7090,6 +7885,59 @@
         }
       }
     },
+    "给「麦克风静音」用：自动静音了哪个麦克风、有没有被人解除静音，都会说一声" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird von „Mikrofon stumm“ genutzt: Du erfährst, welches Mikrofon automatisch stummgeschaltet wurde und ob jemand die Stummschaltung aufgehoben hat."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used by “Mute Mic”: it tells you which microphone it muted automatically and whether anyone unmuted one."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo usa «Silenciar micrófono»: te avisa de qué micrófono silenció automáticamente y de si alguien le quitó el silencio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisée par « Micro muet » : elle vous dit quel micro a été coupé automatiquement et si quelqu’un l’a réactivé."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「マイクをミュート」が使います：自動でミュートしたマイクや、誰かがミュートを解除したことを知らせます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘마이크 음소거’가 사용합니다: 자동으로 음소거한 마이크와 누군가 음소거를 해제했는지를 알려 줍니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Используется «Выключить микрофон»: сообщает, какой микрофон отключён автоматически и не снял ли кто-то отключение."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "給「麥克風靜音」用：自動靜音了哪個麥克風、有沒有被人解除靜音，都會說一聲。"
+          }
+        }
+      }
+    },
     "给「黑暗模式」和「自动隐藏程序坞」用" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -8096,6 +8944,59 @@
         }
       }
     },
+    "通知" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mitteilungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificaciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알림"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        }
+      }
+    },
     "重新启动 FreeSwitch 之后生效" : {
       "localizations" : {
         "de" : {
@@ -8518,6 +9419,59 @@
         }
       }
     },
+    "静音失败" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stummschalten fehlgeschlagen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t mute"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo silenciar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de couper le micro"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ミュートできませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음소거 실패"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось отключить"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "靜音失敗"
+          }
+        }
+      }
+    },
     "项目主页" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -8672,6 +9626,218 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "進階"
+          }
+        }
+      }
+    },
+    "麦克风一直被解除静音" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofon wird immer wieder eingeschaltet"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone keeps getting unmuted"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El micrófono se sigue desilenciando"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le micro est sans cesse réactivé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイクのミュートが何度も解除されています"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크 음소거가 계속 해제되고 있습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "С микрофона постоянно снимают отключение"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麥克風一直被解除靜音"
+          }
+        }
+      }
+    },
+    "麦克风只能调低音量" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofon lässt sich nur leiser stellen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone can only be turned down"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se puede bajar el volumen del micrófono"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le micro ne peut qu’être baissé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイクは音量を下げることしかできません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크 음량만 낮출 수 있습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Микрофон можно только приглушить"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麥克風只能調低音量"
+          }
+        }
+      }
+    },
+    "麦克风已自动静音" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofon automatisch stummgeschaltet"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone muted automatically"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micrófono silenciado automáticamente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micro coupé automatiquement"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイクを自動的にミュートしました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크를 자동으로 음소거했습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Микрофон отключён автоматически"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麥克風已自動靜音"
+          }
+        }
+      }
+    },
+    "麦克风没能静音" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofone konnten nicht stummgeschaltet werden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphones couldn’t be muted"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron silenciar los micrófonos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les micros n’ont pas pu être coupés"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイクをミュートできませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크를 음소거하지 못했습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось отключить микрофоны"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麥克風沒能靜音"
           }
         }
       }
@@ -8831,6 +9997,112 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "深色模式、自動隱藏 Dock、清倒垃圾桶這幾個開關，要透過「系統事件」或「Finder」來執行。macOS 目前不允許 FreeSwitch 這麼做，所以剛才那次點擊沒有產生任何效果。\n\n打開「系統設定 › 隱私權與安全性 › 自動化」，把 FreeSwitch 下面的「系統事件」和「Finder」打開即可。\n\n（徹底解除安裝會重置隱私權授權，重裝後需要重新授權一次。）"
+          }
+        }
+      }
+    },
+    "默认麦克风换成了「%@」，它不支持静音，而大多数 App 用的就是默认麦克风。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Standardmikrofon ist jetzt „%@“ und unterstützt keine Stummschaltung – die meisten Apps verwenden das Standardmikrofon."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The default microphone is now “%@”, which doesn’t support muting — and most apps use the default microphone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El micrófono predeterminado ahora es «%@», que no admite silenciarse, y la mayoría de las apps usan el micrófono predeterminado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le micro par défaut est désormais « %@ », qui ne peut pas être coupé — or la plupart des apps utilisent le micro par défaut."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デフォルトのマイクが「%@」に変わりました。このマイクはミュートに対応しておらず、ほとんどの App はデフォルトのマイクを使います。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기본 마이크가 ‘%@’(으)로 바뀌었습니다. 이 마이크는 음소거를 지원하지 않으며, 대부분의 앱은 기본 마이크를 사용합니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Микрофоном по умолчанию стал «%@», а он не поддерживает отключение — большинство приложений используют именно микрофон по умолчанию."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "預設麥克風換成了「%@」，它不支援靜音，而大多數 App 用的就是預設麥克風。"
+          }
+        }
+      }
+    },
+    "默认麦克风无法静音" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Standardmikrofon lässt sich nicht stummschalten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The default microphone can’t be muted"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El micrófono predeterminado no se puede silenciar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le micro par défaut ne peut pas être coupé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デフォルトのマイクをミュートできません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기본 마이크를 음소거할 수 없습니다"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Микрофон по умолчанию нельзя отключить"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "預設麥克風無法靜音"
           }
         }
       }

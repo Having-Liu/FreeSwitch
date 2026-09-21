@@ -216,6 +216,8 @@ struct OnboardingView: View {
                  detail: L("给「清空废纸篓」，以及「隐藏所有窗口」时折叠访达的窗口用")),
                 (symbol: "keyboard", title: L("辅助功能"),
                  detail: L("给「锁定键盘」用——擦屏幕时不怕误触")),
+                (symbol: "bell.badge", title: L("通知"),
+                 detail: L("给「麦克风静音」用：自动静音了哪个麦克风、有没有被人解除静音，都会说一声")),
                 (symbol: "hand.raised", title: L("不给也不影响其它开关"),
                  detail: L("没授权的开关会明说原因，不会默默失败")),
                 (symbol: "menubar.arrow.up.rectangle", title: L("关掉这个窗口之后"),

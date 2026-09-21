@@ -176,11 +176,12 @@ final class SwitchStore: ObservableObject {
             }
         }
 
-        // 麦克风被会议 App / 硬件键静音，或默认输入设备被换掉。
-        AudioController.observeMicChanges { [weak self] in
-            self?.setOn("muteMic", AudioController.micMuted())
+        // 麦克风：守护状态变了，或者设备被插拔、被别处改动（MicGuard 自己挂监听，不轮询）。
+        MicGuard.shared.onChange = { [weak self] in
+            self?.setOn("muteMic", MicGuard.shared.isGuarding)
             self?.publish()
         }
+        MicGuard.shared.startObserving()
 
 
         // 兜底：夜览、原彩这些在系统设置里也能改，却没有好用的通知。
@@ -197,7 +198,7 @@ final class SwitchStore: ObservableObject {
         if AppearanceController.nightShiftSupported { setFromSystem("nightShift", AppearanceController.isNightShiftOn()) }
         if AppearanceController.trueToneSupported { setFromSystem("trueTone", AppearanceController.isTrueToneOn()) }
         setFromSystem("lowPowerMode", SystemController.lowPowerModeEnabled())
-        setFromSystem("muteMic", AudioController.micMuted())
+        setOn("muteMic", MicGuard.shared.isGuarding)
         // 这两个在访达里也能改（Cmd+Shift+. 切隐藏文件），所以要核对。
         // 现在它们走 CFPreferences 读，进程内、不 fork，够便宜。
         setFromSystem("showHidden", SystemController.showHiddenFiles())
@@ -378,7 +379,7 @@ final class SwitchStore: ObservableObject {
             setGauge("keepAwake", nil)
         }
         setFromSystem("lowPowerMode", SystemController.lowPowerModeEnabled())
-        setFromSystem("muteMic", AudioController.micMuted())
+        setOn("muteMic", MicGuard.shared.isGuarding)
         setFromSystem("hideDesktop", SystemController.desktopIconsHidden())
         setFromSystem("showHidden", SystemController.showHiddenFiles())
         setFromSystem("dockAutohide", SystemController.dockAutohide())
@@ -436,7 +437,9 @@ final class SwitchStore: ObservableObject {
             beginPendingWrite(id)
             SystemController.setLowPowerMode(on)
             return on
-        case "muteMic":      AudioController.setMicMuted(on); return AudioController.micMuted()
+        case "muteMic":
+            if on { MicGuard.shared.start() } else { MicGuard.shared.stop() }
+            return MicGuard.shared.isGuarding
         case "hideDesktop":  SystemController.setDesktopIconsHidden(on); return on
         // 走 Apple 事件，写完不一定立刻反映到偏好里；标记写入在途，由 5 秒核对纠正。
         case "dockAutohide":
