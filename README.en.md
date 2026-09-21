@@ -547,21 +547,36 @@ Several steps have to happen in this order, all learned the hard way:
 Besides the menu-bar panel, the common switches can go straight into macOS's own Control Center
 (macOS 26+); execution still runs through this app:
 
-- **Stateful toggles** (8): Night Shift, Keep Awake, Mute Microphone, Lock Keyboard, Show Hidden
-  Files, Hide All Windows, Auto-hide Dock, Hide Desktop — Control Center shows on/off directly, in
-  sync with the panel both ways.
+- **Stateful toggles** (9): Night Shift, Keep Awake, Mute Microphone, Lock Keyboard, Show Hidden
+  Files, Hide All Windows, Auto-hide Dock, Auto-hide Menu Bar, Hide Desktop — Control Center shows
+  on/off directly, in sync with the panel both ways.
 - **Push-button actions** (3): Screen Clean, Empty Trash, Xcode Clean.
 
 To add them: Control Center › Edit Controls › find FreeSwitch in the controls gallery.
 
-![The Control Center controls gallery with FreeSwitch selected, listing the 11 controls available to add](docs/screenshots/control-center.webp)
+![The Control Center controls gallery with FreeSwitch selected, listing the controls available to add](docs/screenshots/control-center.webp)
 
-**The gallery is a flat list, and every addition squeezes someone else out, so only what the system
-doesn't already have goes in here.** Confirmed as built into the system and therefore not duplicated:
-Dark Mode, Low Power Mode (battery module), Lock Screen, Start Screen Saver, Put Display to Sleep
-(the last three all under the system's "Lock Screen" category), Play/Pause (Now Playing), and True
-Tone and Night Shift (display module — we keep Night Shift anyway, since the system's is buried a
-level down).
+**The rule is to only add what the system doesn't already have.** Confirmed as built into the system
+and therefore not duplicated: Dark Mode, Low Power Mode (battery module), Lock Screen, Start Screen
+Saver, Put Display to Sleep (the last three all under the system's "Lock Screen" category),
+Play/Pause (Now Playing) and True Tone.
+
+**macOS 27.0 ships many more built-in controls, and 4 of them overlap ours.** This was checked by
+reading chronod's database rather than looking at the UI
+(the `Descriptors` table in `~/Library/Group Containers/group.com.apple.chronod/chronod/chrono.sql`),
+which records the controls each extension in the gallery actually provides:
+
+| Our control | The system's equivalent (kind) |
+|---|---|
+| Night Shift | `com.apple.controls.display.night-shift` (now a standalone control, no longer a level down) |
+| Auto-hide Dock | `com.apple.dock.autohide` (`DockControls.appex`, shipped inside `Dock.app`) |
+| Hide Desktop | `DesktopSettingsEntity.ShowItemsOnDesktopToggle` (inverted: "Show Items on Desktop") |
+| Auto-hide Menu Bar | `AutoHideMenuBarOptionEntity.AutoHideMenuBarOptionPicker` (a four-way picker) |
+
+Whether macOS 26 has these hasn't been checked, so they all stay for now. Auto-hide Menu Bar was
+added knowing it overlaps: the system's is a picker you open and choose from; ours is one tap. Also,
+the macOS 27 gallery is paged by app (you only see our controls after picking FreeSwitch in the
+sidebar), so a few extra controls don't crowd anyone else.
 
 > **Remove a control before you ship, not after.** Once a user has placed a control in Control
 > Center, deleting it only turns it into a placeholder, and a placeholder makes chronod keep
