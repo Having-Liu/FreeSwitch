@@ -315,7 +315,7 @@ struct FSDockAutohide: ControlWidget { var body: some ControlWidgetConfiguration
 struct FSHideDesktop: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "hideDesktop", name: "隐藏桌面", symbol: "rectangle.on.rectangle.slash") } }
 
 // 屏幕清洁不报阶段：它本来就是「一个动作」，黑幕一落用户就知道成了。
-struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsPlainButton(id: "screenClean", name: "屏幕清洁", symbol: "bubbles.and.sparkles.fill") } }
+struct FSScreenClean: ControlWidget { var body: some ControlWidgetConfiguration { fsPlainButton(id: "screenClean", name: "屏幕清洁", symbol: "sparkles.tv.fill") } }
 struct FSEmptyTrash: ControlWidget { var body: some ControlWidgetConfiguration { fsButton(id: "emptyTrash", name: "清空废纸篓", symbol: "trash.fill") } }
 // 注：这里曾试过用 AppIntents 官方的 requestConfirmation 做二次确认，实测它在
 // macOS 控制中心里是静默放行——不渲染界面、不抛错、直接往下走（探针显示 perform()

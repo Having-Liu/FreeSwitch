@@ -106,10 +106,14 @@ enum SwitchCatalog {
         SwitchItem(id: "emptyTrash",     title: "清空废纸篓",   symbol: "trash.fill",             kind: .action, defaultGroup: "files", hue: SwitchHue.neutral, span: 1),
         SwitchItem(id: "ejectDisk",      title: "推出磁盘",     symbol: "eject.fill",             kind: .action, defaultGroup: "files", hue: SwitchHue.neutral, span: 1),
 
-        // 专注与清洁
-        // 系统的专注就是月亮；moon.zzz 更像睡眠。月亮现在只归它一个。
-        // sparkles 如今常被读成 AI；泡泡加闪光才是「清洁」。
-        SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "bubbles.and.sparkles.fill", kind: .action, defaultGroup: "declutter", hue: SwitchHue.cyan,    span: 1),
+        // 清洁与输入
+        // 屏幕里带闪光才是「擦屏幕」：屏幕把意思钉在了「屏幕」上。单独的 sparkles 如今常被读成 AI，
+        // 之前的 bubbles.and.sparkles 又只说了「清洁」，没说清洁什么。
+        // sparkles.tv.fill 从 macOS 12 就有（查 CoreGlyphs.bundle 里的 name_availability.plist），
+        // 早于本 App 的最低版本 14.6，所以不需要按系统版本分支。
+        // 它的闪光是从屏幕里**镂空**出来的，靠的是单色渲染；实测改成只给一种颜色的 palette，
+        // 闪光会被涂成和屏幕同色，整个糊成一台空电视。
+        SwitchItem(id: "screenClean",  title: "屏幕清洁",    symbol: "sparkles.tv.fill",          kind: .action, defaultGroup: "declutter", hue: SwitchHue.cyan,    span: 1),
         // SF 里没有「键盘+锁」，叠一个锁角标。
         SwitchItem(id: "lockKeyboard", title: "锁定键盘",    symbol: "keyboard.fill",             kind: .toggle, defaultGroup: "other", hue: SwitchHue.neutral, span: 1, badge: "lock.fill"),
         // play.display 的三角会和「播放 / 暂停」撞；photo.tv 是屏幕里有画面。
