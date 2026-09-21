@@ -30,7 +30,7 @@ one click each. A dozen of them can go straight into macOS Control Center, and t
 | Mute Microphone | Mute the default input device (devices without a mute property fall back to input volume 0) | CoreAudio |
 | Hide Desktop | Hide/show desktop icons | `defaults` + restart Finder |
 | Show Hidden Files | Show hidden files in Finder | `defaults` + restart Finder |
-| Auto-hide Menu Bar | Auto-hide the menu bar on the desktop too; whether it hides in full screen still follows your System Settings choice | NSGlobalDomain `_HIHideMenuBar` (the menu bar watches this key itself, so it applies instantly, **no permission needed**) |
+| Auto-hide Menu Bar | Switch between System Settings' "Always" and "Never", staying in sync with the option System Settings shows | Control Center's `AutoHideMenuBarOption` + global `_HIHideMenuBar` / `AppleMenuBarVisibleInFullscreen` + two distributed notifications (**no permission needed**) |
 | Auto-hide Dock | Toggle Dock auto-hide | System Events (needs Automation permission; no Dock restart) |
 | Hide All Windows | Hide every app's windows, click again to restore | NSRunningApplication hide/unhide (no permission needed) |
 | Hide Widgets | Hide desktop and Stage Manager widgets | `com.apple.WindowManager` preferences (WindowManager picks it up immediately, no restart) |
@@ -53,6 +53,25 @@ Finder's confirmation dialog; clearing DerivedData can mean deleting several gig
 Left on the main thread that's a spinning beachball — measured: clicking "Eject Disks" spun the
 cursor for several seconds, and a second try with an idle disk didn't spin at all. Same reason the
 password dialog from `do shell script … with administrator privileges` must not sit on the main thread.
+
+**"Auto-hide Menu Bar" has to write three places and send notifications — miss any and it's wrong**
+(`SystemController.setMenuBarAutohide`):
+
+- System Settings shows **Control Center's own stored option**: `AutoHideMenuBarOption` in
+  `com.apple.controlcenter`, 0 Always · 1 On Desktop Only · 2 In Full Screen Only · 3 Never (order taken
+  from the App Intents metadata of ControlCenterSettingsIntents; "Always" and "Never" were both checked
+  against System Settings). Change only the old keys and the switch disagrees with System Settings.
+- The actual menu bar, though, reads the two old global keys `_HIHideMenuBar` /
+  `AppleMenuBarVisibleInFullscreen`, and **doesn't re-read them just because the preference changed** —
+  it waits for `AppleInterfaceMenuBarHidingChangedNotification` (the full-screen half is
+  `…FullScreenMenuBarVisibilityChangedNotification`). The first version only wrote the preference: the
+  preference changed, the switch flipped, and the menu bar on screen didn't move at all.
+- **Don't verify this with `NSScreen.visibleFrame`.** That's how the first version "passed": write the
+  preference, then in another process check how much height the screen reserves for the menu bar —
+  0pt ↔ 30pt, right on cue. But AppKit in that process computes that number by reading the very same
+  preference, so of course it changes; it says nothing about the real menu bar. It's circular.
+  **To see the menu bar, take a screenshot of the menu bar** (preference only → still there in the
+  screenshot; preference + notification → gone within 2 seconds).
 
 ## Privacy
 
@@ -697,7 +716,7 @@ on the Settings → Permissions page (see "Permissions: never ask until it's act
 | **Automation · Finder** | Empty Trash, and collapsing Finder windows for "Hide All Windows" | Privacy & Security › Automation |
 | **Accessibility** | Lock Keyboard, Screen Clean | Privacy & Security › Accessibility |
 
-No other switch needs anything — including "Auto-hide Menu Bar", which writes the global preference directly. "Lock Screen" uses the private `login.framework` and needs no
+No other switch needs anything — including "Auto-hide Menu Bar", which writes the preferences directly and broadcasts a notification. "Lock Screen" uses the private `login.framework` and needs no
 permission; only if `dlopen` fails does it fall back to sending a keystroke via System Events, and
 only then is Automation involved. A switch without permission says why
 (`AutomationPermission.explainOnce`) instead of failing silently — **uninstalling completely resets

@@ -30,7 +30,7 @@ macOS 14.6 或更新版本 · 免费 · 无需注册 · 没有内购 · 也可�
 | 麦克风静音 | 静音默认输入设备（不支持 mute 的设备回退为输入音量置 0） | CoreAudio |
 | 隐藏桌面 | 隐藏/显示桌面图标 | `defaults` + 重启 Finder |
 | 显示隐藏文件 | 访达显示隐藏文件 | `defaults` + 重启 Finder |
-| 自动隐藏菜单栏 | 桌面上也自动隐藏菜单栏；全屏时藏不藏仍按系统设置里的选择 | NSGlobalDomain `_HIHideMenuBar`（菜单栏自己监听这个键，当场生效，**不需要任何授权**） |
+| 自动隐藏菜单栏 | 在系统设置的「始终」和「永不」之间切换，和系统设置里显示的那一档保持同步 | 控制中心的 `AutoHideMenuBarOption` + 全局 `_HIHideMenuBar` / `AppleMenuBarVisibleInFullscreen` + 两条广播通知（**不需要任何授权**） |
 | 自动隐藏程序坞 | 切换程序坞自动隐藏 | System Events（需“自动化”授权；不重启程序坞） |
 | 隐藏所有窗口 | 一键隐藏所有 App 的窗口，再点一次恢复 | NSRunningApplication hide/unhide（无需任何授权） |
 | 隐藏小组件 | 隐藏桌面与台前调度里的小组件 | `com.apple.WindowManager` 偏好（WindowManager 立即生效，无需重启） |
@@ -51,6 +51,20 @@ macOS 14.6 或更新版本 · 免费 · 无需注册 · 没有内购 · 也可�
 清空废纸篓会等访达的确认框；清 DerivedData 可能要删好几个 G。
 留在主线程上就是光标转彩虹——实测点「推出磁盘」后转了几秒，换一块空闲的盘再试就不转。
 同理，`do shell script … with administrator privileges` 的密码框也不能挡在主线程上。
+
+**「自动隐藏菜单栏」要写三处，还要发通知，缺一样就不对**（`SystemController.setMenuBarAutohide`）：
+
+- 系统设置显示的是**控制中心自己存的那一档**：`com.apple.controlcenter` 的 `AutoHideMenuBarOption`，
+  0 始终 · 1 仅在桌面视图下 · 2 仅在全屏幕视图下 · 3 永不（顺序取自 ControlCenterSettingsIntents 的
+  App Intents 元数据，「始终」「永不」都对着系统设置核对过）。只改老键，开关就和系统设置对不上。
+- 真正的菜单栏看的却是全局域的两个老键 `_HIHideMenuBar` / `AppleMenuBarVisibleInFullscreen`，
+  而且**不会因为偏好变了就自己重读**，要收到 `AppleInterfaceMenuBarHidingChangedNotification`
+  （全屏那半是 `…FullScreenMenuBarVisibilityChangedNotification`）才动。第一版只写了偏好，
+  结果偏好变了、开关也翻了，屏幕上的菜单栏纹丝不动。
+- **验证这件事别用 `NSScreen.visibleFrame`。** 第一版就是这么「验证通过」的：写完偏好另开一个进程，
+  看屏幕顶端给菜单栏留了多少高度，0pt ↔ 30pt 跟着变。可那个数是那个进程里的 AppKit 自己读偏好算的，
+  偏好一写它当然就变，和屏幕上真正的菜单栏无关，是循环论证。**要看菜单栏，就截屏看菜单栏**
+  （只写偏好 → 截图里菜单栏还在；写偏好 + 发通知 → 2 秒内收起）。
 
 ## 隐私
 
@@ -499,7 +513,7 @@ SIGN_ID="Developer ID Application" ./scripts/install.sh
 | **自动化 · 访达** | 清空废纸篓，以及「隐藏所有窗口」时折叠访达窗口 | 隐私与安全性 › 自动化 |
 | **辅助功能** | 锁定键盘、屏幕清洁 | 隐私与安全性 › 辅助功能 |
 
-其余开关一项授权都不要——包括「自动隐藏菜单栏」，它直接写全局偏好。「锁定屏幕」走的是私有的 `login.framework`，不需要授权；
+其余开关一项授权都不要——包括「自动隐藏菜单栏」，它直接写偏好再广播通知。「锁定屏幕」走的是私有的 `login.framework`，不需要授权；
 只有 `dlopen` 失败时才回退到 System Events 发快捷键，那种情况下才会用到自动化授权。
 没授权的开关会明说原因（`AutomationPermission.explainOnce`），
 不会默默失败——**彻底卸载会重置隐私授权**，重装之后这几个开关就是靠这条提示才不至于神秘失效的。

@@ -63,27 +63,61 @@ enum SystemController {
 
     // MARK: 自动隐藏菜单栏
 
-    /// 为真表示**桌面上**也自动隐藏菜单栏（NSGlobalDomain 的 `_HIHideMenuBar`）。
+    /// 系统设置里「自动隐藏和显示菜单栏」那四档，按控制中心存的整数值排。
     ///
-    /// 全屏时藏不藏是另一个键 `AppleMenuBarVisibleInFullscreen`，这个开关不碰它。
-    /// 系统设置里那四档（始终 / 仅在桌面上 / 仅在全屏幕下 / 永不）正是这两个键的组合，
-    /// 所以在默认的「仅在全屏幕下」上打开 = 「始终」，关掉 = 回到「仅在全屏幕下」；
-    /// 用户若原本选的是「永不」，打开 = 「仅在桌面上」。全屏那一半始终是用户自己的选择。
-    static func menuBarAutohide() -> Bool {
-        prefFlag("_HIHideMenuBar", appID: kCFPreferencesAnyApplication) ?? false
+    /// 顺序取自系统自己改这项设置的 ControlCenterSettingsIntents 的 App Intents 元数据
+    /// （enum AutoHideMenuBarOption 的 case 声明顺序）；「始终 = 0」「永不 = 3」
+    /// 都对着系统设置里显示的那一档实测核对过。
+    private enum MenuBarAutohideOption: Int {
+        case always = 0, desktopOnly, fullscreenOnly, never
+        var hidesOnDesktop: Bool { self == .always || self == .desktopOnly }
     }
 
-    /// 直接写 NSGlobalDomain，**不需要任何授权**——菜单栏自己在监听这个键。
+    private static let controlCenterDomain = "com.apple.controlcenter" as CFString
+    private static let menuBarOptionKey = "AutoHideMenuBarOption" as CFString
+
+    /// 开关的「开」= 桌面上会自动隐藏（始终 / 仅在桌面视图下）。
     ///
-    /// 实测（写完之后每 0.1 秒开一个新进程，看屏幕顶部为菜单栏预留的高度）：
-    /// 关掉后 0.68 秒内从 0pt 变成 30pt，打开后 0.09 秒内回到 0pt，
-    /// 不用注销，也不用重启任何进程；全屏那个键原样不动。
+    /// 以控制中心存的那一档为准，因为**系统设置显示的就是它**——
+    /// 开关和系统设置对不上，正是只改老键那一版被发现的问题。
+    /// 没有这个键（更早的系统）才退回看老键 `_HIHideMenuBar`。
+    static func menuBarAutohide() -> Bool {
+        CFPreferencesAppSynchronize(controlCenterDomain)
+        if let raw = (CFPreferencesCopyAppValue(menuBarOptionKey, controlCenterDomain) as? NSNumber)?.intValue,
+           let option = MenuBarAutohideOption(rawValue: raw) {
+            return option.hidesOnDesktop
+        }
+        return prefFlag("_HIHideMenuBar", appID: kCFPreferencesAnyApplication) ?? false
+    }
+
+    /// 在「始终」和「永不」之间切换，三处一起写，和系统设置保持一致：
     ///
-    /// System Events 的 `autohide menu bar of dock preferences` 也能做到同一件事（同样实测过），
-    /// 但它要「自动化」授权，还得先等 System Events 起来（实测 0.41 秒），没有理由绕那一圈。
-    /// 程序坞那边走 System Events 是为了不重启程序坞（见 `setDockAutohide`），这里没有这个顾虑。
+    ///  1. 控制中心存的那一档（`com.apple.controlcenter` 的 `AutoHideMenuBarOption`）——系统设置显示的是它；
+    ///  2. 全局域的两个老键：`_HIHideMenuBar`（桌面上藏不藏）、`AppleMenuBarVisibleInFullscreen`（全屏时显不显示）；
+    ///  3. 两条广播通知。**菜单栏只看老键，而且不会因为偏好变了就自己重读**，
+    ///     收到通知才动（macOS 27 上由 MenuBarAgent 负责；通知名同样取自 ControlCenterSettingsIntents）。
+    ///
+    /// 这件事踩过两次坑，改之前先读：
+    ///  - 第一版只写 `_HIHideMenuBar`、不发通知：偏好变了、开关也翻了，屏幕上的菜单栏纹丝不动。
+    ///  - 那一版当时是「验证通过」的——写完偏好，另开一个进程看 `NSScreen.visibleFrame`
+    ///    给菜单栏留了多少高度，0pt ↔ 30pt 跟着变。但那个数是那个进程里的 AppKit
+    ///    自己读偏好算出来的，偏好一写它当然就变，和屏幕上真正的菜单栏无关，是循环论证。
+    ///    **要看菜单栏，就截屏看菜单栏。**
+    ///  - 实测对照（截屏，鼠标不在屏幕顶端）：只写偏好 → 菜单栏照旧；写偏好 + 发通知 → 2 秒内收起/出现。
+    ///  - System Events 的 `autohide menu bar of dock preferences` 也能让菜单栏动（它前后偏好键一个没变，
+    ///    菜单栏却出来了，说明它另外做了「通知」这一步），但它不改控制中心那一档、系统设置照样对不上，
+    ///    而且要「自动化」授权。
     static func setMenuBarAutohide(_ on: Bool) {
+        let option: MenuBarAutohideOption = on ? .always : .never
+        CFPreferencesSetAppValue(menuBarOptionKey, option.rawValue as CFNumber, controlCenterDomain)
+        CFPreferencesAppSynchronize(controlCenterDomain)
         setPrefFlag(on, "_HIHideMenuBar", appID: kCFPreferencesAnyApplication)
+        setPrefFlag(!on, "AppleMenuBarVisibleInFullscreen", appID: kCFPreferencesAnyApplication)
+        let center = DistributedNotificationCenter.default()
+        for name in ["AppleInterfaceMenuBarHidingChangedNotification",
+                     "AppleInterfaceFullScreenMenuBarVisibilityChangedNotification"] {
+            center.postNotificationName(Notification.Name(name), object: nil, userInfo: nil, deliverImmediately: true)
+        }
     }
 
     // MARK: 桌面小组件
