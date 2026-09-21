@@ -39,7 +39,19 @@ enum SystemController {
     /// 后者会重启程序坞，画面闪一下、动画也断；前者走系统自己的设置通道，立即生效且平滑。
     /// 脚本字典里这个属性属于 “dock preferences object”（已核对）。
     static func setDockAutohide(_ on: Bool) {
-        Shell.runAppleScript("tell application \"System Events\" to set autohide of dock preferences to \(on)")
+        setDockPreference("autohide", on)
+    }
+
+    /// 通过 System Events 改 dock preferences 里的一项，**在后台跑**。
+    ///
+    /// System Events 是按需启动的 agent，脚本得先等它起来（实测一次 0.41 秒）；
+    /// 还没给「自动化」授权时更糟——脚本会一直挂到用户在授权框上点完为止。
+    /// 两种情况留在主线程上都是转彩虹。调用方本来就不等结果：
+    /// 它们按目标值乐观显示并标记写入在途，由 5 秒一次的核对纠正。
+    private static func setDockPreference(_ property: String, _ value: Bool) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            Shell.runAppleScript("tell application \"System Events\" to set \(property) of dock preferences to \(value)")
+        }
     }
 
     // MARK: 桌面小组件
