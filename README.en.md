@@ -27,7 +27,7 @@ one click each. A dozen of them can go straight into macOS Control Center, and t
 | True Tone | True Tone on/off | CoreBrightness |
 | Keep Awake | Prevent display/system sleep; optional timer; optional "stay awake with the lid closed" (keeps running in your bag) | IOKit power assertion + `pmset disablesleep` |
 | Low Power Mode | Low Power Mode on/off | Privileged helper (no password) — falls back to `pmset -a lowpowermode` + admin password prompt if the helper isn't installed or can't launch |
-| Mute Microphone | Mute the default input device (devices without a mute property fall back to input volume 0) | CoreAudio |
+| Mute Microphone | While on, guards every real microphone: mutes them all, mutes newly connected ones, re-mutes any that get unmuted; notifies you about anything it can't hold | CoreAudio device mute + property listeners (no polling), see below |
 | Hide Desktop | Hide/show desktop icons | `defaults` + restart Finder |
 | Show Hidden Files | Show hidden files in Finder | `defaults` + restart Finder |
 | Auto-hide Menu Bar | Switch between System Settings' "Always" and "Never", staying in sync with the option System Settings shows | Control Center's `AutoHideMenuBarOption` + global `_HIHideMenuBar` / `AppleMenuBarVisibleInFullscreen` + two distributed notifications (**no permission needed**) |
@@ -72,6 +72,70 @@ password dialog from `do shell script … with administrator privileges` must no
   preference, so of course it changes; it says nothing about the real menu bar. It's circular.
   **To see the menu bar, take a screenshot of the menu bar** (preference only → still there in the
   screenshot; preference + notification → gone within 2 seconds).
+
+## Mute Microphone: guarding every real microphone
+
+This switch used to mute only the **default** input device and call it done. Checking device by device
+turned up several holes: a meeting app set to a specific microphone in its own settings still heard you;
+after muting, plugging in AirPods or a USB headset left the new device live; anything could unmute it
+(changing that property needs no permission — FreeSwitch itself has no microphone permission); and the
+iPhone Continuity microphone supports neither mute nor volume, so tapping the switch did nothing and said
+nothing.
+
+Turning it on now starts **guarding** (`MicGuard`):
+
+1. **Mute every real microphone.** Virtual and aggregate devices are left alone (told apart by
+   `kAudioDevicePropertyTransportType`): the virtual devices Lark or Teams install don't capture anything
+   themselves — their audio comes either from a real microphone or from the computer's own sound, which is
+   what "share computer sound" in a meeting relies on. With every real microphone muted, virtual devices
+   fed by them are silent too.
+2. **While guarding, a newly connected microphone or a change of default microphone gets muted too.**
+3. **If anything unmutes one, mute it again immediately.** If the same device is unmuted more than 5 times
+   within 10 seconds, stop taking it back: an app is clearly controlling it, and fighting forever helps
+   nobody — telling the user does.
+4. **Every event sends a notification**: which one was muted automatically, which one was restored, which
+   ones can't be muted (in one summary), which one was given up on. The same event is reported at most once
+   per 10 seconds, so an app that keeps unmuting doesn't flood you.
+5. **Turning it off** restores only the devices muted while guarding — and unmutes the default microphone
+   even if it was muted before, because turning the switch off means "I want to use the microphone".
+6. **The guard state is saved in preferences**, so it resumes after the app restarts (updates, logging in).
+
+The switch now means only "FreeSwitch is guarding", and **no longer lights up just because the default
+microphone happens to be muted**: if mutes done elsewhere also lit it, it would falsely promise that new
+devices get muted and unmutes get undone.
+
+**No polling.** Everything runs on CoreAudio property listeners (device list, default input device, each
+device's mute and volume); with nothing plugged in or changed, not a single line runs. One callback's work
+(list all devices, read their mute state) measured 0.3 ms on average; with the guard on, idle CPU is still
+0.017% (0.01 s over 60 s).
+
+Measured (watching the `mic` / `notify` debug logs with `/usr/bin/log stream`):
+
+- On: the built-in mic muted, the Lark and Teams virtual devices untouched, the iPhone mic reported as
+  "doesn't support muting".
+- Playing another program that unmutes the built-in mic → muted again **within 50 ms**; unmuting it 7 times
+  within 10 seconds → the first 5 taken back, gave up on the 6th.
+- Plug/unplug: creating and destroying an aggregate device with `AudioHardwareCreateAggregateDevice` fired the
+  callback both times; setting it as the default input and switching back fired both default changes too.
+  **Don't use a virtual device as the stand-in for the default switch**: the Lark/Teams virtual devices report
+  `kAudioDevicePropertyDeviceCanBeDefaultDevice` false — setting one returns `noErr`, yet the default never
+  changes, so there's no callback.
+- Restarting the app: the log says `resuming=true`, guarding continues, the switch stays lit.
+
+Not tested on real hardware: plugging in a **real** new microphone (none at hand; it goes through the same
+`take()` as turning the guard on, and the listener half was tested with the aggregate device), and devices
+that only support lowering the volume (none on this machine).
+
+**A timing trap with notification permission.** Turning the switch on requests permission first; the
+"what couldn't be muted" summary that follows checks the status and gets "not authorized" (the prompt is
+still up, unanswered), and the first version simply dropped it. Now notifications queue while permission is
+pending and go out once it's allowed; anything older than 10 minutes isn't sent late.
+
+**What it can't protect against**, stated plainly: it guards against forgetting to mute in a meeting, not
+against malware — any program can unmute a device in one call, and devices that can't be muted (the iPhone
+mic) can still be used. The real safeguards are the system's microphone permission (System Settings ›
+Privacy & Security › Microphone) and the orange dot in the menu bar, which lights up whenever any program is
+using the microphone, even if the device is muted.
 
 ## Privacy
 
@@ -706,7 +770,7 @@ because Control Center has already closed by the time the sheet drops.
 
 ## Permissions summary
 
-Only two kinds of permission are needed, and **nothing prompts after installation** — it only asks
+Only three kinds of permission are needed, and **nothing prompts after installation** — it only asks
 when a switch that needs it is actually used, or when the user presses "Request Access" themselves
 on the Settings → Permissions page (see "Permissions: never ask until it's actually used" above):
 
@@ -715,6 +779,7 @@ on the Settings → Permissions page (see "Permissions: never ask until it's act
 | **Automation · System Events** | Dark Mode, Auto-hide Dock | Privacy & Security › Automation |
 | **Automation · Finder** | Empty Trash, and collapsing Finder windows for "Hide All Windows" | Privacy & Security › Automation |
 | **Accessibility** | Lock Keyboard, Screen Clean | Privacy & Security › Accessibility |
+| **Notifications** | Mute Microphone (only requested the first time you turn it on) | Notifications › FreeSwitch |
 
 No other switch needs anything — including "Auto-hide Menu Bar", which writes the preferences directly and broadcasts a notification. "Lock Screen" uses the private `login.framework` and needs no
 permission; only if `dlopen` fails does it fall back to sending a keystroke via System Events, and
