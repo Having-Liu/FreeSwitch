@@ -301,6 +301,13 @@ private func fsToggle(id: String, name: String, symbol: String) -> some ControlW
 // 锁定屏幕、启动屏幕保护程序、将显示器置于睡眠状态
 // （后三个同属系统的「锁定屏幕」分类）、播放/暂停（正在播放）、原彩显示与夜览（显示器模块）。
 //
+// macOS 27.0 上又核对了一次（直接读 chronod 数据库里各扩展的控件描述，即控件库里真有的东西）：
+// 系统自带的控件多了很多，其中和这里重叠的有——夜览（com.apple.controls.display.night-shift，
+// 已经不在二级页里了）、程序坞自动隐藏（com.apple.dock.autohide）、桌面上显示项目
+// （DesktopSettingsEntity.ShowItemsOnDesktopToggle），以及自动隐藏菜单栏
+// （AutoHideMenuBarOptionEntity.AutoHideMenuBarOptionPicker）。26 上有没有这些，没有核对过。
+// 自动隐藏菜单栏仍然放了：系统那个是四选一的选择器，要点开再选；这里是点一下就切。
+//
 // 删控件要趁发布之前：控件一旦被用户放进控制中心，删掉它只会变成一个占位符，
 // 而占位符会让 chronod 不断把扩展的沙盒容器重建出来（卸载 13 分钟后容器带着
 // 占位快照回来过，见 README 的卸载那节）。
@@ -312,6 +319,8 @@ struct FSLockKeyboard: ControlWidget { var body: some ControlWidgetConfiguration
 struct FSShowHidden: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "showHidden", name: "显示隐藏文件", symbol: "eye.fill") } }
 struct FSHideWindows: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "hideWindows", name: "隐藏所有窗口", symbol: "macwindow.on.rectangle") } }
 struct FSDockAutohide: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "dockAutohide", name: "自动隐藏程序坞", symbol: "dock.arrow.down.rectangle") } }
+// 和程序坞那个一上一下，图标也是：菜单栏往上收、程序坞往下收。
+struct FSAutohideMenuBar: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "autohideMenuBar", name: "自动隐藏菜单栏", symbol: "menubar.arrow.up.rectangle") } }
 struct FSHideDesktop: ControlWidget { var body: some ControlWidgetConfiguration { fsToggle(id: "hideDesktop", name: "隐藏桌面", symbol: "rectangle.on.rectangle.slash") } }
 
 // 屏幕清洁不报阶段：它本来就是「一个动作」，黑幕一落用户就知道成了。
@@ -343,6 +352,7 @@ struct FreeSwitchControls: WidgetBundle {
         FSShowHidden()
         FSHideWindows()
         FSDockAutohide()
+        FSAutohideMenuBar()
         FSHideDesktop()
     }
 
