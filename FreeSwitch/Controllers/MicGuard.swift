@@ -56,6 +56,25 @@ final class MicGuard {
     private static let contestWindow: TimeInterval = 10
     private static let contestLimit = 5
 
+    // MARK: 同一件事别反复说
+
+    /// 已经告诉过用户「静不了」的设备，按 UID 记在偏好里，**以后不再说**。
+    ///
+    /// iPhone 的连续互通麦克风会自己掉线又回来：手机锁屏、拿远一点再拿回来，系统就把这个设备
+    /// 注销再重新发布一次（coreaudiod 日志里是 `Terminating device` → `Publishing device`）。
+    /// 第一版把每次「回来」都当成新接入，一上午弹了 5 次「有一个麦克风无法静音」，用户什么都没做。
+    /// 静不了是设备本身的性质，说一次就够了；它**变成默认麦克风**时才值得再说——那是另一回事。
+    private static let warnedKey = "pref.micGuard.warnedUIDs"
+    private var warned: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: Self.warnedKey) ?? []) }
+        set { UserDefaults.standard.set(newValue.sorted(), forKey: Self.warnedKey) }
+    }
+
+    /// 这一次守护里已经报过「已自动静音」的设备。断开又连上的，静默静音，不再报。
+    private var announced: Set<String> = []
+    /// 这一次守护里已经报过「默认麦克风无法静音」的设备。
+    private var announcedDefault: Set<String> = []
+
     // MARK: 生命周期
 
     /// 挂上监听；上次退出时还在守护就接着守。App 启动时调一次。
@@ -78,20 +97,34 @@ final class MicGuard {
         isGuarding = true
         UserDefaults.standard.set(true, forKey: Self.prefKey)
         holds.removeAll(); reasserts.removeAll(); givenUp.removeAll()
+        announced.removeAll(); announcedDefault.removeAll()
         if !resuming { Notifier.requestAuthorizationIfNeeded() }
 
         var problems: [String] = []
         var mutedCount = 0
+        var warned = self.warned
         for device in AudioController.inputDevices() where AudioController.isPhysical(device) {
             listen(to: device)
-            let name = AudioController.name(device)
-            switch take(device) {
-            case .muted:       mutedCount += 1
-            case .volumeOnly:  problems.append(L("「%@」只能调低音量，不保证完全无声", name))
-            case .unsupported: problems.append(L("「%@」不支持静音", name))
-            case .failed:      problems.append(L("「%@」静音失败", name))
+            let name = AudioController.name(device), uid = AudioController.uid(device)
+            let outcome = take(device)
+            switch outcome {
+            case .muted:
+                mutedCount += 1
+                announced.insert(uid)
+            case .volumeOnly, .unsupported:
+                // 先记下「说过了」，再决定报不报：从重启里接着守的那一次只记不报——
+                // 用户打开开关时已经被告知过。（两件事别写进同一个 guard：
+                // 第一版写成 `guard !resuming, warned.insert(uid).inserted`，接着守时前一项就不成立，
+                // 后一项被短路掉，什么都没记下。）
+                let firstTime = warned.insert(uid).inserted
+                guard firstTime, !resuming else { continue }
+                problems.append(outcome == .volumeOnly ? L("「%@」只能调低音量，不保证完全无声", name)
+                                                       : L("「%@」不支持静音", name))
+            case .failed:
+                problems.append(L("「%@」静音失败", name))
             }
         }
+        self.warned = warned
         Self.log.debug("guard on: muted=\(mutedCount) problems=\(problems.count) resuming=\(resuming)")
 
         // 汇总成一条，别一个设备弹一条。全都静住了就不打扰——开关亮起来就是反馈。
@@ -161,15 +194,19 @@ final class MicGuard {
         var justTaken: Set<AudioDeviceID> = []
         for device in present where holds[device] == nil && AudioController.isPhysical(device) {
             justTaken.insert(device)
-            let name = AudioController.name(device)
-            let key = "mic.new.\(AudioController.uid(device))"
+            let name = AudioController.name(device), uid = AudioController.uid(device)
+            let key = "mic.new.\(uid)"
             switch take(device) {
             case .muted:
+                // 同一次守护里断开又连上的：静默静音。第一次见到才说。
+                guard announced.insert(uid).inserted else { continue }
                 Notifier.post(key: key, title: L("麦克风已自动静音"), body: L("新接入的「%@」已被静音。", name))
             case .volumeOnly:
+                guard warned.insert(uid).inserted else { continue }
                 Notifier.post(key: key, title: L("麦克风只能调低音量"),
                               body: L("「%@」不支持静音，已把输入音量降到 0，但不保证完全无声。", name), level: .warning)
             case .unsupported:
+                guard warned.insert(uid).inserted else { continue }
                 Notifier.post(key: key, title: L("有一个麦克风无法静音"),
                               body: L("「%@」不支持静音，用它的 App 仍然能收到声音。", name), level: .warning)
             case .failed:
@@ -182,7 +219,8 @@ final class MicGuard {
         // 默认麦克风换成了一个静不住的：这比「有个设备静不住」要紧——大多数 App 用的就是默认那个。
         // 刚接入、上面已经报过一次的就不再重复。
         if defaultChanged, let device = AudioController.defaultInputDevice(),
-           !justTaken.contains(device), case .unsupported? = holds[device] {
+           !justTaken.contains(device), case .unsupported? = holds[device],
+           announcedDefault.insert(AudioController.uid(device)).inserted {
             Notifier.post(key: "mic.default.\(AudioController.uid(device))", title: L("默认麦克风无法静音"),
                           body: L("默认麦克风换成了「%@」，它不支持静音，而大多数 App 用的就是默认麦克风。",
                                   AudioController.name(device)),

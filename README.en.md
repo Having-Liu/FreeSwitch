@@ -96,6 +96,15 @@ Turning it on now starts **guarding** (`MicGuard`):
 4. **Every event sends a notification**: which one was muted automatically, which one was restored, which
    ones can't be muted (in one summary), which one was given up on. The same event is reported at most once
    per 10 seconds, so an app that keeps unmuting doesn't flood you.
+   **And the same thing isn't said twice**: "can't be muted" is a property of the device, so each device
+   (by UID) is reported once, remembered in preferences; a device that disconnects and reconnects within
+   the same guard session is muted silently, with no second "muted automatically". The cause was the
+   iPhone Continuity microphone dropping out and coming back on its own — lock the phone, move it away and
+   back, and the system unpublishes and republishes the device (coreaudiod log: `Terminating device` →
+   `Publishing device`). The first version treated every return as a new connection and posted "A
+   microphone can't be muted" 5 times in one morning while the user did nothing. It still warns when that
+   device **becomes the default microphone** — a different matter, since most apps use the default — once
+   per guard session.
 5. **Turning it off** restores only the devices muted while guarding — and unmutes the default microphone
    even if it was muted before, because turning the switch off means "I want to use the microphone".
 6. **The guard state is saved in preferences**, so it resumes after the app restarts (updates, logging in).
